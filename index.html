@@ -194,7 +194,7 @@
         <div><label for="needs-layout">Disposition des écrans</label>
           <select id="needs-layout"><option value="row">Côte à côte</option><option value="pyramid">Sur deux rangées</option></select></div>
         <div><label for="needs-price-mode">Base de prix</label>
-          <select id="needs-price-mode"><option value="new">Neuf estimé</option><option value="promo">Promotion estimée</option></select></div>
+          <select id="needs-price-mode"><option value="new">Relevé LDLC quand disponible</option></select></div>
         <label class="needs-check"><input type="checkbox" id="needs-assembly"/> Montage professionnel (+ 80 €)</label>
         <label class="needs-check"><input type="checkbox" id="needs-multitask" checked/> Plusieurs applications lourdes simultanées</label>
       </div>
@@ -216,7 +216,7 @@
     <div><div class="eyebrow">POUR COMMENCER</div><h2 id="starter-title">Choisissez un point de départ</h2><p>Ces modèles sont entièrement personnalisables.</p></div>
     <div class="prices-mode-wrap">
       <span class="control-label">Prix affichés</span>
-      <button type="button" id="btn-reset-custom-prices" class="soft-button hidden" onclick="resetCustomPrices()">Réinitialiser les prix</button><div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Prix relevés LDLC</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')">Hypothèses (non vérifiées)</button></div>
+      <button type="button" id="btn-reset-custom-prices" class="soft-button hidden" onclick="resetCustomPrices()">Réinitialiser les prix</button><div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Relevés LDLC</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')" hidden>Hypothèses (non vérifiées)</button></div>
     </div>
   </div>
   <div class="starter-grid">
@@ -540,7 +540,7 @@
    <div id="proof-entries" class="proof-entries"></div>
    <button id="proof-clear" type="button" class="proof-clear">Effacer les tarifs renseignés</button>
  </details>
- <p class="proof-foot">Ce site ne consulte pas automatiquement les stocks des vendeurs. Un devis ferme nécessite de confirmer le prix final dans le panier du commerçant.</p>
+ <p class="proof-foot">Relevés ponctuels du 06/11/2026. Prix et stocks à revalider avant achat. Pour une vérification finale, utilisez le <a href="https://www.ldlc.com/configurateur-pc/" target="_blank" rel="noopener noreferrer">configurateur officiel LDLC</a> (sélection à refaire manuellement).</p>
 </section>
 
                 <!-- 1. PRICE & GLOBAL STATUS CARD -->
@@ -1392,6 +1392,14 @@
           if(psu.watts<powerNeed)error('Alimentation insuffisante','Puissance de dimensionnement indicative '+powerNeed+' W, bloc choisi '+psu.watts+' W.');
           if(mb.id==='b650_atx'&&['r9_9900x','r9_9950x'].includes(cpu.id))warn('Vérifier BIOS Ryzen 9000','La carte B650 peut nécessiter une mise à jour du BIOS.');
           if(ram.id==='ddr5_128g')warn('128 Go DDR5 : fréquence à vérifier','Quatre barrettes peuvent réduire la fréquence stable ; consulter la QVL.');
+    if(window.LDLC_PRICE_SNAPSHOT){
+      for(const key of ['mb','cpu','cooler','gpu1','gpu2','ram','ssd','psu','case']){
+        const item=p[key];if(!item)continue;
+        const snapshot=window.LDLC_PRICE_SNAPSHOT[key+':'+item.id];
+        if(snapshot?.status==='out_of_stock')warn('Rupture chez LDLC',item.name+' est hors stock lors du dernier relevé.');
+      }
+    }
+    if(!window.LDLC_PRICE_SNAPSHOT?.['gpu1:'+gpu1.id])warn('Référence exacte de GPU inconnue','Les dimensions, sorties vidéo et connecteurs dépendent du fabricant et du modèle de carte.');
           if(ssd.id.startsWith('pcie5')&&mb.id==='b760_atx')warn('SSD Gen5 bridé','La carte mère Gigabyte B760M possède des emplacements M.2 Gen4.');
           const cap=gpu1.maxScreens+(gpu2.type==='gpu'||gpu2.type==='displaylink'?gpu2.extraScreens:0);
           if(screens.length>cap)error('Sorties vidéo insuffisantes',screens.length+' écrans demandés mais capacité théorique '+cap+' sorties.');
@@ -1401,6 +1409,7 @@
           if(screens.some(x=>x.hz>120&&['4k','dqhd'].includes(x.res)))warn('4K à fréquence élevée','Débit GPU, révision HDMI/DP, câble et DSC à vérifier.');
           if(['b650_atx','x870e_extreme'].includes(mb.id)||['mesh_budget','full_tower_xl'].includes(box.id))warn('Références génériques','Impossible de vérifier tous les connecteurs et dimensions sans le modèle exact.');
           if(cooler.id!=='stock_cooler'||gpu1.watts>=200)warn('Dimensions et connecteurs','Contrôler hauteur ventirad, épaisseur/longueur GPU, ports d’alimentation et dégagement du boîtier.');
+    if(!window.LDLC_PRICE_SNAPSHOT?.['ssd:'+ssd.id])warn('SSD sans référence commerciale vérifiée','Vérifier modèle, interface M.2, capacité et présence au catalogue.');
           return {errors,warnings,blocked:errors.length>0};
         }
         window.auditHardware=auditHardware;
@@ -2941,7 +2950,7 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       priority:$('needs-priority').value,ai:$('needs-ai-level').value,
       resolution:$('needs-resolution').value,size:$('needs-screen-size').value,
       storage:Number($('needs-storage').value),layout:$('needs-layout').value,
-      priceMode:$('needs-price-mode').value,
+      priceMode:'new',
       assembly:$('needs-assembly').checked,multitask:$('needs-multitask').checked
     };
   }
@@ -2984,6 +2993,9 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       else p.unpriced.push(key);
     });
     if(needs.assembly)p.unpriced.push('montage');
+    const parts=Object.fromEntries(categories.map(k=>[k,HARDWARE_DB[k].find(x=>x.id===p[k])]));
+    const monitors=needs.existing?needs.monitorSpecs:Array.from({length:needs.screens},()=>({res:needs.resolution,hz:needs.uses.includes('gaming')?144:60,port:'dp'}));
+    p.compat=typeof window.auditHardware==='function'?window.auditHardware(parts,monitors):{errors:[{title:'Audit non chargé'}],warnings:[]};
     return p;
   }
   function recommend(needs){
@@ -3007,7 +3019,9 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     if(needs.priority==='performance')target=Math.min(6,target+1);
     if(needs.priority==='economy')target=Math.max(0,target-1);
     if(needs.multitask && needs.uses.length>=3)target=Math.min(6,target+1);
-    const candidates=PROFILES.map(p=>makeCandidate(p,needs));
+    const allCandidates=PROFILES.map(p=>makeCandidate(p,needs));
+    const suitable=allCandidates.filter(p=>!p.compat.errors.length);
+    const candidates=suitable.length?suitable:allCandidates;
     const within=candidates.filter(p=>p.total<=needs.budget);
     const preferred=within.filter(p=>p.tier>=target);
     let winner;
@@ -3019,6 +3033,9 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       winner=candidates.reduce((best,p)=>p.total<best.total?p:best,candidates[0]);
     }
     const flags=[];
+    if(!suitable.length)flags.push('Aucun profil sans erreur matérielle bloquante pour ces contraintes.');
+    if(winner.compat.errors.length)flags.push('CONFIGURATION À CORRIGER : '+winner.compat.errors.map(x=>x.title).join(' ; ')+'.');
+    if(winner.compat.warnings.length)flags.push(winner.compat.warnings.length+' contrôles matériels complémentaires nécessaires.');
     if(winner.total>needs.budget)flags.push('Le budget de planification (non vérifié) pourrait être dépassé.');
     if(winner.unpriced.length)flags.push('Budget NON confirmable : '+winner.unpriced.length+' ligne(s) sans prix de vente LDLC valide.');
     if(winner.tier<target)flags.push('Les performances visées dépassent ce que permet le budget actuel.');
@@ -3053,6 +3070,8 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     ].filter(Boolean);
     $('needs-reco-description').textContent=desc.join(' · ')+(n.existing?' · écrans existants pris en compte':' · écrans à choisir séparément');
     $('needs-reco-price').textContent=p.unpriced.length?'Devis incomplet':money(p.totalKnown);
+    $('needs-apply').disabled=!!p.compat.errors.length;
+    $('needs-apply').title=p.compat.errors.length?'Corrigez les incompatibilités pour générer cette configuration.':'';
     $('needs-reco-gap').textContent=p.unpriced.length?
        ('LDLC : '+money(p.totalKnown)+' relevés · '+p.unpriced.length+' prix non validé(s)'):
        ('Sous-total LDLC : '+money(p.totalKnown)+' · à reconfirmer');
@@ -3067,6 +3086,11 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     const n=needs();
     const selection=recommend(n);
     const p=selection.winner;
+    if(p.compat.errors.length){
+      $('needs-toast').hidden=false;
+      $('needs-toast').textContent='Configuration bloquée : '+p.compat.errors.map(x=>x.title).join(' ; ')+'.';
+      return;
+    }
     state.customPrices={};
     $('btn-reset-custom-prices').classList.add('hidden');
     setPriceMode(n.priceMode,false);
@@ -3165,6 +3189,7 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       });
     }
     $('needs-existing').checked=stored.existing===undefined?true:!!stored.existing;
+    $('needs-price-mode').value='new';
     $('needs-assembly').checked=!!stored.assembly;
     $('needs-multitask').checked=!!stored.multitask;
   }
@@ -3395,6 +3420,12 @@ body.ui-redesign .owned-screen-card>summary:after{content:"＋";color:#4e6a92;fo
 body.ui-redesign .owned-screen-card[open]>summary:after{content:"−";}
 body.ui-redesign .owned-screen-card .owned-screen-fields{padding:13px 15px 17px;}
 body.ui-redesign .needs-result-price>span{font-weight:700;}
+</style>
+<style id="verified-check-style">
+body.ui-redesign .needs-apply:disabled{opacity:.48;cursor:not-allowed;background:#75839a!important;border-color:#75839a!important;}
+body.ui-redesign .price-toggle button[hidden]{display:none!important;}
+body.ui-redesign .proof-foot a{color:#355e9f;text-decoration:underline;text-underline-offset:2px;}
+body.ui-redesign .needs-result-price strong{font-size:clamp(17px,2vw,24px)!important;}
 </style>
 </body>
 </html>
