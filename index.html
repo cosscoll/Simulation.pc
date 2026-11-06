@@ -528,6 +528,21 @@
             <!-- ========================================================= -->
             <div id="live-sidebar" class="lg:col-span-4 space-y-5 lg:sticky lg:top-28">
 
+<section id="price-proof-panel" class="price-proof-panel" aria-labelledby="proof-title">
+ <div class="proof-heading">
+  <div><span class="eyebrow">PRIX ACTUELS · JUSTIFICATIFS</span><h3 id="proof-title">Quel est le vrai prix du PC ?</h3>
+  <p>Les prix de simulation ne sont pas des offres commerciales. Renseignez les tarifs TTC d'une fiche vendeur pour établir un panier sourcé.</p></div>
+ </div>
+ <div id="proof-summary" class="proof-summary" role="status" aria-live="polite"></div>
+ <details id="proof-details" class="proof-details">
+   <summary>Renseigner les prix des composants <span>Un prix TTC + le lien vers le produit exact</span></summary>
+   <p class="proof-help">Utilisez le prix de la fiche produit <b>exacte</b> (marque, version, capacité, neuf/occasion). Les prix et disponibilités peuvent varier à tout moment, et les frais de livraison ne sont pas inclus.</p>
+   <div id="proof-entries" class="proof-entries"></div>
+   <button id="proof-clear" type="button" class="proof-clear">Effacer les tarifs renseignés</button>
+ </details>
+ <p class="proof-foot">Ce site ne consulte pas automatiquement les stocks des vendeurs. Un devis ferme nécessite de confirmer le prix final dans le panier du commerçant.</p>
+</section>
+
                 <!-- 1. PRICE & GLOBAL STATUS CARD -->
                 <div class="glass-card rounded-2xl p-5 border-t-4 border-t-sky-500">
                     <div class="flex items-start justify-between gap-3">
@@ -535,7 +550,7 @@
                             <span id="summary-price-label" class="text-[11px] font-mono uppercase tracking-wider text-sky-400 block font-bold">BUDGET ESTIMÉ</span>
                             <div class="flex items-baseline gap-3 mt-1">
                                 <span id="total-price-display" class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">2 690 €</span>
-                                <span id="alt-price-comparison" class="text-xs font-mono text-emerald-400">Cible Promo : ~2 335 €</span>
+                                <span id="alt-price-comparison" class="text-xs font-mono text-emerald-400">Hypothèse promo : ~2 335 €</span>
                             </div>
                         </div>
                         <button onclick="copyConfigurationSummary()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 border border-slate-700 transition-all shrink-0" title="Copier le devis complet et les écrans">
@@ -1671,8 +1686,8 @@
             document.getElementById('total-price-display').textContent = `${totalActive.toLocaleString('fr-FR')} €`;
             const altPrice = state.priceMode === 'new' ? totalPromo : totalNew;
             document.getElementById('alt-price-comparison').textContent = state.priceMode === 'new'
-                ? `Cible Promo : ~${altPrice.toLocaleString('fr-FR')} €`
-                : `Neuf Hors Promo : ${altPrice.toLocaleString('fr-FR')} €`;
+                ? `Hypothèse promo : ~${altPrice.toLocaleString('fr-FR')} €`
+                : `Hypothèse prix neuf : ${altPrice.toLocaleString('fr-FR')} €`;
 
             // 2. Assign Each Screen to a Physical Output Port & Compute Load
             let gpu1PortsUsed = 0;
@@ -3011,5 +3026,160 @@ body.ui-redesign #owned-editor[hidden],body.ui-redesign #owned-new-hint[hidden]{
 @media(max-width:780px){body.ui-redesign .owned-screen-fields{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:560px){body.ui-redesign .owned-heading{align-items:stretch;flex-direction:column;}body.ui-redesign .owned-switch{align-self:flex-start;}body.ui-redesign .owned-screen-fields{grid-template-columns:1fr;}}
 </style>
+
+<style id="price-proof-style">
+body.ui-redesign .price-proof-panel{border:1px solid #dce5f0;border-radius:18px;background:#fff;padding:22px;color:#223b5b;box-shadow:0 4px 20px #23364a08;}
+body.ui-redesign .proof-heading h3{font-size:19px;line-height:1.25;font-weight:800;color:#203856;letter-spacing:-.025em;margin:7px 0 8px;}
+body.ui-redesign .proof-heading p{font-size:12px;line-height:1.55;color:#738295;}
+body.ui-redesign .proof-summary{border:1px solid #dee7f2;border-radius:13px;background:#f3f7fe;padding:14px;margin:16px 0 12px;}
+body.ui-redesign .proof-summary .proof-tag{font-size:11px;font-weight:730;color:#55709a;margin-bottom:7px;}
+body.ui-redesign .proof-summary strong{display:block;font-size:23px;letter-spacing:-.03em;color:#1d3f69;}
+body.ui-redesign .proof-summary p{font-size:11px;color:#71849a;line-height:1.6;margin-top:6px;}
+body.ui-redesign .proof-details{border:1px solid #e0e7ee;border-radius:12px;}
+body.ui-redesign .proof-details>summary{list-style:none;cursor:pointer;padding:14px;color:#2c4e79;font-size:12px;font-weight:750;}
+body.ui-redesign .proof-details>summary::-webkit-details-marker{display:none;}
+body.ui-redesign .proof-details>summary:before{content:"+";font-size:18px;margin-right:9px;}
+body.ui-redesign .proof-details[open]>summary:before{content:"−";}
+body.ui-redesign .proof-details>summary span{display:block;color:#7a8ba0;margin-left:21px;font-weight:450;font-size:11px;line-height:1.4;}
+body.ui-redesign .proof-help{color:#8290a1;line-height:1.65;font-size:11px;padding:0 14px 8px;}
+body.ui-redesign .proof-entries{max-height:430px;overflow:auto;padding:0 10px;}
+body.ui-redesign .proof-entry{padding:12px 9px;border-bottom:1px solid #e7ebf0;}
+body.ui-redesign .proof-entry strong{font-size:12px;color:#314d70;font-weight:700;line-height:1.4;display:block;overflow-wrap:anywhere;}
+body.ui-redesign .proof-entry small{color:#7a8a9b;font-size:11px;display:block;margin:4px 0 9px;}
+body.ui-redesign .proof-entry input{height:37px;min-width:0;border:1px solid #dbe4ef;background:#fff!important;color:#233c58!important;padding:7px 10px;border-radius:8px;font-size:12px;width:100%;}
+body.ui-redesign .proof-fields{display:grid;grid-template-columns:90px minmax(0,1fr);gap:7px;}
+body.ui-redesign .proof-actions{display:flex;align-items:center;gap:8px;margin-top:8px;}
+body.ui-redesign .proof-save{border:1px solid #365c96;background:#365c96;color:#fff!important;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;}
+body.ui-redesign .proof-search{font-size:11px;color:#466ea8;text-decoration:underline;text-underline-offset:2px;}
+body.ui-redesign .proof-date{color:#577b62;font-size:11px;margin-top:7px;line-height:1.4;display:block;}
+body.ui-redesign .proof-error{font-size:11px;color:#ad4b42;line-height:1.5;margin-top:7px;display:block;}
+body.ui-redesign .proof-clear{margin:13px;padding:10px 12px;font-size:11px;background:#f8fafc;border:1px solid #dfe6ed;border-radius:9px;color:#66768b;cursor:pointer;}
+body.ui-redesign .proof-foot{margin-top:10px;font-size:10px;color:#8996a6;line-height:1.6;}
+body.ui-redesign .price-proof-panel [hidden]{display:none!important;}
+body.ui-redesign #alt-price-comparison{display:block!important;flex-basis:100%!important;margin-top:5px;font-size:11px!important;line-height:1.5;}
+body.ui-redesign #summary-price-label{line-height:1.5;font-size:10px!important;}
+body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacity:.65;align-self:center;margin:0 2px;}
+@media(max-width:700px){body.ui-redesign .price-proof-panel{padding:17px;}}
+</style>
+
+<script id="price-proof-script">
+(function(){
+  'use strict';
+  const KEY='atelier.pc.prix-releves.v1';
+  const $=id=>document.getElementById(id);
+  const LABELS={conn:'Architecture / dock',mb:'Carte mère',cpu:'Processeur',cooler:'Refroidissement',gpu1:'Carte graphique',gpu2:'Extension écrans',ram:'Mémoire RAM',ssd:'Stockage SSD',psu:'Alimentation',case:'Boîtier'};
+  let entries={};let lastSignature='';
+  function getEntries(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(e){return {};}}
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(entries));}catch(e){}}
+  function ignored(k,id){return (k==='conn'&&id==='pcie_internal')||(k==='gpu2'&&id==='none');}
+  function active(){
+    return COMPONENT_KEYS.map(k=>{
+      const part=getSelectedItem(k);
+      const key=k+'_'+part.id;
+      const expected=getEffectiveItemPrice(k,part);
+      const skip=ignored(k,part.id);
+      const entry=entries[key]||null;
+      const recent=entry&&Number.isFinite(entry.value)&&entry.value>=0&&
+        typeof entry.url==='string'&&entry.url.startsWith('https://')&&
+        Number.isFinite(entry.savedAt)&&Date.now()-entry.savedAt<48*60*60*1000;
+      return {k,key,part,expected,skip,entry,recent};
+    });
+  }
+  function setText(el,v){if(el)el.textContent=v;}
+  function money(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n);}
+  function decoratePrice(){
+    const items=active();
+    const expected=items.reduce((n,x)=>n+x.expected,document.getElementById('check-assembly').checked?80:0);
+    const countable=items.filter(x=>!x.skip);
+    const completed=countable.filter(x=>x.recent);
+    const done=completed.length===countable.length;
+    const sum=items.reduce((n,x)=>n+(x.skip?0:x.recent?x.entry.value:0),0);
+    const summary=$('proof-summary');
+    if(!summary)return;
+    summary.replaceChildren();
+    const tag=document.createElement('div');tag.className='proof-tag';tag.textContent=completed.length+'/'+countable.length+' composants avec prix et lien saisis depuis moins de 48 h';
+    const price=document.createElement('strong');price.textContent=done&&!document.getElementById('check-assembly').checked?money(sum):'Tarif à compléter';
+    const info=document.createElement('p');
+    info.textContent=done?
+      (document.getElementById('check-assembly').checked
+      ?'Panier composants : '+money(sum)+'. Le forfait montage à 80 € reste une hypothèse non confirmée.'
+      :'Somme des prix renseignés par vous. À recontrôler avant tout paiement ; stock et livraison non garantis.')
+      :'Estimation de simulation uniquement : '+money(expected)+'. Ce n’est PAS un prix vendeur confirmé.';
+    summary.append(tag,price,info);
+    setText($('summary-price-label'),done&&!document.getElementById('check-assembly').checked?'TOTAL DES PRIX SAISIS · À RECONFIRMER':'BUDGET DE SIMULATION · PRIX NON VÉRIFIÉS');
+    setText($('total-price-display'),done&&!document.getElementById('check-assembly').checked?money(sum):'À confirmer');
+    setText($('alt-price-comparison'),done?
+      'Saisie de tarifs vendeurs, sans synchronisation en direct. Vérifiez le panier chez chaque marchand.' :
+      'Estimation hors prix des écrans : '+money(expected)+'. Tarifs catalogues non vérifiés et susceptibles de changer.');
+  }
+  function makeInput(label,typ,placeholder,val){
+    const input=document.createElement('input');
+    input.type=typ;input.setAttribute('aria-label',label);input.placeholder=placeholder;input.value=val||'';
+    if(typ==='number'){input.min='0';input.step='0.01';input.inputMode='decimal';}
+    if(typ==='url')input.inputMode='url';
+    return input;
+  }
+  function showError(where,msg){where.textContent=msg;where.hidden=!msg;}
+  function render(){
+    const items=active();
+    const sig=items.map(x=>x.key).join('|');
+    if(lastSignature!==sig){
+      lastSignature=sig;
+      const root=$('proof-entries');root.replaceChildren();
+      for(const x of items){
+        if(x.skip)continue;
+        const row=document.createElement('div');row.className='proof-entry';
+        const name=document.createElement('strong');name.textContent=LABELS[x.k]+' — '+x.part.name;
+        const note=document.createElement('small');
+        note.textContent=x.entry?.savedAt?'Dernier relevé : '+new Date(x.entry.savedAt).toLocaleString('fr-FR'):'Aucun tarif vendeur saisi';
+        const fields=document.createElement('div');fields.className='proof-fields';
+        const euros=makeInput('Prix TTC en euros pour '+x.part.name,'number','Prix TTC',x.entry?.value?.toString());
+        const url=makeInput('URL de la fiche produit chez le vendeur','url','https://… (fiche produit)',x.entry?.url);
+        fields.append(euros,url);
+        const actions=document.createElement('div');actions.className='proof-actions';
+        const save=document.createElement('button');save.type='button';save.className='proof-save';save.textContent='Enregistrer ce relevé';
+        const search=document.createElement('a');search.className='proof-search';search.target='_blank';search.rel='noopener noreferrer';
+        search.href='https://www.google.com/search?tbm=shop&q='+encodeURIComponent(x.part.name);
+        search.textContent='Chercher ce produit';
+        actions.append(save,search);
+        const info=document.createElement('p');info.className='proof-date';
+        if(x.recent){info.textContent='Prix saisi récemment · à confirmer lors du paiement';}
+        else if(x.entry){info.textContent='Relevé ancien ou incomplet · revérification nécessaire';}
+        else info.hidden=true;
+        const error=document.createElement('p');error.className='proof-error';error.hidden=true;
+        save.addEventListener('click',()=>{
+          const v=Number(euros.value);
+          let parsed;
+          try{parsed=new URL(url.value.trim());}
+          catch(e){showError(error,'Saisissez le lien HTTPS de la fiche produit chez le vendeur.');return;}
+          if(!euros.value||!Number.isFinite(v)||v<0||v>100000){showError(error,'Saisissez un prix TTC valide (0 à 100 000 €).');return;}
+          if(parsed.protocol!=='https:'||!parsed.hostname.includes('.')||parsed.hostname==='localhost'){
+            showError(error,'Le lien du vendeur doit utiliser HTTPS et une adresse Internet valide.');return;
+          }
+          entries[x.key]={value:Math.round(v*100)/100,url:parsed.href,savedAt:Date.now()};
+          persist();showError(error,'');
+          info.hidden=false;info.textContent='Prix renseigné le '+new Date().toLocaleString('fr-FR')+' (à revalider à l’achat)';
+          decoratePrice();
+        });
+        row.append(name,note,fields,actions,info,error);root.append(row);
+      }
+    }
+    decoratePrice();
+  }
+  function boot(){
+    if(!$('proof-summary')||typeof COMPONENT_KEYS==='undefined'||typeof state==='undefined')return;
+    entries=getEntries();
+    const oldUpdate=window.updateSimulation;
+    if(typeof oldUpdate==='function'){
+      window.updateSimulation=function(){oldUpdate();render();};
+    }
+    $('proof-clear').addEventListener('click',()=>{
+      entries={};persist();lastSignature='';render();
+    });
+    render();
+  }
+  window.addEventListener('load',boot);
+})();
+</script>
 </body>
 </html>
