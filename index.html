@@ -99,128 +99,53 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-sky-500 selection:text-slate-950">
 
-    <!-- TOP HEADER -->
-    <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-lab-950/95 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-            <!-- Brand & Title -->
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
-                    <i data-lucide="cpu" class="w-6 h-6 text-white"></i>
-                </div>
-                <div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">Configurateur & Simulateur PC Multi-Écrans, IA & Performance</h1>
-                        <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">1 à 8 Écrans • FPS & VRAM Live</span>
-                    </div>
-                    <p class="text-xs text-slate-400">Composez votre PC pièce par pièce et configurez chaque écran (Taille cm, Résolution, Hz/FPS, Charge IA/3D & Port GPU)</p>
-                </div>
-            </div>
+    
+<!-- INTERFACE SIMPLIFIÉE -->
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-brand" href="#haut" aria-label="Retour en haut du simulateur"><span class="brand-symbol"><i data-lucide="monitor-cog" class="w-5 h-5"></i></span><span><strong>ATELIER PC</strong><small>Configurateur de workstation</small></span></a>
+    <nav class="stage-navigation" aria-label="Étapes de configuration">
+      <button type="button" id="tab-btn-pc" class="tab-nav-btn" onclick="switchMainTab('pc')"><span>01</span> Composants</button>
+      <button type="button" id="tab-btn-monitors" class="tab-nav-btn" onclick="switchMainTab('monitors')"><span>02</span> Écrans</button>
+      <button type="button" id="tab-btn-desk" class="tab-nav-btn" onclick="switchMainTab('desk')"><span>03</span> Installation</button>
+      <button type="button" id="tab-btn-all" class="tab-nav-btn all-sections" onclick="switchMainTab('all')">Tout voir</button>
+    </nav>
+  </div>
+</header>
 
-            <!-- Navigation Views -->
-            <nav class="flex flex-wrap items-center gap-1.5 bg-lab-900 p-1.5 rounded-xl border border-slate-800">
-                <button onclick="switchMainTab('all')" id="tab-btn-all" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-500 text-slate-950 shadow-sm">
-                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
-                    <span>Vue Complète</span>
-                </button>
-                <button onclick="switchMainTab('pc')" id="tab-btn-pc" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
-                    <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-                    <span>1. Composants PC</span>
-                </button>
-                <button onclick="switchMainTab('monitors')" id="tab-btn-monitors" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
-                    <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
-                    <span>2. Écrans (Résolution & FPS)</span>
-                </button>
-                <button onclick="switchMainTab('desk')" id="tab-btn-desk" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
-                    <i data-lucide="ruler" class="w-3.5 h-3.5"></i>
-                    <span>3. Bureau à l'échelle (cm)</span>
-                </button>
-            </nav>
-        </div>
-    </header>
+<!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 workspace-main max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
+        
+<section id="haut" class="welcome-section" aria-labelledby="welcome-title">
+  <div class="welcome-eyebrow"><span class="eyebrow-dot"></span> CONFIGURATEUR INTERACTIF</div>
+  <h1 id="welcome-title">Construisez votre espace de travail idéal.</h1>
+  <p>Un PC adapté à vos usages, le bon nombre d'écrans et un budget clair. Avancez étape par étape, sans vous perdre dans les détails.</p>
+  <div class="welcome-meta"><span><i data-lucide="check" class="w-4 h-4"></i> Résultat mis à jour en direct</span><span><i data-lucide="check" class="w-4 h-4"></i> De 1 à 8 écrans</span></div>
+</section>
 
-        <!-- PRESETS BAR -->
-        <section class="glass-card rounded-2xl p-4 sm:p-5">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                <div class="flex items-center gap-2">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-sky-400"></i>
-                    <h2 class="text-xs font-mono uppercase tracking-wider text-slate-200 font-bold">Bases de Configuration Rapides (Modifiables pièce par pièce & écran par écran)</h2>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="resetCustomPrices()" id="btn-reset-custom-prices" class="hidden text-[11px] font-mono px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition-all">
-                        Réinitialiser les prix manuels
-                    </button>
-                    <div class="flex items-center bg-lab-950 p-1 rounded-lg border border-slate-800">
-                        <button onclick="setPriceMode('new')" id="price-mode-new" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-sky-500 text-slate-950">
-                            Neuf Hors Promo (Certifié)
-                        </button>
-                        <button onclick="setPriceMode('promo')" id="price-mode-promo" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all text-slate-400 hover:text-white">
-                            Cible Promo / Black Friday
-                        </button>
-                    </div>
-                </div>
-            </div>
+<section class="starter-section" id="starter-presets" aria-labelledby="starter-title">
+  <div class="section-heading">
+    <div><div class="eyebrow">POUR COMMENCER</div><h2 id="starter-title">Choisissez un point de départ</h2><p>Ces modèles sont entièrement personnalisables.</p></div>
+    <div class="prices-mode-wrap">
+      <span class="control-label">Prix affichés</span>
+      <div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Neuf</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')">Promo estimée</button></div>
+    </div>
+  </div>
+  <div class="starter-grid">
+    <button type="button" class="preset-card" id="preset-btn-sweetspot" onclick="loadPreset('sweetspot')"><span class="preset-tag">POLYVALENT</span><strong>Station IA & création</strong><small>Pour travailler sur plusieurs projets et écrans.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
+    <button type="button" class="preset-card" id="preset-btn-budget" onclick="loadPreset('budget')"><span class="preset-tag">ACCESSIBLE</span><strong>PC essentiel</strong><small>Une configuration simple pour démarrer.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
+    <button type="button" class="preset-card" id="preset-btn-displaylink" onclick="loadPreset('displaylink')"><span class="preset-tag">MULTI-ÉCRANS</span><strong>Plus d'écrans</strong><small>Une carte graphique et un dock d'affichage.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
+    <button type="button" class="preset-card" id="preset-btn-extreme" onclick="loadPreset('extreme')"><span class="preset-tag">PUISSANCE</span><strong>Station avancée</strong><small>Des composants haut de gamme et deux GPU.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
+  </div>
+  <details class="experimental-preset"><summary>Afficher une configuration expérimentale</summary><button type="button" class="preset-card" id="preset-btn-egputrap" onclick="loadPreset('egputrap')"><span class="preset-tag">TEST</span><strong>eGPU Thunderbolt 4</strong><small>Comparer l'impact d'une liaison externe sur les performances.</small></button></details>
+</section>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
-                <!-- Preset 1: Sweet Spot -->
-                <button onclick="loadPreset('sweetspot')" id="preset-btn-sweetspot" class="preset-card text-left p-3 rounded-xl border transition-all bg-sky-500/15 border-sky-400 shadow-md shadow-sky-500/10">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-sky-500 text-slate-950 font-bold">6 Écrans • Sweet Spot</span>
-                        <span class="text-xs font-mono font-bold text-sky-300">2 690 €</span>
-                    </div>
-                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Workstation Sweet Spot IA</div>
-                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">R9 7900X • MSI X870 • RTX 4070 Ti Super 16Go + RTX 3050 6Go • 64Go DDR5 • 1000W</p>
-                </button>
-
-                <!-- Preset 2: Extreme Dual GPU -->
-                <button onclick="loadPreset('extreme')" id="preset-btn-extreme" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">7 Écrans • Extrême</span>
-                        <span class="text-xs font-mono font-bold text-purple-300">4 230 €</span>
-                    </div>
-                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Workstation Extrême Dual-GPU</div>
-                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">R9 9900X • X870E (x8/x8) • RTX 4090 24Go + RTX 3060 12Go • 64Go • 1200W</p>
-                </button>
-
-                <!-- Preset 3: Mono GPU + DisplayLink -->
-                <button onclick="loadPreset('displaylink')" id="preset-btn-displaylink" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">6 Écrans • 1 GPU + USB</span>
-                        <span class="text-xs font-mono font-bold text-emerald-300">2 595 €</span>
-                    </div>
-                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Mono-GPU + Hub DisplayLink</div>
-                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">R9 7900X • B650 • RTX 4080 Super 16Go + Dock USB DisplayLink • 64Go • 850W</p>
-                </button>
-
-                <!-- Preset 4: Budget 4 Screens -->
-                <button onclick="loadPreset('budget')" id="preset-btn-budget" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Max 4 Écrans</span>
-                        <span class="text-xs font-mono font-bold text-amber-300">835 € / 740 €*</span>
-                    </div>
-                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Tour Budget IA & Simu</div>
-                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Core i5-12400F • B760 • RTX 3060 12Go • 32Go DDR4 • 650W (*Cible Promo)</p>
-                </button>
-
-                <!-- Preset 5: eGPU Thunderbolt 4 Test -->
-                <button onclick="loadPreset('egputrap')" id="preset-btn-egputrap" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-rose-500/50 transition-all">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Test Bridage Câble</span>
-                        <span class="text-xs font-mono font-bold text-rose-400">-30% FPS</span>
-                    </div>
-                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Test : eGPU Thunderbolt 4</div>
-                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Simule la perte de bande passante (40 Gbps) sur vos FPS et le surcoût du boîtier eGPU</p>
-                </button>
-            </div>
-        </section>
-
-        <!-- MAIN WORKSPACE GRID: LEFT = PC & SCREENS BUILDER (7 COLS), RIGHT = LIVE DASHBOARD (5 COLS) -->
+<!-- MAIN WORKSPACE GRID: LEFT = PC & SCREENS BUILDER (7 COLS), RIGHT = LIVE DASHBOARD (5 COLS) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             <!-- LEFT COLUMN (7 COLS): PC COMPOSER + PER-SCREEN CONFIGURATOR + DESK SCALE -->
-            <div class="lg:col-span-7 space-y-6">
+            <div class="lg:col-span-8 space-y-6">
 
                 <!-- ========================================== -->
                 <!-- SECTION 1: COMPOSITEUR PC SUR MESURE       -->
@@ -230,12 +155,12 @@
                         <div class="flex items-center gap-2.5">
                             <span class="w-6 h-6 rounded-lg bg-sky-500 text-slate-950 font-mono text-xs font-extrabold flex items-center justify-center">1</span>
                             <div>
-                                <h3 class="font-bold text-white text-base">Compositeur PC Sur Mesure (Pièce par Pièce)</h3>
-                                <p class="text-[11px] text-slate-400">Sélectionnez chaque composant ou modifiez directement son prix (€) dans la case de droite</p>
+                                <h3 class="font-bold text-white text-base">Les composants de votre PC</h3>
+                                <p class="text-[11px] text-slate-400">Sélectionnez les composants qui répondent à vos besoins.</p>
                             </div>
                         </div>
                         <span id="price-mode-indicator" class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
-                            Prix Neuf Hors Promo (Certifié)
+                            Prix neuf indicatif
                         </span>
                     </div>
 
@@ -243,7 +168,7 @@
                     <div class="p-3.5 rounded-xl bg-lab-900/95 border border-slate-800">
                         <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5">
                             <label for="select-conn" class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                                <i data-lucide="cable" class="w-3.5 h-3.5"></i> Type de Connexion / Architecture Châssis
+                                <i data-lucide="cable" class="w-3.5 h-3.5"></i> Type d'installation
                             </label>
                             <div class="flex items-center gap-1.5">
                                 <span class="text-[10px] text-slate-400 font-mono">Coût Boîtier/Dock :</span>
@@ -261,7 +186,7 @@
                         <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90 hover:border-slate-700 transition-all">
                             <div class="flex justify-between items-center gap-2 mb-1.5">
                                 <label for="select-mb" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-                                    <i data-lucide="circuit-board" class="w-3.5 h-3.5"></i> Carte Mère (Plateforme & Ports PCIe)
+                                    <i data-lucide="circuit-board" class="w-3.5 h-3.5"></i> Carte mère
                                 </label>
                                 <div class="flex items-center gap-1">
                                     <input type="number" id="custom-price-mb" onchange="onCustomPriceChange('mb', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
@@ -307,7 +232,7 @@
                         <div class="p-3.5 rounded-xl bg-gradient-to-r from-sky-950/35 to-lab-900 border border-sky-500/40">
                             <div class="flex justify-between items-center gap-2 mb-1.5">
                                 <label for="select-gpu1" class="text-xs font-bold uppercase tracking-wider text-sky-300 flex items-center gap-1.5">
-                                    <i data-lucide="zap" class="w-3.5 h-3.5 text-sky-400"></i> GPU 1 Principal (IA CUDA & Max 4 Écrans Physiques)
+                                    <i data-lucide="zap" class="w-3.5 h-3.5 text-sky-400"></i> Carte graphique principale
                                 </label>
                                 <div class="flex items-center gap-1">
                                     <input type="number" id="custom-price-gpu1" onchange="onCustomPriceChange('gpu1', this.value)" class="w-20 bg-lab-950 border border-sky-500/50 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-sky-300 focus:border-sky-400 focus:outline-none">
@@ -322,7 +247,7 @@
                         <div class="p-3.5 rounded-xl bg-gradient-to-r from-indigo-950/35 to-lab-900 border border-indigo-500/40">
                             <div class="flex justify-between items-center gap-2 mb-1.5">
                                 <label for="select-gpu2" class="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
-                                    <i data-lucide="monitors" class="w-3.5 h-3.5 text-indigo-400"></i> Solution Multi-Écrans / GPU 2 (Pour dépasser 4 écrans)
+                                    <i data-lucide="monitors" class="w-3.5 h-3.5 text-indigo-400"></i> Extension multi-écrans
                                 </label>
                                 <div class="flex items-center gap-1">
                                     <input type="number" id="custom-price-gpu2" onchange="onCustomPriceChange('gpu2', this.value)" class="w-20 bg-lab-950 border border-indigo-500/50 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-indigo-300 focus:border-indigo-400 focus:outline-none">
@@ -417,8 +342,8 @@
                         <div class="flex items-center gap-2.5">
                             <span class="w-6 h-6 rounded-lg bg-indigo-500 text-white font-mono text-xs font-extrabold flex items-center justify-center">2</span>
                             <div>
-                                <h3 class="font-bold text-white text-base">Configurateur d'Écrans Individuels (Résolution, FPS/Hz, Taille & Usage)</h3>
-                                <p class="text-[11px] text-slate-400">Personnalisez chaque écran : voyez instantanément les FPS réels obtenus, la VRAM consommée et la taille en cm</p>
+                                <h3 class="font-bold text-white text-base">Vos écrans</h3>
+                                <p class="text-[11px] text-slate-400">Choisissez le nombre d'écrans, leur taille et leur usage.</p>
                             </div>
                         </div>
 
@@ -476,7 +401,7 @@
                         <div class="flex items-center gap-2.5">
                             <span class="w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 font-mono text-xs font-extrabold flex items-center justify-center">3</span>
                             <div>
-                                <h3 class="font-bold text-white text-base">Aperçu Physique du Bureau à l'Échelle (Centimètres & FPS Live)</h3>
+                                <h3 class="font-bold text-white text-base">Votre installation</h3>
                                 <p class="text-[11px] text-slate-400">Vérifiez l'alignement vertical en cm de vos dalles (18", 15.6", 27", 32", 40" 21:9...) et le statut de chaque écran</p>
                             </div>
                         </div>
@@ -513,13 +438,13 @@
             <!-- ========================================================= -->
             <!-- RIGHT COLUMN (5 COLS): PINNED LIVE TELEMETRY DASHBOARD    -->
             <!-- ========================================================= -->
-            <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-20">
+            <div id="live-sidebar" class="lg:col-span-4 space-y-5 lg:sticky lg:top-28">
 
                 <!-- 1. PRICE & GLOBAL STATUS CARD -->
                 <div class="glass-card rounded-2xl p-5 border-t-4 border-t-sky-500">
                     <div class="flex items-start justify-between gap-3">
                         <div>
-                            <span id="summary-price-label" class="text-[11px] font-mono uppercase tracking-wider text-sky-400 block font-bold">BUDGET TOTAL (NEUF HORS PROMO CERTIFIÉ)</span>
+                            <span id="summary-price-label" class="text-[11px] font-mono uppercase tracking-wider text-sky-400 block font-bold">BUDGET ESTIMÉ</span>
                             <div class="flex items-baseline gap-3 mt-1">
                                 <span id="total-price-display" class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">2 690 €</span>
                                 <span id="alt-price-comparison" class="text-xs font-mono text-emerald-400">Cible Promo : ~2 335 €</span>
@@ -527,7 +452,7 @@
                         </div>
                         <button onclick="copyConfigurationSummary()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 border border-slate-700 transition-all shrink-0" title="Copier le devis complet et les écrans">
                             <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-                            <span id="copy-btn-text">Copier Config</span>
+                            <span id="copy-btn-text">Copier</span>
                         </button>
                     </div>
 
@@ -556,7 +481,7 @@
                     <div class="flex items-center justify-between">
                         <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-200 flex items-center gap-2">
                             <i data-lucide="activity" class="w-4 h-4 text-sky-400"></i>
-                            Simulation FPS Réels & Branchement par Écran
+                            Performances estimées par écran
                         </h3>
                         <span id="bandwidth-pill" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
                             Débit : 1.45 Gpx/s
@@ -571,7 +496,7 @@
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                         <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-200 flex items-center gap-2">
                             <i data-lucide="database" class="w-4 h-4 text-purple-400"></i>
-                            Consommation VRAM (Écrans + Modèles IA + 3D)
+                            Mémoire graphique (VRAM)
                         </h3>
                         <span id="vram-total-badge" class="text-xs font-mono font-bold text-sky-400">16 Go + 6 Go</span>
                     </div>
@@ -628,7 +553,7 @@
                         <!-- 5-Year Upgradeability Box -->
                         <div class="p-3 rounded-xl bg-lab-950/90 border border-slate-800 space-y-1.5">
                             <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-mono uppercase text-slate-400">Évolutivité 5 Ans</span>
+                                <span class="text-[10px] font-mono uppercase text-slate-400">Évolutivité</span>
                                 <span id="upgrade-score-badge" class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">95 / 100</span>
                             </div>
                             <div id="upgrade-title-text" class="font-sans text-xs font-bold text-white truncate">Socket AM5 + ATX 3.0</div>
@@ -648,8 +573,8 @@
     <!-- FOOTER -->
     <footer class="border-t border-slate-800/80 bg-lab-950 py-4 mt-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-            <span>Configurateur & Simulateur PC Multi-Écrans, IA & Performance • Prix Neufs Certifiés (LDLC / Materiel.net / TopAchat)</span>
-            <span class="font-mono text-slate-400">Calculateur FPS, VRAM, Dimensions physiques (cm) & Topologie NVIDIA 4-Écrans</span>
+            <span>Atelier PC — simulateur de configuration</span>
+            <span class="font-mono text-slate-400">Prix et performances indicatifs, à confirmer selon le matériel.</span>
         </div>
     </footer>
 
@@ -1556,13 +1481,13 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Fréquence / FPS Cibles</label>
+                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Fréquence souhaitée</label>
                             <select onchange="onMonitorFieldChange(${i}, 'hz', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
                                 ${hzOpts}
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Branchement Vidéo</label>
+                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Connexion avancée</label>
                             <select onchange="onMonitorFieldChange(${i}, 'source', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
                                 <option value="auto" ${scr.source === 'auto' ? 'selected' : ''}>Auto (Ports 1-4 GPU1, 5+ GPU2/USB)</option>
                                 <option value="gpu1" ${scr.source === 'gpu1' ? 'selected' : ''}>Forcer sur GPU 1 Principal</option>
@@ -1573,7 +1498,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Tâche / Charge Active sur cet Écran</label>
+                        <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Utilisation principale</label>
                         <select onchange="onMonitorFieldChange(${i}, 'task', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
                             ${taskOpts}
                         </select>
@@ -1599,15 +1524,15 @@
             if (mode === 'new') {
                 btnNew.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-sky-500 text-slate-950';
                 btnPromo.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all text-slate-400 hover:text-white';
-                indicator.textContent = 'Prix Neuf Hors Promo (Certifié)';
+                indicator.textContent = 'Prix neuf indicatif';
                 indicator.className = 'text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20';
-                summaryLabel.textContent = 'BUDGET TOTAL (NEUF HORS PROMO CERTIFIÉ)';
+                summaryLabel.textContent = 'BUDGET ESTIMÉ';
             } else {
                 btnPromo.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-amber-500 text-slate-950';
                 btnNew.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all text-slate-400 hover:text-white';
-                indicator.textContent = 'Prix Cible Promo / Black Friday';
+                indicator.textContent = 'Prix promo indicatif';
                 indicator.className = 'text-[11px] font-mono text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20';
-                summaryLabel.textContent = 'BUDGET TOTAL ESTIMÉ (CIBLE PROMO / BLACK FRIDAY)';
+                summaryLabel.textContent = 'BUDGET ESTIMÉ';
             }
 
             refreshSelectOptionLabels();
@@ -2306,7 +2231,7 @@
 
             let lines = [
                 `=== CONFIGURATEUR PC MULTI-ÉCRANS & IA (${state.screenCount} ÉCRANS) ===`,
-                `Mode Tarifaire : ${state.priceMode === 'new' ? 'Prix Neuf Hors Promo (Certifié)' : 'Prix Cible Promo / Black Friday'}`,
+                `Mode Tarifaire : ${state.priceMode === 'new' ? 'Prix neuf indicatif' : 'Prix promo indicatif'}`,
                 ``
             ];
 
@@ -2343,11 +2268,239 @@
             const btnText = document.getElementById('copy-btn-text');
             btnText.textContent = 'Config Copiée !';
             setTimeout(() => {
-                btnText.textContent = 'Copier Config';
+                btnText.textContent = 'Copier';
             }, 2200);
         }
 
         window.onload = initApp;
     </script>
+
+<style id="atelier-pc-theme">
+:root {color-scheme:light;}
+html {scroll-behavior:smooth;}
+body.ui-redesign {background:#f6f7f8!important;color:#19283d!important;font-family:Inter,Arial,sans-serif!important;letter-spacing:-.006em;}
+body.ui-redesign ::selection {background:#c4d6ff;color:#162746;}
+body.ui-redesign .site-header {position:sticky;top:0;z-index:80;background:rgba(255,255,255,.96);border-bottom:1px solid #e6e9ed;backdrop-filter:blur(14px);}
+body.ui-redesign .site-header-inner {max-width:1280px;margin:auto;min-height:78px;padding:13px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+body.ui-redesign .site-brand {display:flex;gap:12px;align-items:center;text-decoration:none;color:#14243c;white-space:nowrap;}
+body.ui-redesign .site-brand strong {font-size:15px;line-height:1.2;display:block;letter-spacing:.035em;font-weight:800;}
+body.ui-redesign .site-brand small {font-size:11px;display:block;margin-top:4px;color:#7b8797;font-weight:500;letter-spacing:.015em;}
+body.ui-redesign .brand-symbol {width:42px;height:42px;border-radius:13px;background:#1f3760;color:#fff;display:flex;align-items:center;justify-content:center;}
+body.ui-redesign .stage-navigation {display:flex;align-items:center;gap:5px;padding:5px;background:#f2f4f7;border:1px solid #e6e9ee;border-radius:15px;}
+body.ui-redesign .stage-navigation .tab-nav-btn {font-family:Inter,sans-serif;background:transparent!important;color:#657185!important;border:0;border-radius:10px;padding:11px 13px;font-size:12px;font-weight:650;white-space:nowrap;cursor:pointer;transition:background .2s,color .2s;}
+body.ui-redesign .stage-navigation .tab-nav-btn span {font-size:11px;opacity:.6;margin-right:6px;font-weight:700;}
+body.ui-redesign .stage-navigation .tab-nav-btn:hover {background:#e7ebf2!important;color:#14243c!important;}
+body.ui-redesign .stage-navigation .tab-nav-btn[aria-current=step] {color:#fff!important;background:#223c69!important;box-shadow:0 2px 8px #203a6222;}
+body.ui-redesign .stage-navigation .all-sections {border-left:1px solid #e0e4eb;border-radius:0 9px 9px 0;margin-left:4px;}
+body.ui-redesign .workspace-main {max-width:1280px;padding-top:36px!important;padding-bottom:65px!important;}
+body.ui-redesign .welcome-section {max-width:810px;margin:3px 0 36px;}
+body.ui-redesign .welcome-eyebrow,body.ui-redesign .eyebrow {color:#60718b;font-size:11px;letter-spacing:.125em;font-weight:750;}
+body.ui-redesign .welcome-eyebrow {display:flex;align-items:center;gap:9px;}
+body.ui-redesign .eyebrow-dot {width:8px;height:8px;border-radius:50%;background:#4266c2;display:inline-block;}
+body.ui-redesign .welcome-section h1 {font-size:clamp(31px,4vw,48px);letter-spacing:-.05em;line-height:1.14;font-weight:800;color:#162841;margin:15px 0 12px;}
+body.ui-redesign .welcome-section p {font-size:16px;line-height:1.72;color:#667386;max-width:690px;}
+body.ui-redesign .welcome-meta {display:flex;gap:22px;flex-wrap:wrap;color:#52647b;font-weight:600;font-size:12px;margin-top:21px;}
+body.ui-redesign .welcome-meta span {display:flex;align-items:center;gap:6px;}
+body.ui-redesign .welcome-meta svg {color:#4266c2;}
+body.ui-redesign .starter-section {margin-bottom:33px;}
+body.ui-redesign .section-heading {display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:17px;}
+body.ui-redesign .section-heading h2 {font-size:23px;letter-spacing:-.032em;font-weight:750;color:#172942;margin:6px 0;}
+body.ui-redesign .section-heading p {font-size:13px;color:#7a8695;}
+body.ui-redesign .prices-mode-wrap {display:flex;align-items:center;gap:10px;white-space:nowrap;}
+body.ui-redesign .control-label {font-size:12px;color:#748399;font-weight:550;}
+body.ui-redesign .price-toggle {display:flex;gap:2px;background:#e9edf1;padding:4px;border-radius:10px;}
+body.ui-redesign .price-toggle button {padding:8px 11px;border-radius:8px;font-size:12px;color:#657388;font-weight:650;cursor:pointer;}
+body.ui-redesign .price-toggle button[aria-pressed=true] {background:#fff;color:#1e365e;box-shadow:0 1px 4px #24365222;}
+body.ui-redesign .starter-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;}
+body.ui-redesign .preset-card {display:flex;flex-direction:column;gap:11px;align-items:flex-start;padding:21px 20px!important;text-align:left;border:1px solid #e5e9ef!important;border-radius:17px!important;background:#fff!important;color:#1a2a43!important;min-height:186px;box-shadow:0 2px 12px #19283d06!important;transition:all .2s;cursor:pointer;}
+body.ui-redesign .preset-card:hover {border-color:#a6b9e6!important;transform:translateY(-2px);box-shadow:0 12px 24px #142c5711!important;}
+body.ui-redesign .preset-card[aria-pressed=true] {border:2px solid #5477c7!important;padding:20px 19px!important;box-shadow:0 8px 20px #284d9120!important;background:#fcfdff!important;}
+body.ui-redesign .preset-tag {color:#637caa;background:#edf2fa;padding:5px 8px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:.065em;}
+body.ui-redesign .preset-card strong {font-size:16px;font-weight:750;letter-spacing:-.02em;}
+body.ui-redesign .preset-card small {color:#778397;font-size:12px;line-height:1.55;font-weight:450;}
+body.ui-redesign .preset-link {margin-top:auto;color:#365bb0;font-weight:750;font-size:12px;}
+body.ui-redesign .experimental-preset {margin-top:13px;}
+body.ui-redesign .experimental-preset summary {cursor:pointer;color:#6b7890;font-size:12px;font-weight:600;}
+body.ui-redesign .experimental-preset .preset-card {margin-top:12px;min-height:130px;max-width:320px;}
+body.ui-redesign .glass-card {background:#fff!important;backdrop-filter:none!important;border:1px solid #e5e8ed!important;border-radius:19px!important;box-shadow:0 5px 22px #1e334609!important;}
+body.ui-redesign [class*="bg-lab-"],body.ui-redesign [class*="bg-slate-8"],body.ui-redesign [class*="bg-slate-9"] {background-color:#f7f9fc!important;background-image:none!important;}
+body.ui-redesign [class*="bg-gradient-"] {background-image:none!important;}
+body.ui-redesign [class*="border-slate-"] {border-color:#e3e8ee!important;}
+body.ui-redesign [class*="border-sky-"] {border-color:#cad9f5!important;}
+body.ui-redesign [class*="text-white"] {color:#1b2a42!important;}
+body.ui-redesign [class*="text-slate-200"],body.ui-redesign [class*="text-slate-300"] {color:#3e4d65!important;}
+body.ui-redesign [class*="text-slate-400"],body.ui-redesign [class*="text-slate-500"] {color:#798698!important;}
+body.ui-redesign [class*="text-sky-"],body.ui-redesign [class*="text-indigo-"] {color:#4166b7!important;}
+body.ui-redesign [class*="text-purple-"] {color:#6850a4!important;}
+body.ui-redesign [class*="text-emerald-"] {color:#187c59!important;}
+body.ui-redesign [class*="text-rose-"] {color:#b9414e!important;}
+body.ui-redesign .font-mono {font-family:Inter,Arial,sans-serif!important;}
+body.ui-redesign [class*="text-[10px]"] {font-size:11.5px!important;}
+body.ui-redesign [class*="text-[11px]"] {font-size:12px!important;}
+body.ui-redesign #section-pc-builder,body.ui-redesign #section-monitors-builder,body.ui-redesign #section-desk-visualizer {padding:27px!important;}
+body.ui-redesign #section-pc-builder h3,body.ui-redesign #section-monitors-builder h3,body.ui-redesign #section-desk-visualizer h3 {font-size:21px!important;font-weight:750;line-height:1.3;letter-spacing:-.035em;color:#182b44!important;}
+body.ui-redesign #section-pc-builder label,body.ui-redesign #section-monitors-builder label {color:#41516a!important;font-size:12px!important;letter-spacing:0!important;text-transform:none!important;line-height:1.35;}
+body.ui-redesign #section-pc-builder select,body.ui-redesign #section-monitors-builder select,body.ui-redesign input[type=number] {height:42px;background:#fff!important;color:#1d3047!important;border:1px solid #dfe4eb!important;border-radius:9px!important;font-size:12.5px!important;line-height:1.35;box-shadow:0 1px 2px #152e4010;}
+body.ui-redesign #section-pc-builder select:focus,body.ui-redesign #section-monitors-builder select:focus,body.ui-redesign input[type=number]:focus {outline:2px solid #a8bde8;outline-offset:1px;}
+body.ui-redesign .glass-card [class*="bg-gradient-"],body.ui-redesign #section-pc-builder [class*="bg-lab-9"] {border-color:#e6eaf0!important;background:#fbfcfd!important;border-radius:12px!important;}
+body.ui-redesign #price-mode-indicator {font-size:11px!important;font-weight:650;color:#6f8197!important;background:#f2f5f8!important;border:1px solid #e3e8ef!important;}
+body.ui-redesign #screen-stepper-label {color:#264a89!important;}
+body.ui-redesign #section-monitors-builder #monitors-cards-container>div {background:#fbfcfe!important;border:1px solid #e4e8ee!important;border-radius:13px;box-shadow:none!important;padding:18px!important;}
+body.ui-redesign #section-monitors-builder #monitors-cards-container select {font-size:12px!important;height:43px;}
+body.ui-redesign .screen-btn {background:#fff!important;color:#59708a!important;border:1px solid #dce4ec!important;min-height:38px;}
+body.ui-redesign #monitors-cards-container [id^="mon-telemetry-"] {background:#f0f4fa!important;}
+body.ui-redesign .prices-collapsed .price-edit-box {display:none!important;}
+body.ui-redesign.help-collapsed [id^="desc-"] {display:none!important;}
+body.ui-redesign:not(.connections-expanded) .screen-advanced-field,body.ui-redesign:not(.connections-expanded) [id^="mon-telemetry-"] {display:none!important;}
+body.ui-redesign .small-actions {display:flex;flex-wrap:wrap;gap:8px;padding:0 0 5px;margin:0 0 10px;}
+body.ui-redesign .soft-button {border:1px solid #dbe3ee;background:#f6f8fc;color:#3c567f;font-size:12px;font-weight:650;padding:9px 12px;border-radius:9px;cursor:pointer;transition:background .15s;}
+body.ui-redesign .soft-button:hover {background:#eaf0f9;}
+body.ui-redesign .soft-button[aria-pressed=true] {background:#e4ecfb;border-color:#b5c8ee;color:#254c98;}
+body.ui-redesign .step-bottom {border-top:1px solid #e8ebef;padding-top:22px;margin-top:14px;display:flex;justify-content:flex-end;}
+body.ui-redesign .step-bottom .next-step {display:inline-flex;align-items:center;gap:10px;background:#243e6e!important;color:#fff!important;border:1px solid #243e6e!important;border-radius:11px;padding:13px 18px;font-weight:700;font-size:13px;cursor:pointer;}
+body.ui-redesign .step-bottom .next-step:hover {background:#162c50!important;}
+body.ui-redesign #live-sidebar>.glass-card:first-child {padding:25px!important;background:#fff!important;border-top:1px solid #e5e8ed!important;}
+body.ui-redesign #summary-price-label {font-size:11px!important;letter-spacing:.08em;font-weight:750;color:#8290a1!important;}
+body.ui-redesign #total-price-display {font-size:clamp(27px,3vw,38px)!important;color:#172a42!important;line-height:1.3;letter-spacing:-.045em;}
+body.ui-redesign #alt-price-comparison {color:#7f90a7!important;font-size:11px!important;line-height:1.6;}
+body.ui-redesign #live-sidebar #copy-btn-text {font-size:11px;}
+body.ui-redesign #live-sidebar button[onclick="copyConfigurationSummary()"] {border:1px solid #dce5f1!important;background:#f0f4fa!important;color:#345888!important;white-space:nowrap;}
+body.ui-redesign #live-sidebar .grid-cols-3 {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+body.ui-redesign #kpi-active-screens,body.ui-redesign #kpi-fps-health {font-size:16px!important;color:#254b82!important;}
+body.ui-redesign #diagnostic-alerts-container>div {background:#f5f8fc!important;border:1px solid #e4ebf2!important;color:#3f536d!important;border-radius:12px!important;}
+body.ui-redesign #diagnostic-alerts-container button {background:#e6eefb!important;color:#284a7b!important;border-color:#d4e2f9!important;border-radius:8px!important;padding:8px 10px!important;}
+body.ui-redesign .technical-panel {margin-top:15px;border-radius:14px;border:1px solid #e2e8ef;background:#fff;overflow:hidden;}
+body.ui-redesign .technical-panel>summary {list-style:none;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#36547c;font-weight:700;padding:16px 19px;cursor:pointer;}
+body.ui-redesign .technical-panel>summary::-webkit-details-marker {display:none;}
+body.ui-redesign .technical-panel>summary:after {content:"+";font-size:19px;font-weight:500;}
+body.ui-redesign .technical-panel[open]>summary:after {content:"−";}
+body.ui-redesign .technical-panel>.glass-card {margin:11px 12px;border-radius:12px!important;padding:17px!important;box-shadow:none!important;}
+body.ui-redesign .tech-option-group {margin-top:12px;border:1px solid #e4e9f0;border-radius:12px;background:#fbfcfe;padding:12px 14px;}
+body.ui-redesign .tech-option-group>summary {cursor:pointer;font-weight:650;font-size:12px;color:#3a567d;}
+body.ui-redesign .tech-option-group>div {margin-top:15px;}
+body.ui-redesign #desk-alignment-banner {border-radius:12px!important;line-height:1.6;}
+body.ui-redesign #desk-scale-stage {min-width:max-content;}
+body.ui-redesign #desk-scale-stage [class*="text-white"] {color:#1d3352!important;}
+body.ui-redesign .blueprint-grid {background-color:#f8fafc!important;background-image:linear-gradient(to right,#e9edf5 1px,transparent 1px),linear-gradient(to bottom,#e9edf5 1px,transparent 1px)!important;background-size:22px 22px!important;}
+body.ui-redesign footer {background:#fff!important;color:#8590a0!important;border-color:#e2e8ed!important;font-size:12px;}
+body.ui-redesign button:focus-visible,body.ui-redesign summary:focus-visible,body.ui-redesign a:focus-visible {outline:3px solid #779ce4;outline-offset:3px;}
+@media(max-width:1100px) {body.ui-redesign .starter-grid {grid-template-columns:repeat(2,minmax(0,1fr));}body.ui-redesign .site-header-inner {flex-wrap:wrap;}body.ui-redesign .stage-navigation {width:100%;justify-content:space-between;}}
+@media(max-width:700px){body.ui-redesign .site-header-inner {padding:11px 15px;gap:9px;}body.ui-redesign .stage-navigation {overflow-x:auto;justify-content:flex-start;}body.ui-redesign .stage-navigation .tab-nav-btn {padding:9px 10px;font-size:11px;}body.ui-redesign .workspace-main {padding:22px 15px 45px!important;}body.ui-redesign .welcome-section {margin-bottom:24px;}body.ui-redesign .welcome-section p {font-size:14px;}body.ui-redesign .section-heading {align-items:flex-start;flex-direction:column;}body.ui-redesign .starter-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}body.ui-redesign .preset-card {padding:16px!important;min-height:168px;}body.ui-redesign .preset-card strong {font-size:14px;}body.ui-redesign .preset-card[aria-pressed=true] {padding:15px!important;}body.ui-redesign #section-pc-builder,body.ui-redesign #section-monitors-builder,body.ui-redesign #section-desk-visualizer {padding:18px!important;}body.ui-redesign .stage-navigation .all-sections {display:none;}body.ui-redesign #live-sidebar>.glass-card:first-child {padding:19px!important;}}
+@media(max-width:390px){body.ui-redesign .starter-grid {grid-template-columns:1fr;}body.ui-redesign .preset-card {min-height:135px;}}
+@media(prefers-reduced-motion:reduce){body.ui-redesign *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}}
+</style>
+
+<script id="atelier-pc-ux">
+(function(){
+  'use strict';
+  document.body.classList.add('ui-redesign','prices-collapsed','help-collapsed');
+  const oldInit=window.onload;
+  window.onload=function(){
+    if(typeof oldInit==='function') oldInit();
+    buildSimplifiedInterface();
+    switchMainTab('pc');
+  };
+  function makeButton(label,cls,fn){
+    const b=document.createElement('button');
+    b.type='button';b.textContent=label;b.className=cls;b.addEventListener('click',fn);return b;
+  }
+  function buildSimplifiedInterface(){
+    const sidebar=document.getElementById('live-sidebar');
+    const cards=Array.from(sidebar.children).filter(el=>el.classList.contains('glass-card'));
+    if(cards.length>1){
+      const more=document.createElement('details');
+      more.className='technical-panel';
+      const summary=document.createElement('summary');
+      summary.textContent='Voir les données techniques';
+      more.appendChild(summary);
+      cards.slice(1).forEach(c=>more.appendChild(c));
+      sidebar.appendChild(more);
+    }
+    const kpi=document.getElementById('kpi-total-mpx');
+    if(kpi) kpi.parentElement.style.display='none';
+    const pc=document.getElementById('section-pc-builder');
+    const actions=document.createElement('div');actions.className='small-actions';
+    const togglePrices=makeButton('Afficher les prix par pièce','soft-button',()=>{
+      const hidden=document.body.classList.toggle('prices-collapsed');
+      togglePrices.textContent=hidden?'Afficher les prix par pièce':'Masquer les prix par pièce';
+      togglePrices.setAttribute('aria-pressed',String(!hidden));
+    });
+    togglePrices.setAttribute('aria-pressed','false');
+    const toggleAdvice=makeButton('Afficher les conseils','soft-button',()=>{
+      const hidden=document.body.classList.toggle('help-collapsed');
+      toggleAdvice.textContent=hidden?'Afficher les conseils':'Masquer les conseils';
+      toggleAdvice.setAttribute('aria-pressed',String(!hidden));
+    });
+    toggleAdvice.setAttribute('aria-pressed','false');
+    actions.append(togglePrices,toggleAdvice);
+    const firstComponent=pc.querySelector('#select-conn');
+    if(firstComponent) firstComponent.closest('.p-3\\.5')?.before(actions);
+    if(!actions.parentElement) pc.children[1].before(actions);
+    document.querySelectorAll('[id^="custom-price-"]').forEach(input=>{
+      input.parentElement.classList.add('price-edit-box');
+    });
+    const m=document.getElementById('section-monitors-builder');
+    const tools=m.querySelector('#screen-count-buttons')?.parentElement?.parentElement;
+    if(tools){
+      const details=document.createElement('details');details.className='tech-option-group';
+      const s=document.createElement('summary');s.textContent='Modèles d’écrans et actions rapides';
+      details.appendChild(s);tools.before(details);details.appendChild(tools);
+    }
+    const techButton=makeButton('Afficher connexions et performances détaillées','soft-button',()=>{
+      const on=document.body.classList.toggle('connections-expanded');
+      techButton.textContent=on?'Masquer les options avancées':'Afficher connexions et performances détaillées';
+      techButton.setAttribute('aria-pressed',String(on));
+    });
+    techButton.setAttribute('aria-pressed','false');
+    const advancedActions=document.createElement('div');advancedActions.className='small-actions';
+    advancedActions.append(techButton);
+    const cardsHolder=document.getElementById('monitors-cards-container');
+    cardsHolder.before(advancedActions);
+    const markFields=()=>{
+      document.querySelectorAll('#monitors-cards-container select').forEach(select=>{
+        if(select.getAttribute('onchange')?.includes("'source'"))select.parentElement.classList.add('screen-advanced-field');
+      });
+    };
+    const oldRender=window.renderMonitorsConfigurator;
+    if(typeof oldRender==='function'){
+      window.renderMonitorsConfigurator=function(){oldRender();markFields();};
+    }
+    markFields();
+    for(const [id,text,target] of [
+      ['section-pc-builder','Continuer vers les écrans','monitors'],
+      ['section-monitors-builder','Visualiser mon installation','desk'],
+      ['section-desk-visualizer','Revenir aux composants','pc']]){
+      const wrap=document.createElement('div');wrap.className='step-bottom';
+      wrap.append(makeButton(text+' →','next-step',()=>switchMainTab(target)));
+      document.getElementById(id).append(wrap);
+    }
+    const oldLoad=window.loadPreset;
+    if(typeof oldLoad==='function') window.loadPreset=function(key){oldLoad(key);syncPresetStates();};
+    const oldMode=window.setPriceMode;
+    if(typeof oldMode==='function') window.setPriceMode=function(mode,up){oldMode(mode,up);syncPriceMode();};
+    syncPresetStates();syncPriceMode();
+    const oldSwitch=window.switchMainTab;
+    if(typeof oldSwitch==='function'){
+      window.switchMainTab=function(view){
+        oldSwitch(view);
+        document.querySelectorAll('.stage-navigation .tab-nav-btn').forEach(el=>{
+          el.setAttribute('aria-current',el.id==='tab-btn-'+view?'step':'false');
+        });
+        window.scrollTo({top:0,behavior:'smooth'});
+      };
+    }
+  }
+  function syncPresetStates(){
+    document.querySelectorAll('.preset-card').forEach(b=>
+      b.setAttribute('aria-pressed',String(b.className.includes('bg-sky-500/15'))));
+  }
+  function syncPriceMode(){
+    const mode=window.state?.priceMode||'new';
+    for(const [id,value] of [['price-mode-new','new'],['price-mode-promo','promo']]){
+      document.getElementById(id)?.setAttribute('aria-pressed',String(mode===value));
+    }
+  }
+})();
+</script>
 </body>
 </html>
