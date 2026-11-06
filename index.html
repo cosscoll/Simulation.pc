@@ -1370,6 +1370,41 @@
 
         const COMPONENT_KEYS = ['conn', 'mb', 'cpu', 'cooler', 'gpu1', 'gpu2', 'ram', 'ssd', 'psu', 'case'];
 
+
+        function auditHardware(p, screens){
+          const errors=[],warnings=[];
+          const error=(title,text)=>errors.push({level:'error',title,text});
+          const warn=(title,text)=>warnings.push({level:'warn',title,text});
+          const {mb,cpu,cooler,gpu1,gpu2,ram,ssd,psu,conn}=p,box=p.case;
+          const dual=gpu2.type==='gpu';
+          if(mb.socket!==cpu.socket)error('Socket incompatible',cpu.socket+' vs '+mb.socket+'.');
+          if((ram.id.startsWith('ddr5')?'DDR5':'DDR4')!==mb.ramType)error('RAM incompatible','La carte mère accepte '+mb.ramType+' ; la mémoire choisie est différente.');
+          if(cooler.id==='stock_cooler'&&!['i5_12400f','i5_8400'].includes(cpu.id))error('Ventirad manquant','Ce processeur est vendu sans ventirad. Choisissez un refroidissement compatible.');
+          if(dual&&conn.id!=='pcie_internal')error('Double GPU impossible avec cette architecture','Il faut une tour interne et des slots compatibles.');
+          if(dual&&['b760_atx','dell_mb'].includes(mb.id))error('Second GPU incompatible','Cette carte mère ne possède pas de second port PCIe x4/x8/x16 adapté.');
+          if(dual&&mb.id==='x870_tomahawk')warn('Second GPU : PCIe x4 partagé','Slot PCI_E3 4.0 x4 ou x2 avec M2_3 ; vérifiez dégagement, BIOS et câblage.');
+          if(dual&&['b650_atx','x870e_extreme'].includes(mb.id))warn('Double GPU non certifiable','Référence carte mère générique : emplacement et lanes PCIe à confirmer.');
+          if(box.id==='dell_case'&&mb.id!=='dell_mb')error('Boîtier Dell incompatible','Châssis propriétaire non adapté à la carte mère standard.');
+          if(mb.id==='dell_mb'&&box.id!=='dell_case')error('Carte mère Dell incompatible','Les connecteurs et entraxes de boîtier peuvent être propriétaires.');
+          if(mb.id==='dell_mb'&&gpu1.id!=='gtx_1650_4g')error('GPU et alimentation Dell incompatibles','Le châssis OptiPlex et le bloc propriétaire ne sont pas adaptés au GPU choisi.');
+          if((mb.id==='dell_mb') !== (psu.id==='psu_dell_260w'))error('Alimentation propriétaire incorrecte','Carte mère et alimentation Dell doivent être vérifiées ensemble.');
+          const powerNeed=Math.ceil((cpu.watts*1.4+gpu1.watts+gpu2.watts+95)*1.2);
+          if(psu.watts<powerNeed)error('Alimentation insuffisante','Puissance de dimensionnement indicative '+powerNeed+' W, bloc choisi '+psu.watts+' W.');
+          if(mb.id==='b650_atx'&&['r9_9900x','r9_9950x'].includes(cpu.id))warn('Vérifier BIOS Ryzen 9000','La carte B650 peut nécessiter une mise à jour du BIOS.');
+          if(ram.id==='ddr5_128g')warn('128 Go DDR5 : fréquence à vérifier','Quatre barrettes peuvent réduire la fréquence stable ; consulter la QVL.');
+          if(ssd.id.startsWith('pcie5')&&mb.id==='b760_atx')warn('SSD Gen5 bridé','La carte mère Gigabyte B760M possède des emplacements M.2 Gen4.');
+          const cap=gpu1.maxScreens+(gpu2.type==='gpu'||gpu2.type==='displaylink'?gpu2.extraScreens:0);
+          if(screens.length>cap)error('Sorties vidéo insuffisantes',screens.length+' écrans demandés mais capacité théorique '+cap+' sorties.');
+          if(gpu2.id==='rtx_3050_6g')warn('MSI RTX 3050 LP : 3 sorties seulement','1 DP et 2 HDMI selon MSI ; cette référence n’est plus vendue sur LDLC.');
+          if(gpu2.type==='displaylink')warn('Dock DisplayLink non certifié','Référence et sorties exactes non définies ; les performances 3D ne sont pas garanties.');
+          if(screens.some(x=>x.port==='usbc'||x.port==='other'))warn('Entrées vidéo à vérifier','Confirmer les ports et les câbles exacts pour chaque écran, y compris USB-C Alt Mode.');
+          if(screens.some(x=>x.hz>120&&['4k','dqhd'].includes(x.res)))warn('4K à fréquence élevée','Débit GPU, révision HDMI/DP, câble et DSC à vérifier.');
+          if(['b650_atx','x870e_extreme'].includes(mb.id)||['mesh_budget','full_tower_xl'].includes(box.id))warn('Références génériques','Impossible de vérifier tous les connecteurs et dimensions sans le modèle exact.');
+          if(cooler.id!=='stock_cooler'||gpu1.watts>=200)warn('Dimensions et connecteurs','Contrôler hauteur ventirad, épaisseur/longueur GPU, ports d’alimentation et dégagement du boîtier.');
+          return {errors,warnings,blocked:errors.length>0};
+        }
+        window.auditHardware=auditHardware;
+
         // =========================================================================
         // 4. INITIALIZATION & SELECT POPULATORS
         // =========================================================================
@@ -2136,7 +2171,7 @@
                 pBadge.textContent = 'Surcharge !';
                 pBadge.className = 'text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300';
                 document.getElementById('bar-power').className = 'h-full bg-rose-500 rounded-full transition-all duration-300';
-                pDetail.textContent = `⚠️ Coupure électrique garantie (${estWatts}W demandés pour ${psu.watts}W) !`;
+                pDetail.textContent = `⚠️ Risque de problème électrique (${estWatts}W demandés pour ${psu.watts}W) !`;
             }
 
             let upgScore = mb.upgradeScore;
@@ -2148,11 +2183,13 @@
             document.getElementById('bar-upgrade').style.width = `${upgScore}%`;
             document.getElementById('upgrade-title-text').textContent = mb.socket === 'AM5' ? `Plateforme AMD AM5 + ${psu.watts}W` : `Plateforme ${mb.socket}`;
             document.getElementById('upgrade-detail-text').textContent = upgScore >= 85
-                ? `Évolutivité maximale : changement de GPU ou CPU dans 5 ans sans changer le PC.`
+                ? `Évolutivité théorique (future compatibilité BIOS, CPU/GPU et alimentation non garantie).`
                 : `Évolutivité bridée par ${mb.socket !== 'AM5' ? 'le socket carte mère ancien' : 'l\'alimentation ou le boîtier'}.`;
 
             // 8. Build Smart Diagnostic Alerts
             const alerts = [];
+            const checked=auditHardware(parts,state.screens.slice(0,state.screenCount));
+            alerts.push(...checked.errors,...checked.warnings);
 
             if (activeScreensCount < state.screenCount) {
                 const blocked = state.screenCount - activeScreensCount;
@@ -2161,9 +2198,9 @@
                     title: `${blocked} ÉCRAN(S) NOIR(S) : Limite matérielle de 4 écrans NVIDIA dépassée !`,
                     text: gpu2.type === 'mst_trap'
                         ? `Vous avez choisi un Hub DisplayPort MST passif : une carte NVIDIA GeForce refuse matériellement d'allumer plus de 4 écrans même derrière un répartiteur MST.`
-                        : `Une carte NVIDIA GeForce est limitée à 4 écrans physiques. Pour allumer vos ${state.screenCount} écrans, ajoutez un GPU 2 (ex: RTX 3050 à 190€) ou un Hub USB DisplayLink (110€).`,
+                        : `La limite de sorties dépend des cartes exactes. La MSI RTX 3050 LP 6G n'a que 3 sorties ; les écrans non alloués nécessitent du matériel réellement compatible.`,
                     actions: [
-                        { label: '+ Mettre GPU 2 RTX 3050 (190€)', fn: "quickSetSelect('gpu2', 'rtx_3050_6g')" },
+                        { label: 'Examiner une deuxième carte graphique', fn: "quickSetSelect('gpu2', 'rtx_3050_6g')" },
                         { label: '+ Mettre Hub USB DisplayLink (110€)', fn: "quickSetSelect('gpu2', 'hub_displaylink')" }
                     ]
                 });
@@ -2172,8 +2209,8 @@
             if (conn.id === 'egpu_tb4') {
                 alerts.push({
                     level: 'error',
-                    title: `BRIDAGE CÂBLE eGPU THUNDERBOLT 4 (-32% FPS en 3D + 320€ de Boîtier)`,
-                    text: `Le câble Thunderbolt 4 plafonne à 40 Gbps (4 voies PCIe au lieu de 16). Vos FPS sur le simulateur auto et Blender chutent lourdement malgré le prix du GPU.`,
+                    title: `eGPU Thunderbolt 4 : pertes et prix variables selon matériel`,
+                    text: `Le câble Thunderbolt 4 plafonne à 40 Gbps (4 voies PCIe au lieu de 16). Les écarts de performance dépendent de la configuration et de la charge.`,
                     actions: [
                         { label: 'Passer en Tour PC Fixe (PCIe x16 - 0% perte)', fn: "quickSetSelect('conn', 'pcie_internal')" }
                     ]
@@ -2209,7 +2246,7 @@
                     title: `ALIMENTATION TROP FAIBLE (${estWatts}W demandés / ${psu.watts}W max)`,
                     text: `Risque d'extinction brutale en plein calcul IA. Choisissez au minimum une alimentation 1000W ATX 3.0.`,
                     actions: [
-                        { label: 'Mettre Corsair RM1000e 1000W (180€)', fn: "quickSetSelect('psu', 'rm1000e')" }
+                        { label: 'Examiner Corsair RM1000e 1000W', fn: "quickSetSelect('psu', 'rm1000e')" }
                     ]
                 });
             }
@@ -2217,8 +2254,8 @@
             if (alerts.length === 0) {
                 alerts.push({
                     level: 'ok',
-                    title: `CONFIGURATION 100% VALIDÉE (${state.screenCount} Écrans Actifs • ${gpu1.TokensPerSec || gpu1.tokensPerSec} tok/s IA)`,
-                    text: `Tous vos écrans tournent à leur fréquence optimale, la VRAM dispose de ${gpu1Margin} Go de marge et la plateforme est évolutive sur 5 ans.`
+                    title: `Simulation sans erreur bloquante détectée (${state.screenCount} Écrans Actifs • ${gpu1.TokensPerSec || gpu1.tokensPerSec} tok/s IA)`,
+                    text: `Ces calculs ne certifient pas la compatibilité physique, le BIOS, les connecteurs ou les performances réelles.`
                 });
             }
 
