@@ -852,7 +852,7 @@
             cooler: [
                 {
                     id: 'phantom_spirit_aio',
-                    name: 'Thermalright Phantom Spirit 120 / AIO 360mm Standard',
+                    name: 'be quiet! Pure Rock Pro 3 (BK041, 155 mm, AM5)',
                     priceNew: 100,
                     pricePromo: 75,
                     desc: 'Maintient les Ryzen 9 à basse température même pendant des heures d\'inférence IA continue.'
@@ -935,7 +935,7 @@
                 },
                 {
                     id: 'rtx_3060_12g',
-                    name: 'NVIDIA GeForce RTX 3060 — 12 Go GDDR6',
+                    name: 'Gainward GeForce RTX 3060 Python II OC 12 Go (3 DP + 1 HDMI, 247,3 mm)',
                     priceNew: 290,
                     pricePromo: 260,
                     vram: 12,
@@ -973,7 +973,7 @@
                 },
                 {
                     id: 'rtx_3060_12g_sec',
-                    name: 'GPU 2 : NVIDIA GeForce RTX 3060 12 Go (170W • +4 écrans + 12 Go VRAM IA)',
+                    name: 'GPU 2 : Gainward RTX 3060 Python II OC 12 Go (3 DP + 1 HDMI, 2 slots)',
                     priceNew: 290,
                     pricePromo: 255,
                     vram: 12,
@@ -1103,7 +1103,7 @@
                 },
                 {
                     id: 'pcie4_1to',
-                    name: 'SSD NVMe M.2 — 1 To PCIe 4.0 (Crucial / Lexar)',
+                    name: 'Kingston NV3 SSD 1 To (SNV3S/1000G, M.2 PCIe 4.0 x4)',
                     priceNew: 75,
                     pricePromo: 62,
                     desc: 'Stockage rapide d\'entrée de gamme de 1000 Go.'
@@ -1154,10 +1154,10 @@
             case: [
                 {
                     id: 'corsair_4000d',
-                    name: 'Corsair FRAME 4000D (Noir, ATX)',
+                    name: 'Corsair Frame 4000D RS ARGB (noir, ATX/mATX, 3 ventilateurs)',
                     priceNew: 120,
                     pricePromo: 98,
-                    desc: 'Excellent flux d\'air en façade pour refroidir 2 cartes graphiques.'
+                    desc: 'Version RS ARGB avec trois ventilateurs 120 mm fournis. Vérifier montage final et dégagements.'
                 },
                 {
                     id: 'full_tower_xl',
@@ -1349,11 +1349,43 @@
                 "checkedAt": "2026-11-06"
         },
         "case:corsair_4000d": {
-                "price": 99.95,
-                "sku": "PB00669920",
-                "url": "https://www.ldlc.com/fiche/PB00669920.html",
+                "price": 119.95,
+                "sku": "PB00669882",
+                "url": "https://www.ldlc.com/fiche/PB00669882.html",
                 "status": "in_stock",
-                "name": "Corsair FRAME 4000D Noir",
+                "name": "Corsair Frame 4000D RS ARGB Noir, 3 ventilateurs inclus",
+                "checkedAt": "2026-11-06"
+        },
+        "gpu1:rtx_3060_12g": {
+                "price": 539.95,
+                "sku": "PB00748326",
+                "url": "https://www.ldlc.com/fiche/PB00748326.html",
+                "status": "in_stock",
+                "name": "Gainward GeForce RTX 3060 Python II OC 12 Go",
+                "checkedAt": "2026-11-06"
+        },
+        "gpu2:rtx_3060_12g_sec": {
+                "price": 539.95,
+                "sku": "PB00748326",
+                "url": "https://www.ldlc.com/fiche/PB00748326.html",
+                "status": "in_stock",
+                "name": "Gainward GeForce RTX 3060 Python II OC 12 Go",
+                "checkedAt": "2026-11-06"
+        },
+        "ssd:pcie4_1to": {
+                "price": 209.95,
+                "sku": "PB00630081",
+                "url": "https://www.ldlc.com/fiche/PB00630081.html",
+                "status": "in_stock",
+                "name": "Kingston NV3 SSD 1 To SNV3S/1000G",
+                "checkedAt": "2026-11-06"
+        },
+        "cooler:phantom_spirit_aio": {
+                "price": 49.95,
+                "sku": "PB00672815",
+                "url": "https://www.ldlc.com/fiche/PB00672815.html",
+                "status": "in_stock",
+                "name": "be quiet! Pure Rock Pro 3 (BK041)",
                 "checkedAt": "2026-11-06"
         }
 };
@@ -1409,7 +1441,13 @@
           if(screens.some(x=>x.port==='usbc'||x.port==='other'))warn('Entrées vidéo à vérifier','Confirmer les ports et les câbles exacts pour chaque écran, y compris USB-C Alt Mode.');
           if(screens.some(x=>x.hz>120&&['4k','dqhd'].includes(x.res)))warn('4K à fréquence élevée','Débit GPU, révision HDMI/DP, câble et DSC à vérifier.');
           if(['b650_atx','x870e_extreme'].includes(mb.id)||['mesh_budget','full_tower_xl'].includes(box.id))warn('Références génériques','Impossible de vérifier tous les connecteurs et dimensions sans le modèle exact.');
-          if(cooler.id!=='stock_cooler'||gpu1.watts>=200)warn('Dimensions et connecteurs','Contrôler hauteur ventirad, épaisseur/longueur GPU, ports d’alimentation et dégagement du boîtier.');
+          if(gpu1.id==='rtx_3060_12g'&&gpu2.type==='none'&&screens.filter(sc=>sc.port==='hdmi').length>1)
+      warn('Sorties HDMI natives insuffisantes','Gainward RTX 3060 Python II OC : 1 HDMI et 3 DisplayPort. Vérifier les adaptateurs DP vers HDMI, résolution et fréquence.');
+    if(box.id==='corsair_4000d'&&gpu1.id==='rtx_3060_12g')
+      if(247.3>430)error('GPU trop long','GPU 247,3 mm contre limite boîtier 430 mm.');
+    if(box.id==='corsair_4000d'&&cooler.id==='phantom_spirit_aio')
+      if(155>170)error('Ventirad trop haut','Ventirad 155 mm contre dégagement boîtier 170 mm.');
+    if(cooler.id!=='stock_cooler'||gpu1.watts>=200)warn('Dimensions et connecteurs','Contrôler hauteur ventirad, épaisseur/longueur GPU, ports d’alimentation et dégagement du boîtier.');
     if(!window.LDLC_PRICE_SNAPSHOT?.['ssd:'+ssd.id])warn('SSD sans référence commerciale vérifiée','Vérifier modèle, interface M.2, capacité et présence au catalogue.');
           return {errors,warnings,blocked:errors.length>0};
         }
@@ -3305,7 +3343,7 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
   let entries={};let lastSignature='';
   function getEntries(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');return x&&typeof x==='object'?x:{};}catch(e){return {};}}
   function persist(){try{localStorage.setItem(KEY,JSON.stringify(entries));}catch(e){}}
-  function ignored(k,id){return (k==='conn'&&id==='pcie_internal')||(k==='gpu2'&&id==='none');}
+  function ignored(k,id){return (k==='conn'&&id==='pcie_internal')||(k==='gpu2'&&id==='none')||(k==='cooler'&&id==='stock_cooler'&&getSelectedItem('cpu').id==='i5_12400f');}
   function active(){
     return COMPONENT_KEYS.map(k=>{
       const part=getSelectedItem(k);
