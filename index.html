@@ -1082,7 +1082,7 @@
             ssd: [
                 {
                     id: 'sn850x_2to',
-                    name: 'Western Digital WD_Black SN850X — 2 To NVMe PCIe 4.0 (7300 Mo/s)',
+                    name: 'Kingston NV3 2 To SSD (SNV3S/2000G, M.2 2280 PCIe 4.0 x4)',
                     priceNew: 180,
                     pricePromo: 145,
                     desc: 'Ultra-rapide et endurant pour charger instantanément vos modèles IA de 10 à 20 Go.'
@@ -1387,6 +1387,14 @@
                 "status": "in_stock",
                 "name": "be quiet! Pure Rock Pro 3 (BK041)",
                 "checkedAt": "2026-11-06"
+        },
+        "ssd:sn850x_2to": {
+                "price": 369.95,
+                "sku": "PB00630082",
+                "url": "https://www.ldlc.com/fiche/PB00630082.html",
+                "status": "in_stock",
+                "name": "Kingston NV3 2 To (SNV3S/2000G)",
+                "checkedAt": "2026-11-06"
         }
 };
         window.LDLC_PRICE_SNAPSHOT = LDLC_PRICE_SNAPSHOT;
@@ -1396,6 +1404,7 @@
         }
         function getPriceEvidenceLabel(cat,item){
             if(cat==='conn'&&item.id==='pcie_internal'||cat==='gpu2'&&item.id==='none')return 'Aucun achat';
+            if(cat==='cooler'&&item.id==='stock_cooler'&&getSelectedItem('cpu').id==='i5_12400f')return 'Inclus avec i5-12400F boîte (0 €)';
             const quote=getPriceEvidence(cat,item);
             if(!quote)return 'Prix non vérifié';
             return quote.status==='in_stock'?'LDLC · '+quote.price.toFixed(2).replace('.',',')+' € (relevé 06/11)':'LDLC · rupture (prix informatif)';
@@ -3046,7 +3055,7 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     p.total=categories.reduce((sum,key)=>sum+price(key,p[key],needs.priceMode),needs.assembly?80:0);
     p.totalKnown=0;p.unpriced=[];
     categories.forEach(key=>{
-      if((key==='conn'&&p[key]==='pcie_internal')||(key==='gpu2'&&p[key]==='none'))return;
+      if((key==='conn'&&p[key]==='pcie_internal')||(key==='gpu2'&&p[key]==='none')||(key==='cooler'&&p[key]==='stock_cooler'&&p.cpu==='i5_12400f'))return;
       const quote=window.LDLC_PRICE_SNAPSHOT?.[key+':'+p[key]];
       if(quote?.status==='in_stock')p.totalKnown+=quote.price;
       else p.unpriced.push(key);
