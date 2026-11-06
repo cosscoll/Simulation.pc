@@ -2380,10 +2380,10 @@
             let copied=false;
             try{
                 if(navigator.clipboard && navigator.clipboard.writeText){
-                    await navigator.clipboard.writeText(lines.join('\\n'));copied=true;
+                    await navigator.clipboard.writeText(lines.join('\n'));copied=true;
                 }else{
                     const textarea=document.createElement('textarea');
-                    textarea.value=lines.join('\\n');
+                    textarea.value=lines.join('\n');
                     document.body.appendChild(textarea);textarea.select();
                     copied=document.execCommand('copy');textarea.remove();
                 }
