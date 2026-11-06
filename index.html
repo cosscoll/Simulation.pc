@@ -531,11 +531,11 @@
 <section id="price-proof-panel" class="price-proof-panel" aria-labelledby="proof-title">
  <div class="proof-heading">
   <div><span class="eyebrow">PRIX ACTUELS · JUSTIFICATIFS</span><h3 id="proof-title">Quel est le vrai prix du PC ?</h3>
-  <p>Les prix de simulation ne sont pas des offres commerciales. Renseignez les tarifs TTC d'une fiche vendeur pour établir un panier sourcé.</p></div>
+  <p>Certains tarifs précis ont été relevés sur LDLC le 06/11/2026. Les autres restent manquants ; complétez-les à partir des fiches vendeurs. Aucun tarif n'est mis à jour automatiquement.</p></div>
  </div>
  <div id="proof-summary" class="proof-summary" role="status" aria-live="polite"></div>
  <details id="proof-details" class="proof-details">
-   <summary>Renseigner les prix des composants <span>Un prix TTC + le lien vers le produit exact</span></summary>
+   <summary>Prix LDLC et composants à vérifier <span>Prix relevés + liens officiels ; complétez les références manquantes</span></summary>
    <p class="proof-help">Utilisez le prix de la fiche produit <b>exacte</b> (marque, version, capacité, neuf/occasion). Les prix et disponibilités peuvent varier à tout moment, et les frais de livraison ne sont pas inclus.</p>
    <div id="proof-entries" class="proof-entries"></div>
    <button id="proof-clear" type="button" class="proof-clear">Effacer les tarifs renseignés</button>
@@ -3243,39 +3243,47 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
       const key=k+'_'+part.id;
       const expected=getEffectiveItemPrice(k,part);
       const skip=ignored(k,part.id);
-      const entry=entries[key]||null;
-      const recent=entry&&Number.isFinite(entry.value)&&entry.value>=0&&
-        typeof entry.url==='string'&&entry.url.startsWith('https://')&&
-        Number.isFinite(entry.savedAt)&&Date.now()-entry.savedAt<48*60*60*1000;
-      return {k,key,part,expected,skip,entry,recent};
+      const manual=entries[key]||null;
+      const quote=window.LDLC_PRICE_SNAPSHOT?.[k+':'+part.id]||null;
+      const official=quote?.status==='in_stock'?{value:quote.price,url:quote.url,source:'LDLC',savedAt:Date.parse(quote.checkedAt+'T00:00:00+01:00')}:null;
+      const valid=x=>x&&Number.isFinite(x.value)&&x.value>=0&&typeof x.url==='string'&&x.url.startsWith('https://')&&
+        Number.isFinite(x.savedAt)&&Date.now()-x.savedAt>=0&&Date.now()-x.savedAt<48*60*60*1000;
+      const entry=valid(manual)?manual:valid(official)?official:manual||official;
+      const recent=!!valid(entry);
+      return {k,key,part,expected,skip,entry,recent,quote,isOfficial:recent&&entry?.source==='LDLC'};
     });
   }
   function setText(el,v){if(el)el.textContent=v;}
   function money(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n);}
   function decoratePrice(){
     const items=active();
-    const expected=items.reduce((n,x)=>n+x.expected,document.getElementById('check-assembly').checked?80:0);
     const countable=items.filter(x=>!x.skip);
     const completed=countable.filter(x=>x.recent);
     const done=completed.length===countable.length;
     const sum=items.reduce((n,x)=>n+(x.skip?0:x.recent?x.entry.value:0),0);
+    const hasAssembly=document.getElementById('check-assembly').checked;
+    const compat=typeof window.auditHardware==='function'?window.auditHardware(
+      Object.fromEntries(COMPONENT_KEYS.map(k=>[k,getSelectedItem(k)])),state.screens.slice(0,state.screenCount)
+    ):{errors:[{title:'Audit indisponible'}]};
+    const isSafeToQuote=done&&!hasAssembly&&!compat.errors.length;
     const summary=$('proof-summary');
     if(!summary)return;
     summary.replaceChildren();
-    const tag=document.createElement('div');tag.className='proof-tag';tag.textContent=completed.length+'/'+countable.length+' composants avec prix et lien saisis depuis moins de 48 h';
-    const price=document.createElement('strong');price.textContent=done&&!document.getElementById('check-assembly').checked?money(sum):'Tarif à compléter';
+    const tag=document.createElement('div');tag.className='proof-tag';
+    tag.textContent=completed.length+' / '+countable.length+' composants avec prix TTC sourcé récemment (LDLC ou relevé utilisateur)';
+    const price=document.createElement('strong');price.textContent=isSafeToQuote?money(sum):'Devis incomplet';
     const info=document.createElement('p');
-    info.textContent=done?
-      (document.getElementById('check-assembly').checked
-      ?'Panier composants : '+money(sum)+'. Le forfait montage à 80 € reste une hypothèse non confirmée.'
-      :'Somme des prix renseignés par vous. À recontrôler avant tout paiement ; stock et livraison non garantis.')
-      :'Estimation de simulation uniquement : '+money(expected)+'. Ce n’est PAS un prix vendeur confirmé.';
+    info.textContent=isSafeToQuote
+      ?'Somme des prix sourcés à revalider chez les vendeurs. Aucune synchronisation live, stocks et livraison non garantis.'
+      :'Sous-total des prix relevés : '+money(sum)+'. Reste '+(countable.length-completed.length)+' prix manquant(s) ou expiré(s).'+
+       (hasAssembly?' Montage à chiffrer séparément.':'')+
+       (compat.errors.length?' Configuration incompatible : corriger les erreurs avant devis.':'');
     summary.append(tag,price,info);
-    setText($('summary-price-label'),done&&!document.getElementById('check-assembly').checked?'TOTAL DES PRIX SAISIS · À RECONFIRMER':'BUDGET DE SIMULATION · PRIX NON VÉRIFIÉS');
-    setText($('total-price-display'),done&&!document.getElementById('check-assembly').checked?money(sum):'À confirmer');
-    setText($('alt-price-comparison'),done?
-      'Saisie de tarifs vendeurs, sans synchronisation en direct. Vérifiez le panier chez chaque marchand.' :
-      'Estimation hors prix des écrans : '+money(expected)+'. Tarifs catalogues non vérifiés et susceptibles de changer.');
+    setText($('summary-price-label'),isSafeToQuote?'SOMME SOURCÉE · À REVALIDER AVANT ACHAT':'PRIX NON COMPLET · NE PAS ACHETER');
+    setText($('total-price-display'),isSafeToQuote?money(sum):'Prix incomplet');
+    setText($('alt-price-comparison'),isSafeToQuote
+      ?'Relevés LDLC et/ou manuels, horodatés · sans prix dynamique ; vérifier le panier final.'
+      :'Sous-total des composants sourcés : '+money(sum)+' TTC. Aucun total complet fiable pour le moment.');
   }
   function makeInput(label,typ,placeholder,val){
     const input=document.createElement('input');
@@ -3296,7 +3304,9 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
         const row=document.createElement('div');row.className='proof-entry';
         const name=document.createElement('strong');name.textContent=LABELS[x.k]+' — '+x.part.name;
         const note=document.createElement('small');
-        note.textContent=x.entry?.savedAt?'Dernier relevé : '+new Date(x.entry.savedAt).toLocaleString('fr-FR'):'Aucun tarif vendeur saisi';
+        note.textContent=x.recent?
+          (x.isOfficial?'Relevé LDLC du 06/11/2026 · à vérifier avant achat':'Relevé utilisateur du '+new Date(x.entry.savedAt).toLocaleDateString('fr-FR')) :
+          x.quote?.status==='out_of_stock'?'Rupture LDLC : aucun prix achetable confirmé':'Tarif absent ou expiré · saisie nécessaire';
         const fields=document.createElement('div');fields.className='proof-fields';
         const euros=makeInput('Prix TTC en euros pour '+x.part.name,'number','Prix TTC',x.entry?.value?.toString());
         const url=makeInput('URL de la fiche produit chez le vendeur','url','https://… (fiche produit)',x.entry?.url);
@@ -3304,11 +3314,11 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
         const actions=document.createElement('div');actions.className='proof-actions';
         const save=document.createElement('button');save.type='button';save.className='proof-save';save.textContent='Enregistrer ce relevé';
         const search=document.createElement('a');search.className='proof-search';search.target='_blank';search.rel='noopener noreferrer';
-        search.href='https://www.google.com/search?tbm=shop&q='+encodeURIComponent(x.part.name);
-        search.textContent='Chercher ce produit';
+        search.href=x.quote?.url||('https://www.ldlc.com/recherche/'+encodeURIComponent(x.part.name)+'/');
+        search.textContent=x.quote?'Voir la fiche LDLC':'Chercher sur LDLC';
         actions.append(save,search);
         const info=document.createElement('p');info.className='proof-date';
-        if(x.recent){info.textContent='Prix saisi récemment · à confirmer lors du paiement';}
+        if(x.recent){info.textContent=x.isOfficial?'LDLC : prix relevé au 06/11/2026, à revérifier':'Prix saisi récemment · à confirmer lors du paiement';}
         else if(x.entry){info.textContent='Relevé ancien ou incomplet · revérification nécessaire';}
         else info.hidden=true;
         const error=document.createElement('p');error.className='proof-error';error.hidden=true;
@@ -3321,7 +3331,7 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
           if(parsed.protocol!=='https:'||!parsed.hostname.includes('.')||parsed.hostname==='localhost'){
             showError(error,'Le lien du vendeur doit utiliser HTTPS et une adresse Internet valide.');return;
           }
-          entries[x.key]={value:Math.round(v*100)/100,url:parsed.href,savedAt:Date.now()};
+          entries[x.key]={value:Math.round(v*100)/100,url:parsed.href,source:'manual',savedAt:Date.now()};
           persist();showError(error,'');
           info.hidden=false;info.textContent='Prix renseigné le '+new Date().toLocaleString('fr-FR')+' (à revalider à l’achat)';
           decoratePrice();
