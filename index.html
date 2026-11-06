@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurateur & Simulateur PC Multi-Écrans, IA & Performance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        lab: {
+                            950: '#07090e',
+                            900: '#0d1117',
+                            850: '#131922',
+                            800: '#1a2230',
+                            700: '#283448',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            purple: '#a855f7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(19, 25, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.14);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 8px 30px -10px rgba(56, 189, 248, 0.15);
+        }
+        .blueprint-grid {
+            background-image: 
+                linear-gradient(to right, rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(56, 189, 248, 0.07) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #283448;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.6rem center;
+            background-repeat: no-repeat;
+            background-size: 1.4em 1.4em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        .pulse-dot {
+            animation: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulseRing {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-sky-500 selection:text-slate-950">
+
+    <!-- TOP HEADER -->
+    <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-lab-950/95 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <!-- Brand & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 shrink-0">
+                    <i data-lucide="cpu" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">Configurateur & Simulateur PC Multi-Écrans, IA & Performance</h1>
+                        <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">1 à 8 Écrans • FPS & VRAM Live</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Composez votre PC pièce par pièce et configurez chaque écran (Taille cm, Résolution, Hz/FPS, Charge IA/3D & Port GPU)</p>
+                </div>
+            </div>
+
+            <!-- Navigation Views -->
+            <nav class="flex flex-wrap items-center gap-1.5 bg-lab-900 p-1.5 rounded-xl border border-slate-800">
+                <button onclick="switchMainTab('all')" id="tab-btn-all" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-500 text-slate-950 shadow-sm">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+                    <span>Vue Complète</span>
+                </button>
+                <button onclick="switchMainTab('pc')" id="tab-btn-pc" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+                    <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                    <span>1. Composants PC</span>
+                </button>
+                <button onclick="switchMainTab('monitors')" id="tab-btn-monitors" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+                    <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+                    <span>2. Écrans (Résolution & FPS)</span>
+                </button>
+                <button onclick="switchMainTab('desk')" id="tab-btn-desk" class="tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60">
+                    <i data-lucide="ruler" class="w-3.5 h-3.5"></i>
+                    <span>3. Bureau à l'échelle (cm)</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6">
+
+        <!-- PRESETS BAR -->
+        <section class="glass-card rounded-2xl p-4 sm:p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-sky-400"></i>
+                    <h2 class="text-xs font-mono uppercase tracking-wider text-slate-200 font-bold">Bases de Configuration Rapides (Modifiables pièce par pièce & écran par écran)</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetCustomPrices()" id="btn-reset-custom-prices" class="hidden text-[11px] font-mono px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition-all">
+                        Réinitialiser les prix manuels
+                    </button>
+                    <div class="flex items-center bg-lab-950 p-1 rounded-lg border border-slate-800">
+                        <button onclick="setPriceMode('new')" id="price-mode-new" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-sky-500 text-slate-950">
+                            Neuf Hors Promo (Certifié)
+                        </button>
+                        <button onclick="setPriceMode('promo')" id="price-mode-promo" class="px-2.5 py-1 rounded-md text-xs font-semibold transition-all text-slate-400 hover:text-white">
+                            Cible Promo / Black Friday
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+                <!-- Preset 1: Sweet Spot -->
+                <button onclick="loadPreset('sweetspot')" id="preset-btn-sweetspot" class="preset-card text-left p-3 rounded-xl border transition-all bg-sky-500/15 border-sky-400 shadow-md shadow-sky-500/10">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-sky-500 text-slate-950 font-bold">6 Écrans • Sweet Spot</span>
+                        <span class="text-xs font-mono font-bold text-sky-300">2 690 €</span>
+                    </div>
+                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Workstation Sweet Spot IA</div>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">R9 7900X • MSI X870 • RTX 4070 Ti Super 16Go + RTX 3050 6Go • 64Go DDR5 • 1000W</p>
+                </button>
+
+                <!-- Preset 2: Extreme Dual GPU -->
+                <button onclick="loadPreset('extreme')" id="preset-btn-extreme" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">7 Écrans • Extrême</span>
+                        <span class="text-xs font-mono font-bold text-purple-300">4 230 €</span>
+                    </div>
+                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Workstation Extrême Dual-GPU</div>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">R9 9900X • X870E (x8/x8) • RTX 4090 24Go + RTX 3060 12Go • 64Go • 1200W</p>
+                </button>
+
+                <!-- Preset 3: Mono GPU + DisplayLink -->
+                <button onclick="loadPreset('displaylink')" id="preset-btn-displaylink" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">6 Écrans • 1 GPU + USB</span>
+                        <span class="text-xs font-mono font-bold text-emerald-300">2 595 €</span>
+                    </div>
+                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Mono-GPU + Hub DisplayLink</div>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">R9 7900X • B650 • RTX 4080 Super 16Go + Dock USB DisplayLink • 64Go • 850W</p>
+                </button>
+
+                <!-- Preset 4: Budget 4 Screens -->
+                <button onclick="loadPreset('budget')" id="preset-btn-budget" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Max 4 Écrans</span>
+                        <span class="text-xs font-mono font-bold text-amber-300">835 € / 740 €*</span>
+                    </div>
+                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Tour Budget IA & Simu</div>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Core i5-12400F • B760 • RTX 3060 12Go • 32Go DDR4 • 650W (*Cible Promo)</p>
+                </button>
+
+                <!-- Preset 5: eGPU Thunderbolt 4 Test -->
+                <button onclick="loadPreset('egputrap')" id="preset-btn-egputrap" class="preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-rose-500/50 transition-all">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Test Bridage Câble</span>
+                        <span class="text-xs font-mono font-bold text-rose-400">-30% FPS</span>
+                    </div>
+                    <div class="font-bold text-xs sm:text-sm text-white leading-snug">Test : eGPU Thunderbolt 4</div>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Simule la perte de bande passante (40 Gbps) sur vos FPS et le surcoût du boîtier eGPU</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- MAIN WORKSPACE GRID: LEFT = PC & SCREENS BUILDER (7 COLS), RIGHT = LIVE DASHBOARD (5 COLS) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- LEFT COLUMN (7 COLS): PC COMPOSER + PER-SCREEN CONFIGURATOR + DESK SCALE -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- ========================================== -->
+                <!-- SECTION 1: COMPOSITEUR PC SUR MESURE       -->
+                <!-- ========================================== -->
+                <div id="section-pc-builder" class="glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-sky-500 text-slate-950 font-mono text-xs font-extrabold flex items-center justify-center">1</span>
+                            <div>
+                                <h3 class="font-bold text-white text-base">Compositeur PC Sur Mesure (Pièce par Pièce)</h3>
+                                <p class="text-[11px] text-slate-400">Sélectionnez chaque composant ou modifiez directement son prix (€) dans la case de droite</p>
+                            </div>
+                        </div>
+                        <span id="price-mode-indicator" class="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
+                            Prix Neuf Hors Promo (Certifié)
+                        </span>
+                    </div>
+
+                    <!-- Architecture / Type de Connexion -->
+                    <div class="p-3.5 rounded-xl bg-lab-900/95 border border-slate-800">
+                        <div class="flex flex-wrap justify-between items-center gap-2 mb-1.5">
+                            <label for="select-conn" class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                                <i data-lucide="cable" class="w-3.5 h-3.5"></i> Type de Connexion / Architecture Châssis
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] text-slate-400 font-mono">Coût Boîtier/Dock :</span>
+                                <input type="number" id="custom-price-conn" onchange="onCustomPriceChange('conn', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none" value="0">
+                                <span class="text-xs font-mono text-slate-400">€</span>
+                            </div>
+                        </div>
+                        <select id="select-conn" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                        <p id="desc-conn" class="text-[11px] text-slate-400 mt-1.5"></p>
+                    </div>
+
+                    <!-- Component Rows Container -->
+                    <div class="space-y-3">
+                        <!-- Carte Mère -->
+                        <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90 hover:border-slate-700 transition-all">
+                            <div class="flex justify-between items-center gap-2 mb-1.5">
+                                <label for="select-mb" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                    <i data-lucide="circuit-board" class="w-3.5 h-3.5"></i> Carte Mère (Plateforme & Ports PCIe)
+                                </label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" id="custom-price-mb" onchange="onCustomPriceChange('mb', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                    <span class="text-xs font-mono text-slate-400">€</span>
+                                </div>
+                            </div>
+                            <select id="select-mb" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                            <p id="desc-mb" class="text-[11px] text-slate-400 mt-1.5"></p>
+                        </div>
+
+                        <!-- CPU & Cooler -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90">
+                                <div class="flex justify-between items-center gap-2 mb-1.5">
+                                    <label for="select-cpu" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Processeur (CPU)
+                                    </label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="custom-price-cpu" onchange="onCustomPriceChange('cpu', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                        <span class="text-xs font-mono text-slate-400">€</span>
+                                    </div>
+                                </div>
+                                <select id="select-cpu" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                                <p id="desc-cpu" class="text-[11px] text-slate-400 mt-1.5"></p>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90">
+                                <div class="flex justify-between items-center gap-2 mb-1.5">
+                                    <label for="select-cooler" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <i data-lucide="fan" class="w-3.5 h-3.5"></i> Refroidissement CPU
+                                    </label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="custom-price-cooler" onchange="onCustomPriceChange('cooler', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                        <span class="text-xs font-mono text-slate-400">€</span>
+                                    </div>
+                                </div>
+                                <select id="select-cooler" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                                <p id="desc-cooler" class="text-[11px] text-slate-400 mt-1.5"></p>
+                            </div>
+                        </div>
+
+                        <!-- GPU 1 Principal -->
+                        <div class="p-3.5 rounded-xl bg-gradient-to-r from-sky-950/35 to-lab-900 border border-sky-500/40">
+                            <div class="flex justify-between items-center gap-2 mb-1.5">
+                                <label for="select-gpu1" class="text-xs font-bold uppercase tracking-wider text-sky-300 flex items-center gap-1.5">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5 text-sky-400"></i> GPU 1 Principal (IA CUDA & Max 4 Écrans Physiques)
+                                </label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" id="custom-price-gpu1" onchange="onCustomPriceChange('gpu1', this.value)" class="w-20 bg-lab-950 border border-sky-500/50 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-sky-300 focus:border-sky-400 focus:outline-none">
+                                    <span class="text-xs font-mono text-sky-300">€</span>
+                                </div>
+                            </div>
+                            <select id="select-gpu1" onchange="updateSimulation()" class="w-full bg-lab-950 border border-sky-500/40 rounded-lg px-3 py-2 text-xs sm:text-sm text-white font-medium focus:border-sky-400 focus:outline-none"></select>
+                            <p id="desc-gpu1" class="text-[11px] text-slate-300 mt-1.5"></p>
+                        </div>
+
+                        <!-- GPU 2 / Extension Multi-Écrans -->
+                        <div class="p-3.5 rounded-xl bg-gradient-to-r from-indigo-950/35 to-lab-900 border border-indigo-500/40">
+                            <div class="flex justify-between items-center gap-2 mb-1.5">
+                                <label for="select-gpu2" class="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                                    <i data-lucide="monitors" class="w-3.5 h-3.5 text-indigo-400"></i> Solution Multi-Écrans / GPU 2 (Pour dépasser 4 écrans)
+                                </label>
+                                <div class="flex items-center gap-1">
+                                    <input type="number" id="custom-price-gpu2" onchange="onCustomPriceChange('gpu2', this.value)" class="w-20 bg-lab-950 border border-indigo-500/50 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-indigo-300 focus:border-indigo-400 focus:outline-none">
+                                    <span class="text-xs font-mono text-indigo-300">€</span>
+                                </div>
+                            </div>
+                            <select id="select-gpu2" onchange="updateSimulation()" class="w-full bg-lab-950 border border-indigo-500/40 rounded-lg px-3 py-2 text-xs sm:text-sm text-white font-medium focus:border-indigo-400 focus:outline-none"></select>
+                            <p id="desc-gpu2" class="text-[11px] text-slate-300 mt-1.5"></p>
+                        </div>
+
+                        <!-- RAM & SSD -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90">
+                                <div class="flex justify-between items-center gap-2 mb-1.5">
+                                    <label for="select-ram" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <i data-lucide="memory-stick" class="w-3.5 h-3.5"></i> Mémoire RAM
+                                    </label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="custom-price-ram" onchange="onCustomPriceChange('ram', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                        <span class="text-xs font-mono text-slate-400">€</span>
+                                    </div>
+                                </div>
+                                <select id="select-ram" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                                <p id="desc-ram" class="text-[11px] text-slate-400 mt-1.5"></p>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90">
+                                <div class="flex justify-between items-center gap-2 mb-1.5">
+                                    <label for="select-ssd" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <i data-lucide="hard-drive" class="w-3.5 h-3.5"></i> Stockage SSD NVMe
+                                    </label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="custom-price-ssd" onchange="onCustomPriceChange('ssd', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                        <span class="text-xs font-mono text-slate-400">€</span>
+                                    </div>
+                                </div>
+                                <select id="select-ssd" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                                <p id="desc-ssd" class="text-[11px] text-slate-400 mt-1.5"></p>
+                            </div>
+                        </div>
+
+                        <!-- Alimentation & Boîtier -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90">
+                                <div class="flex justify-between items-center gap-2 mb-1.5">
+                                    <label for="select-psu" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <i data-lucide="battery-charging" class="w-3.5 h-3.5"></i> Alimentation (PSU)
+                                    </label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="custom-price-psu" onchange="onCustomPriceChange('psu', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                        <span class="text-xs font-mono text-slate-400">€</span>
+                                    </div>
+                                </div>
+                                <select id="select-psu" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                                <p id="desc-psu" class="text-[11px] text-slate-400 mt-1.5"></p>
+                            </div>
+
+                            <div class="p-3.5 rounded-xl bg-lab-900/90 border border-slate-800/90">
+                                <div class="flex justify-between items-center gap-2 mb-1.5">
+                                    <label for="select-case" class="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                                        <i data-lucide="box" class="w-3.5 h-3.5"></i> Boîtier / Tour
+                                    </label>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" id="custom-price-case" onchange="onCustomPriceChange('case', this.value)" class="w-20 bg-lab-950 border border-slate-700 rounded px-2 py-0.5 text-right font-mono text-xs font-bold text-white focus:border-sky-400 focus:outline-none">
+                                        <span class="text-xs font-mono text-slate-400">€</span>
+                                    </div>
+                                </div>
+                                <select id="select-case" onchange="updateSimulation()" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:border-sky-400 focus:outline-none"></select>
+                                <p id="desc-case" class="text-[11px] text-slate-400 mt-1.5"></p>
+                            </div>
+                        </div>
+
+                        <!-- Option Forfait Montage Professionnel -->
+                        <div class="flex items-center justify-between p-3.5 rounded-xl bg-lab-950/90 border border-slate-800">
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="check-assembly" onchange="updateSimulation()" class="w-4 h-4 rounded accent-sky-500">
+                                <div>
+                                    <span class="text-xs sm:text-sm font-semibold text-white block">Option Montage Professionnel + Mise à jour BIOS Dual-GPU</span>
+                                    <span class="text-[11px] text-slate-400">Assemblage complet, câble-management et validation des 2 cartes graphiques</span>
+                                </div>
+                            </label>
+                            <span class="text-xs font-mono font-bold text-sky-300">+80 €</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- SECTION 2: CONFIGURATEUR INDIVIDUEL D'ÉCRANS (1 À 8)      -->
+                <!-- ========================================================= -->
+                <div id="section-monitors-builder" class="glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-500 text-white font-mono text-xs font-extrabold flex items-center justify-center">2</span>
+                            <div>
+                                <h3 class="font-bold text-white text-base">Configurateur d'Écrans Individuels (Résolution, FPS/Hz, Taille & Usage)</h3>
+                                <p class="text-[11px] text-slate-400">Personnalisez chaque écran : voyez instantanément les FPS réels obtenus, la VRAM consommée et la taille en cm</p>
+                            </div>
+                        </div>
+
+                        <!-- +/- Screen Count Stepper -->
+                        <div class="flex items-center gap-2 bg-lab-950 p-1.5 rounded-xl border border-slate-800 self-start sm:self-auto">
+                            <button onclick="changeScreenCount(-1)" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-all" title="Retirer un écran">-</button>
+                            <span id="screen-stepper-label" class="px-2 font-mono text-xs font-bold text-sky-400">6 Écrans</span>
+                            <button onclick="changeScreenCount(1)" class="w-7 h-7 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold flex items-center justify-center transition-all" title="Ajouter un écran">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Direct 1 to 8 Buttons + Quick Screen Templates -->
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-8 gap-1.5" id="screen-count-buttons">
+                            <button onclick="setScreenCount(1)" data-screens="1" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">1</button>
+                            <button onclick="setScreenCount(2)" data-screens="2" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">2</button>
+                            <button onclick="setScreenCount(3)" data-screens="3" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">3</button>
+                            <button onclick="setScreenCount(4)" data-screens="4" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">4 <span class="block text-[8px] font-normal opacity-75">Max GPU1</span></button>
+                            <button onclick="setScreenCount(5)" data-screens="5" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">5</button>
+                            <button onclick="setScreenCount(6)" data-screens="6" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-sky-400 bg-sky-500/20 text-white">6 <span class="block text-[8px] font-normal text-sky-300">Cible</span></button>
+                            <button onclick="setScreenCount(7)" data-screens="7" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">7</button>
+                            <button onclick="setScreenCount(8)" data-screens="8" class="screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400">8</button>
+                        </div>
+
+                        <!-- Quick Actions Bar for Screens -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 bg-lab-950/90 p-2.5 rounded-xl border border-slate-800/80 text-xs">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-[11px] font-mono text-slate-400 mr-1">Modèles d'écrans :</span>
+                                <button onclick="applyScreenTemplate('ia_workstation')" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-medium text-[11px] transition-all">
+                                    1× 40" 21:9 + 5× 32"/27" (IA & Blender)
+                                </button>
+                                <button onclick="applyScreenTemplate('sim_cockpit')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-medium text-[11px] transition-all">
+                                    Triple 32" 144Hz Simu + 3× Écrans IA
+                                </button>
+                                <button onclick="applyScreenTemplate('portable_mix')" class="px-2.5 py-1 rounded-lg bg-purple-500/15 hover:bg-purple-500/25 text-purple-300 border border-purple-500/30 font-medium text-[11px] transition-all">
+                                    Test Écrans 18" & 15.6" Portables
+                                </button>
+                            </div>
+                            <button onclick="copyScreen2ToAllAnnexes()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-[11px] flex items-center gap-1 transition-all" title="Copier la taille, la résolution et les Hz de l'Écran #2 vers tous les écrans annexes (#3 à #8)">
+                                <i data-lucide="copy-check" class="w-3.5 h-3.5 text-sky-400"></i>
+                                <span>Unifier Écrans Annexes (#2 → #8)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Per-Screen Cards Grid -->
+                    <div id="monitors-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1"></div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- SECTION 3: VISUALISEUR PHYSIQUE À L'ÉCHELLE (CM)          -->
+                <!-- ========================================================= -->
+                <div id="section-desk-visualizer" class="glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 font-mono text-xs font-extrabold flex items-center justify-center">3</span>
+                            <div>
+                                <h3 class="font-bold text-white text-base">Aperçu Physique du Bureau à l'Échelle (Centimètres & FPS Live)</h3>
+                                <p class="text-[11px] text-slate-400">Vérifiez l'alignement vertical en cm de vos dalles (18", 15.6", 27", 32", 40" 21:9...) et le statut de chaque écran</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-lab-950 p-1 rounded-lg border border-slate-800 self-start sm:self-auto">
+                            <button onclick="setDeskLayout('pyramid')" id="layout-btn-pyramid" class="px-2.5 py-1 rounded text-[11px] font-semibold bg-sky-500 text-slate-950 transition-all">
+                                Cockpit 2 Rangées (Pyramide)
+                            </button>
+                            <button onclick="setDeskLayout('row')" id="layout-btn-row" class="px-2.5 py-1 rounded text-[11px] font-semibold text-slate-400 hover:text-white transition-all">
+                                Ligne Côte-à-Côte
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Alignment Verdict Banner -->
+                    <div id="desk-alignment-banner" class="p-3 rounded-xl border text-xs leading-relaxed"></div>
+
+                    <!-- Scale Blueprint Canvas -->
+                    <div class="blueprint-grid w-full min-h-[290px] rounded-xl border border-slate-800 bg-lab-950 p-4 flex flex-col items-center justify-center relative overflow-x-auto">
+                        <div id="desk-scale-stage" class="flex flex-col items-center justify-center gap-3 py-2 w-full"></div>
+                        <div class="w-full flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400 mt-3 pt-2 border-t border-slate-800/80">
+                            <span id="desk-dimensions-summary">Envergure horizontale : -- cm</span>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-sky-500/40 border border-sky-400 inline-block"></span> GPU 1 (Ports 1-4)</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-indigo-500/40 border border-indigo-400 inline-block"></span> GPU 2 (Ports 5-8)</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500/40 border border-amber-400 inline-block"></span> USB DisplayLink</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500/40 border border-rose-500 inline-block"></span> Écran Noir / Coupé</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- RIGHT COLUMN (5 COLS): PINNED LIVE TELEMETRY DASHBOARD    -->
+            <!-- ========================================================= -->
+            <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-20">
+
+                <!-- 1. PRICE & GLOBAL STATUS CARD -->
+                <div class="glass-card rounded-2xl p-5 border-t-4 border-t-sky-500">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <span id="summary-price-label" class="text-[11px] font-mono uppercase tracking-wider text-sky-400 block font-bold">BUDGET TOTAL (NEUF HORS PROMO CERTIFIÉ)</span>
+                            <div class="flex items-baseline gap-3 mt-1">
+                                <span id="total-price-display" class="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">2 690 €</span>
+                                <span id="alt-price-comparison" class="text-xs font-mono text-emerald-400">Cible Promo : ~2 335 €</span>
+                            </div>
+                        </div>
+                        <button onclick="copyConfigurationSummary()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 border border-slate-700 transition-all shrink-0" title="Copier le devis complet et les écrans">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span id="copy-btn-text">Copier Config</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick KPI Pills -->
+                    <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800/80 text-center">
+                        <div class="bg-lab-950/90 p-2 rounded-xl border border-slate-800">
+                            <span class="text-[10px] font-mono uppercase text-slate-400 block">Écrans Allumés</span>
+                            <span id="kpi-active-screens" class="font-mono text-sm font-extrabold text-emerald-400">6 / 6</span>
+                        </div>
+                        <div class="bg-lab-950/90 p-2 rounded-xl border border-slate-800">
+                            <span class="text-[10px] font-mono uppercase text-slate-400 block">Pixels Totaux</span>
+                            <span id="kpi-total-mpx" class="font-mono text-sm font-extrabold text-sky-400">20.7 Mpx</span>
+                        </div>
+                        <div class="bg-lab-950/90 p-2 rounded-xl border border-slate-800">
+                            <span class="text-[10px] font-mono uppercase text-slate-400 block">Bilan FPS</span>
+                            <span id="kpi-fps-health" class="font-mono text-sm font-extrabold text-emerald-400">100% Fluide</span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Diagnostic Alerts -->
+                    <div id="diagnostic-alerts-container" class="mt-4 space-y-2"></div>
+                </div>
+
+                <!-- 2. PER-SCREEN FPS & SIGNAL SUMMARY TABLE -->
+                <div class="glass-card rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="activity" class="w-4 h-4 text-sky-400"></i>
+                            Simulation FPS Réels & Branchement par Écran
+                        </h3>
+                        <span id="bandwidth-pill" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                            Débit : 1.45 Gpx/s
+                        </span>
+                    </div>
+
+                    <div id="live-fps-table-container" class="space-y-1.5 max-h-[260px] overflow-y-auto pr-1"></div>
+                </div>
+
+                <!-- 3. DETAILED VRAM & MULTI-GPU MEMORY METER -->
+                <div class="glass-card rounded-2xl p-4 sm:p-5 space-y-3.5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <h3 class="text-xs font-mono uppercase tracking-wider font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="database" class="w-4 h-4 text-purple-400"></i>
+                            Consommation VRAM (Écrans + Modèles IA + 3D)
+                        </h3>
+                        <span id="vram-total-badge" class="text-xs font-mono font-bold text-sky-400">16 Go + 6 Go</span>
+                    </div>
+
+                    <!-- GPU 1 VRAM Bar -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs">
+                            <span id="gpu1-vram-label" class="font-semibold text-slate-200">GPU 1 (RTX 4070 Ti Super)</span>
+                            <span id="gpu1-vram-numbers" class="font-mono font-bold text-sky-400">11.8 / 16.0 Go (74%)</span>
+                        </div>
+                        <div class="w-full h-3 bg-lab-950 rounded-full overflow-hidden border border-slate-800 flex">
+                            <div id="bar-gpu1-display" class="h-full bg-sky-400 transition-all duration-300" style="width: 10%" title="VRAM Affichage Écrans"></div>
+                            <div id="bar-gpu1-ai" class="h-full bg-purple-500 transition-all duration-300" style="width: 64%" title="VRAM Modèles IA & 3D"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                            <span id="gpu1-vram-breakdown">Affichage : 1.4 Go • IA & 3D : 10.4 Go</span>
+                            <span id="gpu1-vram-status" class="text-emerald-400">Marge : 4.2 Go</span>
+                        </div>
+                    </div>
+
+                    <!-- GPU 2 VRAM Bar (Shown if Secondary GPU is selected) -->
+                    <div id="gpu2-vram-box" class="space-y-1.5 pt-2 border-t border-slate-800/60">
+                        <div class="flex justify-between text-xs">
+                            <span id="gpu2-vram-label" class="font-semibold text-slate-200">GPU 2 (RTX 3050)</span>
+                            <span id="gpu2-vram-numbers" class="font-mono font-bold text-indigo-400">0.8 / 6.0 Go (13%)</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-lab-950 rounded-full overflow-hidden border border-slate-800 flex">
+                            <div id="bar-gpu2-display" class="h-full bg-indigo-400 transition-all duration-300" style="width: 13%"></div>
+                            <div id="bar-gpu2-ai" class="h-full bg-pink-500 transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                            <span id="gpu2-vram-breakdown">Affichage : 0.8 Go • IA & 3D : 0.0 Go</span>
+                            <span id="gpu2-vram-status" class="text-emerald-400">Marge : 5.2 Go</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. POWER (WATTS) & 5-YEAR UPGRADEABILITY SCORE -->
+                <div class="glass-card rounded-2xl p-4 sm:p-5 space-y-3.5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Power Supply Box -->
+                        <div class="p-3 rounded-xl bg-lab-950/90 border border-slate-800 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono uppercase text-slate-400">Alimentation (Watts)</span>
+                                <span id="power-badge" class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300">OK</span>
+                            </div>
+                            <div id="power-usage-numbers" class="font-mono text-sm font-extrabold text-white">595W / 1000W</div>
+                            <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                                <div id="bar-power" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 60%"></div>
+                            </div>
+                            <p id="power-detail-text" class="text-[10px] text-slate-400 leading-tight">Marge de sécurité : 40% pour absorber les pics ATX 3.0.</p>
+                        </div>
+
+                        <!-- 5-Year Upgradeability Box -->
+                        <div class="p-3 rounded-xl bg-lab-950/90 border border-slate-800 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono uppercase text-slate-400">Évolutivité 5 Ans</span>
+                                <span id="upgrade-score-badge" class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">95 / 100</span>
+                            </div>
+                            <div id="upgrade-title-text" class="font-sans text-xs font-bold text-white truncate">Socket AM5 + ATX 3.0</div>
+                            <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                                <div id="bar-upgrade" class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300" style="width: 95%"></div>
+                            </div>
+                            <p id="upgrade-detail-text" class="text-[10px] text-slate-400 leading-tight">Remplacement futur du CPU ou GPU sans changer le PC.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 bg-lab-950 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <span>Configurateur & Simulateur PC Multi-Écrans, IA & Performance • Prix Neufs Certifiés (LDLC / Materiel.net / TopAchat)</span>
+            <span class="font-mono text-slate-400">Calculateur FPS, VRAM, Dimensions physiques (cm) & Topologie NVIDIA 4-Écrans</span>
+        </div>
+    </footer>
+
+    <!-- APPLICATION JAVASCRIPT ENGINE -->
+    <script>
+        // =========================================================================
+        // 1. HARDWARE DATABASE (Complete with Verified New Prices, Promo & Specs)
+        // =========================================================================
+        const HARDWARE_DB = {
+            conn: [
+                {
+                    id: 'pcie_internal',
+                    name: 'Tour PC Fixe (Port PCIe x16 natif direct — 256 Gbps • 0% perte)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    fpsMultiplier3D: 1.0,
+                    aiMultiplier: 1.0,
+                    allowDualGpu: true,
+                    desc: 'Connexion directe sur la carte mère à 256 Gbps. 100% des performances FPS et IA, zéro latence.'
+                },
+                {
+                    id: 'egpu_oculink',
+                    name: 'Boîtier eGPU OCuLink / M.2 (PCIe x4 direct — 64 Gbps • ~8% perte)',
+                    priceNew: 195,
+                    pricePromo: 165,
+                    fpsMultiplier3D: 0.92,
+                    aiMultiplier: 0.95,
+                    allowDualGpu: false,
+                    desc: 'Inclut le coût du dock OCuLink (~195€). Perte limitée (~8%) mais condamne le port M.2 ou exige un PC OCuLink.'
+                },
+                {
+                    id: 'egpu_tb4',
+                    name: 'Boîtier eGPU Thunderbolt 4 / USB-C (40 Gbps bridé — -25% à -35% FPS)',
+                    priceNew: 320,
+                    pricePromo: 270,
+                    fpsMultiplier3D: 0.68,
+                    aiMultiplier: 0.85,
+                    allowDualGpu: false,
+                    desc: '⚠️ Inclut le boîtier eGPU Thunderbolt (~320€). Le câble bride le flux à 4 voies PCIe : chute de 30% des FPS et saccades en multi-écrans !'
+                },
+                {
+                    id: 'dell_optiplex_chassis',
+                    name: 'Tour Dell OptiPlex 3060 existante (Alim 260W propriétaire bridée)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    fpsMultiplier3D: 0.55,
+                    aiMultiplier: 0.65,
+                    allowDualGpu: false,
+                    desc: '⚠️ Boîtier et carte mère propriétaires Dell : incompatible avec les alimentations standard et les grosses cartes graphiques.'
+                }
+            ],
+            mb: [
+                {
+                    id: 'x870_tomahawk',
+                    name: 'MSI MAG X870 TOMAHAWK WIFI (Format ATX - Socket AM5)',
+                    priceNew: 330,
+                    pricePromo: 285,
+                    socket: 'AM5',
+                    ramType: 'DDR5',
+                    dualGpuReady: true,
+                    upgradeScore: 95,
+                    desc: 'La référence évolutive AM5 : ports PCIe espacés pour 2 cartes graphiques, PCIe 5.0 et Wi-Fi 7.'
+                },
+                {
+                    id: 'x870e_extreme',
+                    name: 'AMD X870E Extreme Dual-GPU x8/x8 (ASUS ProArt / MSI Carbon)',
+                    priceNew: 460,
+                    pricePromo: 400,
+                    socket: 'AM5',
+                    ramType: 'DDR5',
+                    dualGpuReady: true,
+                    upgradeScore: 100,
+                    desc: 'Bifurcation matérielle PCIe 5.0 x8/x8 : idéale pour faire tourner 2 grosses cartes graphiques (ex: 4090 + 3060) sans perte.'
+                },
+                {
+                    id: 'b650_atx',
+                    name: 'Carte Mère AMD B650 Format ATX (MSI / Gigabyte Socket AM5)',
+                    priceNew: 180,
+                    pricePromo: 150,
+                    socket: 'AM5',
+                    ramType: 'DDR5',
+                    dualGpuReady: true,
+                    upgradeScore: 85,
+                    desc: 'Entrée de gamme évolutive sur socket AM5 avec un second port PCIe en bas de carte.'
+                },
+                {
+                    id: 'b760_atx',
+                    name: 'Carte Mère B760 / B550 Format ATX (2ème port PCIe libre)',
+                    priceNew: 110,
+                    pricePromo: 85,
+                    socket: 'LGA1700',
+                    ramType: 'DDR4',
+                    dualGpuReady: true,
+                    upgradeScore: 50,
+                    desc: 'Carte mère économique DDR4 pour configuration budget autour de 850-900€.'
+                },
+                {
+                    id: 'dell_mb',
+                    name: 'Carte Mère Dell Propriétaire (OptiPlex 3060 - LGA1151)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    socket: 'LGA1151',
+                    ramType: 'DDR4',
+                    dualGpuReady: false,
+                    upgradeScore: 5,
+                    desc: '⚠️ Connecteurs d\'alimentation propriétaires Dell et port PCIe bridé à 75W.'
+                }
+            ],
+            cpu: [
+                {
+                    id: 'r9_7900x',
+                    name: 'AMD Ryzen 9 7900X (12 Cœurs / 24 Threads - 5.6 GHz)',
+                    priceNew: 440,
+                    pricePromo: 380,
+                    watts: 170,
+                    socket: 'AM5',
+                    cpuFactor: 1.0,
+                    desc: 'Puissance multitâche idéale pour piloter 6 à 8 écrans, des conteneurs IA et Blender simultanément.'
+                },
+                {
+                    id: 'r9_9900x',
+                    name: 'AMD Ryzen 9 9900X (12 Cœurs / 24 Threads Zen 5)',
+                    priceNew: 520,
+                    pricePromo: 460,
+                    watts: 170,
+                    socket: 'AM5',
+                    cpuFactor: 1.06,
+                    desc: 'Architecture Zen 5 ultra-rapide offrant un gain de réactivité en simulation auto et traitement de données.'
+                },
+                {
+                    id: 'r9_9950x',
+                    name: 'AMD Ryzen 9 9950X (16 Cœurs / 32 Threads Zen 5 Extrême)',
+                    priceNew: 680,
+                    pricePromo: 610,
+                    watts: 200,
+                    socket: 'AM5',
+                    cpuFactor: 1.12,
+                    desc: 'Le sommet sur socket AM5 : 16 cœurs physiques pour compiler, virtualiser et alimenter plusieurs GPU.'
+                },
+                {
+                    id: 'r7_7700x',
+                    name: 'AMD Ryzen 7 7700X (8 Cœurs / 16 Threads - Socket AM5)',
+                    priceNew: 310,
+                    pricePromo: 265,
+                    watts: 105,
+                    socket: 'AM5',
+                    cpuFactor: 0.92,
+                    desc: '8 cœurs performants sur plateforme évolutive AM5.'
+                },
+                {
+                    id: 'i5_12400f',
+                    name: 'Intel Core i5-12400F (6 Cœurs / 12 Threads)',
+                    priceNew: 115,
+                    pricePromo: 100,
+                    watts: 65,
+                    socket: 'LGA1700',
+                    cpuFactor: 0.80,
+                    desc: 'Excellent processeur budget, mais plus limité si vous ouvrez 6 flux lourds en simultané.'
+                },
+                {
+                    id: 'i5_8400',
+                    name: 'Intel Core i5-8400 (6 Cœurs de 2018 - Dell OptiPlex 3060)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    watts: 65,
+                    socket: 'LGA1151',
+                    cpuFactor: 0.52,
+                    desc: '⚠️ Processeur de 2018 : crée un fort goulot d\'étranglement (bottleneck) en simulation auto et multi-écrans.'
+                }
+            ],
+            cooler: [
+                {
+                    id: 'phantom_spirit_aio',
+                    name: 'Thermalright Phantom Spirit 120 / AIO 360mm Standard',
+                    priceNew: 100,
+                    pricePromo: 75,
+                    desc: 'Maintient les Ryzen 9 à basse température même pendant des heures d\'inférence IA continue.'
+                },
+                {
+                    id: 'aio_360_pro',
+                    name: 'Watercooling AIO 360mm Pro (Arctic Liquid Freezer III / Corsair)',
+                    priceNew: 160,
+                    pricePromo: 130,
+                    desc: 'Dissipation liquide maximale et silencieuse pour les Ryzen 9 9900X / 9950X.'
+                },
+                {
+                    id: 'stock_cooler',
+                    name: 'Ventirad Stock d\'origine (Inclus avec petits CPU)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    desc: 'Suffisant uniquement pour un Core i5-12400F (65W). Incompatible avec la chauffe d\'un Ryzen 9.'
+                }
+            ],
+            gpu1: [
+                {
+                    id: 'rtx_4070ti_super',
+                    name: 'NVIDIA GeForce RTX 4070 Ti SUPER — 16 Go GDDR6X',
+                    priceNew: 900,
+                    pricePromo: 810,
+                    vram: 16,
+                    watts: 285,
+                    maxScreens: 4,
+                    power3D: 100, // Base reference: ~135 FPS in 1440p Sim Racing
+                    tokensPerSec: 68,
+                    desc: 'Sweet Spot IA & 3D : 16 Go de VRAM pour charger des LLM 8B-14B ou 32B quantifiés + 4 sorties vidéo natives.'
+                },
+                {
+                    id: 'rtx_4080_super',
+                    name: 'NVIDIA GeForce RTX 4080 SUPER — 16 Go GDDR6X',
+                    priceNew: 1100,
+                    pricePromo: 990,
+                    vram: 16,
+                    watts: 320,
+                    maxScreens: 4,
+                    power3D: 118,
+                    tokensPerSec: 82,
+                    desc: 'Surplus de puissance brute CUDA/Tensor pour les hautes résolutions (4K / 40" 21:9) et Blender.'
+                },
+                {
+                    id: 'rtx_4090',
+                    name: 'NVIDIA GeForce RTX 4090 — 24 Go GDDR6X',
+                    priceNew: 1850,
+                    pricePromo: 1690,
+                    vram: 24,
+                    watts: 450,
+                    maxScreens: 4,
+                    power3D: 155,
+                    tokensPerSec: 115,
+                    desc: 'Le monstre absolu : 24 Go de VRAM pour faire tourner plusieurs modèles IA gourmands simultanément.'
+                },
+                {
+                    id: 'rtx_4070_super',
+                    name: 'NVIDIA GeForce RTX 4070 SUPER — 12 Go GDDR6X',
+                    priceNew: 640,
+                    pricePromo: 580,
+                    vram: 12,
+                    watts: 220,
+                    maxScreens: 4,
+                    power3D: 86,
+                    tokensPerSec: 58,
+                    desc: 'Très rapide en 3D, mais limitée à 12 Go de VRAM pour cumuler plusieurs modèles IA locaux.'
+                },
+                {
+                    id: 'rtx_4060_8g',
+                    name: 'NVIDIA GeForce RTX 4060 — 8 Go GDDR6',
+                    priceNew: 310,
+                    pricePromo: 275,
+                    vram: 8,
+                    watts: 115,
+                    maxScreens: 4,
+                    power3D: 54,
+                    tokensPerSec: 38,
+                    desc: '⚠️ Seulement 8 Go de VRAM : vite saturée si vous cumulez plusieurs écrans + un modèle IA local.'
+                },
+                {
+                    id: 'rtx_3060_12g',
+                    name: 'NVIDIA GeForce RTX 3060 — 12 Go GDDR6',
+                    priceNew: 290,
+                    pricePromo: 260,
+                    vram: 12,
+                    watts: 170,
+                    maxScreens: 4,
+                    power3D: 48,
+                    tokensPerSec: 34,
+                    desc: 'La reine des petits budgets IA grâce à ses 12 Go de VRAM. Pilote jusqu\'à 4 écrans maximum.'
+                },
+                {
+                    id: 'gtx_1650_4g',
+                    name: 'NVIDIA GeForce GTX 1650 — 4 Go (75W Max pour Dell OptiPlex)',
+                    priceNew: 150,
+                    pricePromo: 130,
+                    vram: 4,
+                    watts: 75,
+                    maxScreens: 3,
+                    power3D: 18,
+                    tokensPerSec: 8,
+                    desc: '⚠️ Plafond toléré par l\'alimentation 260W du Dell OptiPlex : incapable de gérer vos modèles IA ou le simulateur en 21:9.'
+                }
+            ],
+            gpu2: [
+                {
+                    id: 'rtx_3050_6g',
+                    name: 'GPU 2 : MSI GeForce RTX 3050 6 Go (70W Auto-alimentée • +4 écrans)',
+                    priceNew: 190,
+                    pricePromo: 165,
+                    vram: 6,
+                    watts: 70,
+                    extraScreens: 4,
+                    power3D: 28,
+                    type: 'gpu',
+                    desc: 'Se branche sur le 2ème port PCIe sans câble d\'alimentation. Débloque les écrans 5 à 8 en 3D native + 6 Go VRAM.'
+                },
+                {
+                    id: 'rtx_3060_12g_sec',
+                    name: 'GPU 2 : NVIDIA GeForce RTX 3060 12 Go (170W • +4 écrans + 12 Go VRAM IA)',
+                    priceNew: 290,
+                    pricePromo: 255,
+                    vram: 12,
+                    watts: 170,
+                    extraScreens: 4,
+                    power3D: 48,
+                    type: 'gpu',
+                    desc: 'Fournit 4 sorties vidéo supplémentaires ET ajoute 12 Go de VRAM dédiés pour isoler un 2ème modèle IA gourmand !'
+                },
+                {
+                    id: 'rtx_4060_8g_sec',
+                    name: 'GPU 2 : NVIDIA GeForce RTX 4060 8 Go (115W • +4 écrans + 8 Go VRAM)',
+                    priceNew: 310,
+                    pricePromo: 275,
+                    vram: 8,
+                    watts: 115,
+                    extraScreens: 4,
+                    power3D: 54,
+                    type: 'gpu',
+                    desc: 'Seconde carte moderne à faible consommation (115W) pour piloter les écrans 5 à 8 et assister en calcul.'
+                },
+                {
+                    id: 'hub_displaylink',
+                    name: 'Hub / Dock USB 3.0 DisplayLink (+3 écrans via CPU/USB • Bureautique/Code)',
+                    priceNew: 110,
+                    pricePromo: 85,
+                    vram: 0,
+                    watts: 15,
+                    extraScreens: 3,
+                    power3D: 5,
+                    type: 'displaylink',
+                    desc: 'Contourne la limite NVIDIA via l\'USB. Parfait pour afficher vos conversations IA et du code sur les écrans 5-7, mais saccade en 3D.'
+                },
+                {
+                    id: 'hub_mst_trap',
+                    name: 'Hub DisplayPort MST Passif (Piège : Bloqué à 4 écrans par NVIDIA !)',
+                    priceNew: 60,
+                    pricePromo: 50,
+                    vram: 0,
+                    watts: 5,
+                    extraScreens: 0,
+                    power3D: 0,
+                    type: 'mst_trap',
+                    desc: '❌ PIÈGE TECHNIQUE : La puce NVIDIA compte chaque moniteur derrière le hub MST et coupe tout signal dès le 5ème écran !'
+                },
+                {
+                    id: 'none',
+                    name: 'Aucun GPU 2 ni Hub DisplayLink (Limité aux 4 sorties du GPU 1)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    vram: 0,
+                    watts: 0,
+                    extraScreens: 0,
+                    power3D: 0,
+                    type: 'none',
+                    desc: 'Limitation matérielle stricte NVIDIA GeForce : maximum 4 moniteurs simultanés.'
+                }
+            ],
+            ram: [
+                {
+                    id: 'ddr5_64g',
+                    name: 'Corsair Vengeance 64 Go (2x32 Go) DDR5 6000MHz CL30',
+                    priceNew: 250,
+                    pricePromo: 205,
+                    capacity: 64,
+                    type: 'DDR5',
+                    desc: 'Capacité idéale pour 6-8 écrans, Docker, Blender et LLM locaux. Laisse 2 slots libres pour monter à 128 Go.'
+                },
+                {
+                    id: 'ddr5_128g',
+                    name: 'Kit 128 Go (4x32 Go) DDR5 Haute Capacité',
+                    priceNew: 480,
+                    pricePromo: 415,
+                    capacity: 128,
+                    type: 'DDR5',
+                    desc: 'Permet de déborder des modèles IA géants (70B+) en RAM système sans jamais saturer Windows.'
+                },
+                {
+                    id: 'ddr5_32g',
+                    name: 'Kit 32 Go (2x16 Go) DDR5 6000MHz',
+                    priceNew: 130,
+                    pricePromo: 105,
+                    capacity: 32,
+                    type: 'DDR5',
+                    desc: 'Bon point de départ sur AM5, mais 64 Go sont recommandés pour 6 écrans + IA locale.'
+                },
+                {
+                    id: 'ddr4_32g',
+                    name: 'Kit 32 Go (2x16 Go) DDR4 3200MHz Dual Channel',
+                    priceNew: 95,
+                    pricePromo: 80,
+                    capacity: 32,
+                    type: 'DDR4',
+                    desc: 'Adapté aux cartes mères DDR4 (Intel B760 / AMD B550).'
+                },
+                {
+                    id: 'ddr4_16g',
+                    name: 'Kit 16 Go (2x8 Go) DDR4 3200MHz',
+                    priceNew: 55,
+                    pricePromo: 45,
+                    capacity: 16,
+                    type: 'DDR4',
+                    desc: '⚠️ Trop juste pour cumuler Blender, 6 écrans et des modèles d\'IA locaux.'
+                }
+            ],
+            ssd: [
+                {
+                    id: 'sn850x_2to',
+                    name: 'Western Digital WD_Black SN850X — 2 To NVMe PCIe 4.0 (7300 Mo/s)',
+                    priceNew: 180,
+                    pricePromo: 145,
+                    desc: 'Ultra-rapide et endurant pour charger instantanément vos modèles IA de 10 à 20 Go.'
+                },
+                {
+                    id: 'pcie5_2to',
+                    name: 'SSD NVMe PCIe 5.0 — 2 To (12 000 Mo/s)',
+                    priceNew: 240,
+                    pricePromo: 195,
+                    desc: 'Débit doublé en lecture séquentielle pour les chargements massifs de poids neuronaux.'
+                },
+                {
+                    id: 'pcie5_4to',
+                    name: 'SSD NVMe PCIe 5.0 — 4 To Haute Capacité',
+                    priceNew: 420,
+                    pricePromo: 360,
+                    desc: '4000 Go ultra-rapides pour stocker des dizaines de checkpoints IA et projets Blender.'
+                },
+                {
+                    id: 'pcie4_1to',
+                    name: 'SSD NVMe M.2 — 1 To PCIe 4.0 (Crucial / Lexar)',
+                    priceNew: 75,
+                    pricePromo: 62,
+                    desc: 'Stockage rapide d\'entrée de gamme de 1000 Go.'
+                }
+            ],
+            psu: [
+                {
+                    id: 'rm1000e',
+                    name: 'Corsair RM1000e — 1000 Watts (Norme ATX 3.0 / PCIe 5.0)',
+                    priceNew: 180,
+                    pricePromo: 150,
+                    watts: 1000,
+                    desc: 'Parfaitement dimensionnée pour encaisser 2 GPU et les futures mises à jour matérielles.'
+                },
+                {
+                    id: 'psu_1200w',
+                    name: 'Alimentation 1200 Watts ATX 3.0 PCIe 5.0 (80+ Gold/Platinum)',
+                    priceNew: 230,
+                    pricePromo: 195,
+                    watts: 1200,
+                    desc: 'Réserve de puissance royale pour une RTX 4090 + seconde carte graphique à pleine charge.'
+                },
+                {
+                    id: 'psu_850w',
+                    name: 'Alimentation 850 Watts ATX 3.0 (80+ Gold)',
+                    priceNew: 135,
+                    pricePromo: 115,
+                    watts: 850,
+                    desc: 'Idéale pour une configuration Mono-GPU (RTX 4070 Ti Super / 4080 Super).'
+                },
+                {
+                    id: 'psu_650w',
+                    name: 'Alimentation 650 Watts 80+ Bronze',
+                    priceNew: 65,
+                    pricePromo: 55,
+                    watts: 650,
+                    desc: 'Adaptée au budget RTX 3060 mono-GPU, mais insuffisante pour du Dual-GPU lourd.'
+                },
+                {
+                    id: 'psu_dell_260w',
+                    name: 'Alimentation Dell 260 Watts Propriétaire (OptiPlex 3060)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    watts: 260,
+                    desc: '⚠️ Bloquée à 260W sans câble PCIe : inutilisable avec une carte graphique moderne.'
+                }
+            ],
+            case: [
+                {
+                    id: 'corsair_4000d',
+                    name: 'Corsair 4000D Airflow / Fractal Design Meshify 2 (ATX)',
+                    priceNew: 120,
+                    pricePromo: 98,
+                    desc: 'Excellent flux d\'air en façade pour refroidir 2 cartes graphiques.'
+                },
+                {
+                    id: 'full_tower_xl',
+                    name: 'Grande Tour XL (Corsair 7000D Airflow / Meshify 2 XL)',
+                    priceNew: 220,
+                    pricePromo: 185,
+                    desc: 'Espace colossal pour loger une RTX 4090 + un second GPU avec une respiration optimale.'
+                },
+                {
+                    id: 'mesh_budget',
+                    name: 'Boîtier Moyen Tour ATX Façade Mesh',
+                    priceNew: 65,
+                    pricePromo: 55,
+                    desc: 'Boîtier ATX standard bien ventilé pour configuration économique.'
+                },
+                {
+                    id: 'dell_case',
+                    name: 'Boîtier d\'origine Dell OptiPlex 3060 (SFF / Mini-Tour)',
+                    priceNew: 0,
+                    pricePromo: 0,
+                    desc: '⚠️ Châssis étroit incompatible avec les cartes mères ATX et les grandes cartes graphiques.'
+                }
+            ]
+        };
+
+        // =========================================================================
+        // 2. MONITOR SPECIFICATIONS (Sizes in cm, Resolutions, Tasks)
+        // =========================================================================
+        const MONITOR_SIZES = {
+            '15_169': { label: '15.6" 16:9 Portable (34.5 × 19.4 cm)', w: 34.5, h: 19.4, diag: 15.6, ratio: '16:9' },
+            '18_169': { label: '18" 16:9 Nomade (39.8 × 22.4 cm)', w: 39.8, h: 22.4, diag: 18, ratio: '16:9' },
+            '24_169': { label: '24" 16:9 Standard (53.1 × 29.9 cm)', w: 53.1, h: 29.9, diag: 24, ratio: '16:9' },
+            '27_169': { label: '27" 16:9 QHD/FHD (59.8 × 33.6 cm)', w: 59.8, h: 33.6, diag: 27, ratio: '16:9' },
+            '32_169': { label: '32" 16:9 Grand Format (70.8 × 39.8 cm)', w: 70.8, h: 39.8, diag: 32, ratio: '16:9' },
+            '34_219': { label: '34" 21:9 Ultrawide (79.7 × 33.4 cm)', w: 79.7, h: 33.4, diag: 34, ratio: '21:9' },
+            '40_219': { label: '40" 21:9 Ultrawide Pro (92.9 × 40.0 cm)', w: 92.9, h: 40.0, diag: 40, ratio: '21:9' },
+            '49_329': { label: '49" 32:9 Super Ultrawide (119.6 × 33.6 cm)', w: 119.6, h: 33.6, diag: 49, ratio: '32:9' }
+        };
+
+        const MONITOR_RESOLUTIONS = {
+            '1080p': { label: '1080p Full HD (1920×1080 • 2.07 Mpx)', mpx: 2.07, baseVramGb: 0.16, loadFactor3D: 0.65 },
+            '1440p': { label: '1440p QHD (2560×1440 • 3.69 Mpx)', mpx: 3.69, baseVramGb: 0.26, loadFactor3D: 1.0 },
+            'uwqhd': { label: 'UWQHD 21:9 (3440×1440 • 4.95 Mpx)', mpx: 4.95, baseVramGb: 0.34, loadFactor3D: 1.28 },
+            'dqhd':  { label: 'Dual QHD 32:9 (5120×1440 • 7.37 Mpx)', mpx: 7.37, baseVramGb: 0.48, loadFactor3D: 1.85 },
+            '4k':    { label: '4K UHD (3840×2160 • 8.29 Mpx)', mpx: 8.29, baseVramGb: 0.54, loadFactor3D: 2.10 }
+        };
+
+        const MONITOR_HZ_OPTIONS = [60, 100, 120, 144, 165, 240];
+
+        const MONITOR_TASKS = {
+            'chat_code': {
+                label: 'Conversation IA / Code / Terminal (~0.25 Go VRAM)',
+                vramGb: 0.25,
+                is3D: false,
+                load3DWeight: 0,
+                shortTag: 'Chat IA / Code'
+            },
+            'ai_small': {
+                label: 'IA Locale Active : LLM 7B-8B Quantifié (~5.5 Go VRAM)',
+                vramGb: 5.5,
+                is3D: false,
+                load3DWeight: 0.08,
+                shortTag: 'IA Locale 7B-8B'
+            },
+            'ai_heavy': {
+                label: 'IA Locale Gourmande : LLM 13B-32B / ComfyUI (~11.0 Go VRAM)',
+                vramGb: 11.0,
+                is3D: false,
+                load3DWeight: 0.15,
+                shortTag: 'IA Lourde 13B-32B'
+            },
+            'blender_3d': {
+                label: 'Blender 3D / Rendu Viewport CUDA (~4.0 Go VRAM + 3D)',
+                vramGb: 4.0,
+                is3D: true,
+                load3DWeight: 0.75,
+                shortTag: 'Blender 3D CUDA'
+            },
+            'sim_racing': {
+                label: 'Simulateur Auto / Gaming 3D intensif (~3.5 Go VRAM + Forte 3D)',
+                vramGb: 3.5,
+                is3D: true,
+                load3DWeight: 1.0,
+                shortTag: 'Simu Auto 3D'
+            },
+            'monitoring': {
+                label: 'Monitoring / Tableaux de bord Clients / Web (~0.20 Go VRAM)',
+                vramGb: 0.20,
+                is3D: false,
+                load3DWeight: 0,
+                shortTag: 'Monitoring / Web'
+            }
+        };
+
+        // =========================================================================
+        // 3. STATE MANAGEMENT
+        // =========================================================================
+        let state = {
+            priceMode: 'new', // 'new' or 'promo'
+            customPrices: {}, // key -> custom number override
+            screenCount: 6,
+            deskLayout: 'pyramid', // 'pyramid' or 'row'
+            screens: [
+                { id: 1, size: '40_219', res: 'uwqhd', hz: 120, task: 'blender_3d', source: 'auto' },
+                { id: 2, size: '32_169', res: '1440p', hz: 120, task: 'ai_heavy',   source: 'auto' },
+                { id: 3, size: '32_169', res: '1440p', hz: 120, task: 'chat_code',  source: 'auto' },
+                { id: 4, size: '27_169', res: '1440p', hz: 60,  task: 'chat_code',  source: 'auto' },
+                { id: 5, size: '27_169', res: '1080p', hz: 60,  task: 'ai_small',   source: 'auto' },
+                { id: 6, size: '27_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' },
+                { id: 7, size: '24_169', res: '1080p', hz: 60,  task: 'chat_code',  source: 'auto' },
+                { id: 8, size: '24_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' }
+            ]
+        };
+
+        const COMPONENT_KEYS = ['conn', 'mb', 'cpu', 'cooler', 'gpu1', 'gpu2', 'ram', 'ssd', 'psu', 'case'];
+
+        // =========================================================================
+        // 4. INITIALIZATION & SELECT POPULATORS
+        // =========================================================================
+        function initApp() {
+            populateHardwareSelects();
+            loadPreset('sweetspot');
+            lucide.createIcons();
+        }
+
+        function populateHardwareSelects() {
+            COMPONENT_KEYS.forEach(cat => {
+                const selectEl = document.getElementById(`select-${cat}`);
+                if (!selectEl) return;
+                selectEl.innerHTML = '';
+                HARDWARE_DB[cat].forEach(item => {
+                    const price = getEffectiveItemPrice(cat, item);
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.textContent = `${item.name} — [${price} €]`;
+                    selectEl.appendChild(opt);
+                });
+            });
+        }
+
+        function getEffectiveItemPrice(cat, item) {
+            const customKey = `${cat}_${item.id}`;
+            if (state.customPrices[customKey] !== undefined) {
+                return state.customPrices[customKey];
+            }
+            return state.priceMode === 'new' ? item.priceNew : item.pricePromo;
+        }
+
+        function onCustomPriceChange(cat, val) {
+            const item = getSelectedItem(cat);
+            const num = Math.max(0, parseInt(val) || 0);
+            state.customPrices[`${cat}_${item.id}`] = num;
+            document.getElementById('btn-reset-custom-prices').classList.remove('hidden');
+            refreshSelectOptionLabels();
+            updateSimulation();
+        }
+
+        function resetCustomPrices() {
+            state.customPrices = {};
+            document.getElementById('btn-reset-custom-prices').classList.add('hidden');
+            refreshSelectOptionLabels();
+            updateSimulation();
+        }
+
+        function refreshSelectOptionLabels() {
+            COMPONENT_KEYS.forEach(cat => {
+                const selectEl = document.getElementById(`select-${cat}`);
+                if (!selectEl) return;
+                const currentVal = selectEl.value;
+                Array.from(selectEl.options).forEach(opt => {
+                    const item = HARDWARE_DB[cat].find(i => i.id === opt.value);
+                    if (item) {
+                        const price = getEffectiveItemPrice(cat, item);
+                        opt.textContent = `${item.name} — [${price} €]`;
+                    }
+                });
+                selectEl.value = currentVal;
+            });
+        }
+
+        function getSelectedItem(category) {
+            const el = document.getElementById(`select-${category}`);
+            const val = el ? el.value : HARDWARE_DB[category][0].id;
+            return HARDWARE_DB[category].find(i => i.id === val) || HARDWARE_DB[category][0];
+        }
+
+        // =========================================================================
+        // 5. PRESETS & SCREEN TEMPLATES
+        // =========================================================================
+        function loadPreset(presetKey) {
+            document.querySelectorAll('.preset-card').forEach(btn => {
+                btn.className = 'preset-card text-left p-3 rounded-xl border border-slate-800 bg-lab-900/70 hover:border-slate-600 transition-all';
+            });
+            const activeBtn = document.getElementById(`preset-btn-${presetKey}`);
+            if (activeBtn) {
+                activeBtn.className = 'preset-card text-left p-3 rounded-xl border transition-all bg-sky-500/15 border-sky-400 shadow-md shadow-sky-500/10';
+            }
+
+            state.customPrices = {};
+            document.getElementById('btn-reset-custom-prices').classList.add('hidden');
+
+            if (presetKey === 'sweetspot') {
+                // Verified 2 690 € New
+                setPriceMode('new', false);
+                document.getElementById('select-conn').value = 'pcie_internal';
+                document.getElementById('select-mb').value = 'x870_tomahawk';
+                document.getElementById('select-cpu').value = 'r9_7900x';
+                document.getElementById('select-cooler').value = 'phantom_spirit_aio';
+                document.getElementById('select-gpu1').value = 'rtx_4070ti_super';
+                document.getElementById('select-gpu2').value = 'rtx_3050_6g';
+                document.getElementById('select-ram').value = 'ddr5_64g';
+                document.getElementById('select-ssd').value = 'sn850x_2to';
+                document.getElementById('select-psu').value = 'rm1000e';
+                document.getElementById('select-case').value = 'corsair_4000d';
+                document.getElementById('check-assembly').checked = false;
+                state.screenCount = 6;
+                applyScreenTemplate('ia_workstation', false);
+            } else if (presetKey === 'extreme') {
+                setPriceMode('new', false);
+                document.getElementById('select-conn').value = 'pcie_internal';
+                document.getElementById('select-mb').value = 'x870e_extreme';
+                document.getElementById('select-cpu').value = 'r9_9900x';
+                document.getElementById('select-cooler').value = 'aio_360_pro';
+                document.getElementById('select-gpu1').value = 'rtx_4090';
+                document.getElementById('select-gpu2').value = 'rtx_3060_12g_sec';
+                document.getElementById('select-ram').value = 'ddr5_64g';
+                document.getElementById('select-ssd').value = 'pcie5_2to';
+                document.getElementById('select-psu').value = 'psu_1200w';
+                document.getElementById('select-case').value = 'full_tower_xl';
+                document.getElementById('check-assembly').checked = false;
+                state.screenCount = 7;
+                state.screens[0] = { id: 1, size: '40_219', res: 'uwqhd', hz: 144, task: 'sim_racing', source: 'auto' };
+                state.screens[1] = { id: 2, size: '32_169', res: '1440p', hz: 120, task: 'ai_heavy', source: 'auto' };
+                state.screens[2] = { id: 3, size: '32_169', res: '1440p', hz: 120, task: 'blender_3d', source: 'auto' };
+                state.screens[3] = { id: 4, size: '27_169', res: '1440p', hz: 120, task: 'chat_code', source: 'auto' };
+                state.screens[4] = { id: 5, size: '27_169', res: '1440p', hz: 60,  task: 'ai_heavy', source: 'auto' };
+                state.screens[5] = { id: 6, size: '27_169', res: '1080p', hz: 60,  task: 'chat_code', source: 'auto' };
+                state.screens[6] = { id: 7, size: '27_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+            } else if (presetKey === 'displaylink') {
+                setPriceMode('new', false);
+                document.getElementById('select-conn').value = 'pcie_internal';
+                document.getElementById('select-mb').value = 'b650_atx';
+                document.getElementById('select-cpu').value = 'r9_7900x';
+                document.getElementById('select-cooler').value = 'phantom_spirit_aio';
+                document.getElementById('select-gpu1').value = 'rtx_4080_super';
+                document.getElementById('select-gpu2').value = 'hub_displaylink';
+                document.getElementById('select-ram').value = 'ddr5_64g';
+                document.getElementById('select-ssd').value = 'sn850x_2to';
+                document.getElementById('select-psu').value = 'psu_850w';
+                document.getElementById('select-case').value = 'corsair_4000d';
+                document.getElementById('check-assembly').checked = false;
+                state.screenCount = 6;
+                applyScreenTemplate('ia_workstation', false);
+            } else if (presetKey === 'budget') {
+                document.getElementById('select-conn').value = 'pcie_internal';
+                document.getElementById('select-mb').value = 'b760_atx';
+                document.getElementById('select-cpu').value = 'i5_12400f';
+                document.getElementById('select-cooler').value = 'stock_cooler';
+                document.getElementById('select-gpu1').value = 'rtx_3060_12g';
+                document.getElementById('select-gpu2').value = 'none';
+                document.getElementById('select-ram').value = 'ddr4_32g';
+                document.getElementById('select-ssd').value = 'pcie4_1to';
+                document.getElementById('select-psu').value = 'psu_650w';
+                document.getElementById('select-case').value = 'mesh_budget';
+                document.getElementById('check-assembly').checked = false;
+                state.screenCount = 4;
+                state.screens[0] = { id: 1, size: '34_219', res: 'uwqhd', hz: 100, task: 'sim_racing', source: 'auto' };
+                state.screens[1] = { id: 2, size: '27_169', res: '1080p', hz: 60,  task: 'ai_small', source: 'auto' };
+                state.screens[2] = { id: 3, size: '24_169', res: '1080p', hz: 60,  task: 'chat_code', source: 'auto' };
+                state.screens[3] = { id: 4, size: '24_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+            } else if (presetKey === 'egputrap') {
+                setPriceMode('new', false);
+                document.getElementById('select-conn').value = 'egpu_tb4';
+                document.getElementById('select-mb').value = 'dell_mb';
+                document.getElementById('select-cpu').value = 'i5_8400';
+                document.getElementById('select-cooler').value = 'stock_cooler';
+                document.getElementById('select-gpu1').value = 'rtx_4080_super';
+                document.getElementById('select-gpu2').value = 'hub_mst_trap';
+                document.getElementById('select-ram').value = 'ddr4_16g';
+                document.getElementById('select-ssd').value = 'pcie4_1to';
+                document.getElementById('select-psu').value = 'psu_dell_260w';
+                document.getElementById('select-case').value = 'dell_case';
+                document.getElementById('check-assembly').checked = false;
+                state.screenCount = 6;
+                applyScreenTemplate('sim_cockpit', false);
+            }
+
+            refreshSelectOptionLabels();
+            renderMonitorsConfigurator();
+            updateSimulation();
+        }
+
+        function applyScreenTemplate(tpl, triggerRender = true) {
+            if (tpl === 'ia_workstation') {
+                state.screens[0] = { id: 1, size: '40_219', res: 'uwqhd', hz: 120, task: 'blender_3d', source: 'auto' };
+                state.screens[1] = { id: 2, size: '32_169', res: '1440p', hz: 120, task: 'ai_heavy',   source: 'auto' };
+                state.screens[2] = { id: 3, size: '32_169', res: '1440p', hz: 120, task: 'chat_code',  source: 'auto' };
+                state.screens[3] = { id: 4, size: '27_169', res: '1440p', hz: 60,  task: 'chat_code',  source: 'auto' };
+                state.screens[4] = { id: 5, size: '27_169', res: '1080p', hz: 60,  task: 'ai_small',   source: 'auto' };
+                state.screens[5] = { id: 6, size: '27_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+            } else if (tpl === 'sim_cockpit') {
+                state.screens[0] = { id: 1, size: '32_169', res: '1440p', hz: 144, task: 'sim_racing', source: 'auto' };
+                state.screens[1] = { id: 2, size: '32_169', res: '1440p', hz: 144, task: 'sim_racing', source: 'auto' };
+                state.screens[2] = { id: 3, size: '32_169', res: '1440p', hz: 144, task: 'sim_racing', source: 'auto' };
+                state.screens[3] = { id: 4, size: '27_169', res: '1080p', hz: 60,  task: 'ai_small',   source: 'auto' };
+                state.screens[4] = { id: 5, size: '27_169', res: '1080p', hz: 60,  task: 'chat_code',  source: 'auto' };
+                state.screens[5] = { id: 6, size: '27_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+            } else if (tpl === 'portable_mix') {
+                state.screens[0] = { id: 1, size: '40_219', res: 'uwqhd', hz: 120, task: 'sim_racing', source: 'auto' };
+                state.screens[1] = { id: 2, size: '18_169', res: '1080p', hz: 60,  task: 'ai_small',   source: 'auto' };
+                state.screens[2] = { id: 3, size: '18_169', res: '1080p', hz: 60,  task: 'chat_code',  source: 'auto' };
+                state.screens[3] = { id: 4, size: '15_169', res: '1080p', hz: 60,  task: 'chat_code',  source: 'auto' };
+                state.screens[4] = { id: 5, size: '15_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+                state.screens[5] = { id: 6, size: '15_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+            }
+            if (triggerRender) {
+                renderMonitorsConfigurator();
+                updateSimulation();
+            }
+        }
+
+        function copyScreen2ToAllAnnexes() {
+            const ref = state.screens[1];
+            for (let i = 2; i < 8; i++) {
+                state.screens[i].size = ref.size;
+                state.screens[i].res = ref.res;
+                state.screens[i].hz = ref.hz;
+            }
+            renderMonitorsConfigurator();
+            updateSimulation();
+        }
+
+        // =========================================================================
+        // 6. PER-SCREEN CONFIGURATOR UI GENERATOR
+        // =========================================================================
+        function changeScreenCount(delta) {
+            const next = Math.min(8, Math.max(1, state.screenCount + delta));
+            setScreenCount(next);
+        }
+
+        function setScreenCount(count) {
+            state.screenCount = count;
+            document.getElementById('screen-stepper-label').textContent = `${count} Écran${count > 1 ? 's' : ''}`;
+            document.querySelectorAll('.screen-btn').forEach(btn => {
+                const n = parseInt(btn.getAttribute('data-screens'));
+                if (n === count) {
+                    btn.className = 'screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-sky-400 bg-sky-500/20 text-white shadow-sm transition-all';
+                } else {
+                    btn.className = 'screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400 hover:border-slate-600 transition-all';
+                }
+            });
+            renderMonitorsConfigurator();
+            updateSimulation();
+        }
+
+        function onMonitorFieldChange(index, field, value) {
+            if (field === 'hz') value = parseInt(value);
+            state.screens[index][field] = value;
+            updateSimulation();
+        }
+
+        function renderMonitorsConfigurator() {
+            const container = document.getElementById('monitors-cards-container');
+            container.innerHTML = '';
+
+            // Update button states
+            document.getElementById('screen-stepper-label').textContent = `${state.screenCount} Écran${state.screenCount > 1 ? 's' : ''}`;
+            document.querySelectorAll('.screen-btn').forEach(btn => {
+                const n = parseInt(btn.getAttribute('data-screens'));
+                btn.className = n === state.screenCount
+                    ? 'screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-sky-400 bg-sky-500/20 text-white shadow-sm transition-all'
+                    : 'screen-btn py-2 rounded-lg font-mono text-xs font-bold border border-slate-800 bg-lab-900 text-slate-400 hover:border-slate-600 transition-all';
+            });
+
+            for (let i = 0; i < state.screenCount; i++) {
+                const scr = state.screens[i];
+                const isMain = i === 0;
+                const card = document.createElement('div');
+                card.id = `monitor-card-${i}`;
+                card.className = isMain
+                    ? 'p-3.5 rounded-xl bg-gradient-to-b from-sky-950/30 to-lab-900 border-2 border-sky-500/50 space-y-2.5'
+                    : 'p-3.5 rounded-xl bg-lab-900/95 border border-slate-800 space-y-2.5';
+
+                const sizeOpts = Object.keys(MONITOR_SIZES).map(k =>
+                    `<option value="${k}" ${scr.size === k ? 'selected' : ''}>${MONITOR_SIZES[k].label}</option>`
+                ).join('');
+
+                const resOpts = Object.keys(MONITOR_RESOLUTIONS).map(k =>
+                    `<option value="${k}" ${scr.res === k ? 'selected' : ''}>${MONITOR_RESOLUTIONS[k].label}</option>`
+                ).join('');
+
+                const hzOpts = MONITOR_HZ_OPTIONS.map(h =>
+                    `<option value="${h}" ${scr.hz === h ? 'selected' : ''}>${h} FPS / Hz cibles</option>`
+                ).join('');
+
+                const taskOpts = Object.keys(MONITOR_TASKS).map(k =>
+                    `<option value="${k}" ${scr.task === k ? 'selected' : ''}>${MONITOR_TASKS[k].label}</option>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${isMain ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">
+                                ÉCRAN #${i + 1} ${isMain ? '★ PRINCIPAL' : 'ANNEXE'}
+                            </span>
+                            <span id="mon-dim-tag-${i}" class="text-[11px] font-mono text-slate-400"></span>
+                        </div>
+                        <span id="mon-port-badge-${i}" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full"></span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Taille & Format (cm)</label>
+                            <select onchange="onMonitorFieldChange(${i}, 'size', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
+                                ${sizeOpts}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Résolution</label>
+                            <select onchange="onMonitorFieldChange(${i}, 'res', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
+                                ${resOpts}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Fréquence / FPS Cibles</label>
+                            <select onchange="onMonitorFieldChange(${i}, 'hz', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
+                                ${hzOpts}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Branchement Vidéo</label>
+                            <select onchange="onMonitorFieldChange(${i}, 'source', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
+                                <option value="auto" ${scr.source === 'auto' ? 'selected' : ''}>Auto (Ports 1-4 GPU1, 5+ GPU2/USB)</option>
+                                <option value="gpu1" ${scr.source === 'gpu1' ? 'selected' : ''}>Forcer sur GPU 1 Principal</option>
+                                <option value="gpu2" ${scr.source === 'gpu2' ? 'selected' : ''}>Forcer sur GPU 2 Secondaire</option>
+                                <option value="usb" ${scr.source === 'usb' ? 'selected' : ''}>Forcer sur Hub USB DisplayLink</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase text-slate-400 mb-0.5">Tâche / Charge Active sur cet Écran</label>
+                        <select onchange="onMonitorFieldChange(${i}, 'task', this.value)" class="w-full bg-lab-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-white focus:border-sky-400 focus:outline-none">
+                            ${taskOpts}
+                        </select>
+                    </div>
+
+                    <!-- Live Per-Monitor FPS & VRAM Telemetry Footer -->
+                    <div id="mon-telemetry-${i}" class="p-2 rounded-lg bg-lab-950 border border-slate-800/90 text-[11px] space-y-1"></div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        // =========================================================================
+        // 7. CORE REAL-TIME SIMULATION ENGINE (FPS, VRAM, WATTS, ALERTS)
+        // =========================================================================
+        function setPriceMode(mode, triggerUpdate = true) {
+            state.priceMode = mode;
+            const btnNew = document.getElementById('price-mode-new');
+            const btnPromo = document.getElementById('price-mode-promo');
+            const indicator = document.getElementById('price-mode-indicator');
+            const summaryLabel = document.getElementById('summary-price-label');
+
+            if (mode === 'new') {
+                btnNew.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-sky-500 text-slate-950';
+                btnPromo.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all text-slate-400 hover:text-white';
+                indicator.textContent = 'Prix Neuf Hors Promo (Certifié)';
+                indicator.className = 'text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20';
+                summaryLabel.textContent = 'BUDGET TOTAL (NEUF HORS PROMO CERTIFIÉ)';
+            } else {
+                btnPromo.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all bg-amber-500 text-slate-950';
+                btnNew.className = 'px-2.5 py-1 rounded-md text-xs font-semibold transition-all text-slate-400 hover:text-white';
+                indicator.textContent = 'Prix Cible Promo / Black Friday';
+                indicator.className = 'text-[11px] font-mono text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20';
+                summaryLabel.textContent = 'BUDGET TOTAL ESTIMÉ (CIBLE PROMO / BLACK FRIDAY)';
+            }
+
+            refreshSelectOptionLabels();
+            if (triggerUpdate) updateSimulation();
+        }
+
+        function updateSimulation() {
+            const conn = getSelectedItem('conn');
+            const mb = getSelectedItem('mb');
+            const cpu = getSelectedItem('cpu');
+            const cooler = getSelectedItem('cooler');
+            const gpu1 = getSelectedItem('gpu1');
+            const gpu2 = getSelectedItem('gpu2');
+            const ram = getSelectedItem('ram');
+            const ssd = getSelectedItem('ssd');
+            const psu = getSelectedItem('psu');
+            const pcCase = getSelectedItem('case');
+            const includeAssembly = document.getElementById('check-assembly').checked;
+
+            const parts = { conn, mb, cpu, cooler, gpu1, gpu2, ram, ssd, psu, case: pcCase };
+
+            // 1. Calculate Prices & Update Inputs
+            let totalNew = 0;
+            let totalPromo = 0;
+            let totalActive = 0;
+
+            COMPONENT_KEYS.forEach(k => {
+                const item = parts[k];
+                const effectivePrice = getEffectiveItemPrice(k, item);
+                totalActive += effectivePrice;
+                totalNew += (state.customPrices[`${k}_${item.id}`] !== undefined ? state.customPrices[`${k}_${item.id}`] : item.priceNew);
+                totalPromo += (state.customPrices[`${k}_${item.id}`] !== undefined ? state.customPrices[`${k}_${item.id}`] : item.pricePromo);
+
+                const inputEl = document.getElementById(`custom-price-${k}`);
+                if (inputEl && document.activeElement !== inputEl) {
+                    inputEl.value = effectivePrice;
+                }
+                const descEl = document.getElementById(`desc-${k}`);
+                if (descEl) descEl.textContent = item.desc;
+            });
+
+            if (includeAssembly) {
+                totalActive += 80;
+                totalNew += 80;
+                totalPromo += 80;
+            }
+
+            document.getElementById('total-price-display').textContent = `${totalActive.toLocaleString('fr-FR')} €`;
+            const altPrice = state.priceMode === 'new' ? totalPromo : totalNew;
+            document.getElementById('alt-price-comparison').textContent = state.priceMode === 'new'
+                ? `Cible Promo : ~${altPrice.toLocaleString('fr-FR')} €`
+                : `Neuf Hors Promo : ${altPrice.toLocaleString('fr-FR')} €`;
+
+            // 2. Assign Each Screen to a Physical Output Port & Compute Load
+            let gpu1PortsUsed = 0;
+            let gpu2PortsUsed = 0;
+            let usbPortsUsed = 0;
+
+            let gpu1DisplayVram = 0;
+            let gpu1TaskVram = 0;
+            let gpu2DisplayVram = 0;
+            let gpu2TaskVram = 0;
+
+            let gpu13DLoadSum = 0;
+            let gpu23DLoadSum = 0;
+
+            let totalMpx = 0;
+            let totalGpxPerSec = 0;
+
+            const evaluatedScreens = [];
+
+            for (let i = 0; i < state.screenCount; i++) {
+                const scr = state.screens[i];
+                const sizeSpec = MONITOR_SIZES[scr.size];
+                const resSpec = MONITOR_RESOLUTIONS[scr.res];
+                const taskSpec = MONITOR_TASKS[scr.task];
+
+                totalMpx += resSpec.mpx;
+                totalGpxPerSec += (resSpec.mpx * scr.hz) / 1000;
+
+                // Determine physical routing
+                let assignedUnit = 'none'; // 'gpu1', 'gpu2', 'usb', 'black_limit'
+                let portLabel = '';
+
+                if (scr.source === 'gpu1') {
+                    if (gpu1PortsUsed < gpu1.maxScreens) {
+                        gpu1PortsUsed++;
+                        assignedUnit = 'gpu1';
+                        portLabel = `GPU 1 • Port #${gpu1PortsUsed}`;
+                    } else {
+                        assignedUnit = 'black_limit';
+                        portLabel = `COUPÉ (> ${gpu1.maxScreens} sur GPU 1)`;
+                    }
+                } else if (scr.source === 'gpu2') {
+                    if (gpu2.type === 'gpu' && gpu2PortsUsed < gpu2.extraScreens) {
+                        gpu2PortsUsed++;
+                        assignedUnit = 'gpu2';
+                        portLabel = `GPU 2 • Port #${gpu2PortsUsed}`;
+                    } else {
+                        assignedUnit = 'black_limit';
+                        portLabel = `SANS GPU 2 DISPO`;
+                    }
+                } else if (scr.source === 'usb') {
+                    if (gpu2.type === 'displaylink' && usbPortsUsed < gpu2.extraScreens) {
+                        usbPortsUsed++;
+                        assignedUnit = 'usb';
+                        portLabel = `USB DisplayLink #${usbPortsUsed}`;
+                    } else {
+                        assignedUnit = 'black_limit';
+                        portLabel = `SANS DOCK DISPLAYLINK`;
+                    }
+                } else {
+                    // AUTO routing: fill GPU 1 up to 4 screens, then GPU 2 or DisplayLink
+                    if (gpu1PortsUsed < gpu1.maxScreens) {
+                        gpu1PortsUsed++;
+                        assignedUnit = 'gpu1';
+                        portLabel = `GPU 1 • Port #${gpu1PortsUsed}`;
+                    } else if (gpu2.type === 'gpu' && gpu2PortsUsed < gpu2.extraScreens) {
+                        gpu2PortsUsed++;
+                        assignedUnit = 'gpu2';
+                        portLabel = `GPU 2 • Port #${gpu2PortsUsed}`;
+                    } else if (gpu2.type === 'displaylink' && usbPortsUsed < gpu2.extraScreens) {
+                        usbPortsUsed++;
+                        assignedUnit = 'usb';
+                        portLabel = `USB DisplayLink #${usbPortsUsed}`;
+                    } else {
+                        assignedUnit = 'black_limit';
+                        portLabel = gpu2.type === 'mst_trap'
+                            ? `BLOQUÉ (Piège Hub MST >4)`
+                            : `ÉCRAN NOIR (Limite 4 NVIDIA)`;
+                    }
+                }
+
+                // Framebuffer VRAM (scales slightly with Hz)
+                const hzMultiplier = scr.hz > 120 ? 1.25 : 1.0;
+                const displayVram = assignedUnit === 'black_limit' ? 0 : +(resSpec.baseVramGb * hzMultiplier).toFixed(2);
+                const taskVram = assignedUnit === 'black_limit' ? 0 : taskSpec.vramGb;
+
+                if (assignedUnit === 'gpu1' || assignedUnit === 'usb') {
+                    // Even on USB DisplayLink, heavy local AI models compute on GPU 1!
+                    if (assignedUnit === 'gpu1') gpu1DisplayVram += displayVram;
+                    // If user has a 12GB secondary GPU and GPU 1 is getting full, allow offloading AI task to GPU 2
+                    if (gpu2.type === 'gpu' && (gpu1DisplayVram + gpu1TaskVram + taskVram > gpu1.vram) && (gpu2DisplayVram + gpu2TaskVram + taskVram <= gpu2.vram)) {
+                        gpu2TaskVram += taskVram;
+                    } else {
+                        gpu1TaskVram += taskVram;
+                    }
+                } else if (assignedUnit === 'gpu2') {
+                    gpu2DisplayVram += displayVram;
+                    if (gpu2DisplayVram + gpu2TaskVram + taskVram <= gpu2.vram) {
+                        gpu2TaskVram += taskVram;
+                    } else {
+                        gpu1TaskVram += taskVram;
+                    }
+                }
+
+                if (taskSpec.is3D && assignedUnit === 'gpu1') {
+                    gpu13DLoadSum += resSpec.loadFactor3D * taskSpec.load3DWeight;
+                } else if (taskSpec.is3D && assignedUnit === 'gpu2') {
+                    gpu23DLoadSum += resSpec.loadFactor3D * taskSpec.load3DWeight;
+                }
+
+                evaluatedScreens.push({
+                    index: i,
+                    scr,
+                    sizeSpec,
+                    resSpec,
+                    taskSpec,
+                    assignedUnit,
+                    portLabel,
+                    displayVram,
+                    taskVram,
+                    realFps: 0,
+                    fpsStatus: 'ok',
+                    fpsNote: ''
+                });
+            }
+
+            // 3. Second Pass: Compute Real FPS Achieved for Each Screen
+            const vramOverflowGpu1 = (gpu1DisplayVram + gpu1TaskVram) > gpu1.vram;
+            const vramPenalty = vramOverflowGpu1 ? 0.55 : 1.0; // Heavy swapping penalty if VRAM exceeded
+
+            let activeScreensCount = 0;
+            let allScreensMeetingTarget = true;
+
+            evaluatedScreens.forEach(item => {
+                if (item.assignedUnit === 'black_limit') {
+                    item.realFps = 0;
+                    item.fpsStatus = 'black';
+                    item.fpsNote = 'Signal vidéo coupé : la carte NVIDIA bloque au-delà de 4 écrans.';
+                    allScreensMeetingTarget = false;
+                    return;
+                }
+
+                activeScreensCount++;
+
+                if (item.assignedUnit === 'usb') {
+                    if (item.taskSpec.is3D) {
+                        item.realFps = 12;
+                        item.fpsStatus = 'lag';
+                        item.fpsNote = 'Saccades critiques : le Hub USB DisplayLink n\'a pas d\'accélération 3D !';
+                        allScreensMeetingTarget = false;
+                    } else {
+                        item.realFps = Math.min(item.scr.hz, 60);
+                        item.fpsStatus = item.scr.hz > 60 ? 'warn' : 'ok';
+                        item.fpsNote = item.scr.hz > 60
+                            ? `Plafonné à 60 Hz par la puce USB DisplayLink (fluide pour code/texte IA).`
+                            : `Bureau 2D fluide via USB DisplayLink (IA calculée sur GPU 1).`;
+                    }
+                    return;
+                }
+
+                // Native GPU 1 or GPU 2
+                if (!item.taskSpec.is3D) {
+                    // 2D / Code / Chat IA / Monitoring runs effortlessly at native monitor refresh rate
+                    item.realFps = item.scr.hz;
+                    item.fpsStatus = 'ok';
+                    item.fpsNote = `Affichage 2D natif parfaitement fluide à ${item.scr.hz} Hz.`;
+                } else {
+                    // 3D Workload (Sim Racing or Blender Viewport)
+                    const hostGpuPower = item.assignedUnit === 'gpu1' ? gpu1.power3D : gpu2.power3D;
+                    const total3DLoad = item.assignedUnit === 'gpu1' ? Math.max(0.5, gpu13DLoadSum) : Math.max(0.5, gpu23DLoadSum);
+                    const raw3DFps = Math.round(
+                        (hostGpuPower * 1.38 / total3DLoad) *
+                        conn.fpsMultiplier3D *
+                        cpu.cpuFactor *
+                        vramPenalty
+                    );
+                    item.realFps = Math.max(8, Math.min(item.scr.hz, raw3DFps));
+
+                    if (item.realFps >= item.scr.hz * 0.9) {
+                        item.fpsStatus = 'ok';
+                        item.fpsNote = `Cible 3D atteinte (${raw3DFps} FPS potentiels max).`;
+                    } else if (item.realFps >= 60) {
+                        item.fpsStatus = 'warn';
+                        item.fpsNote = `Fluide (${item.realFps} FPS) mais sous la cible de ${item.scr.hz} Hz en ${item.resSpec.label.split(' ')[0]}.`;
+                        allScreensMeetingTarget = false;
+                    } else {
+                        item.fpsStatus = 'lag';
+                        item.fpsNote = `Charge 3D trop lourde (${item.realFps} FPS) pour ce GPU / connexion.`;
+                        allScreensMeetingTarget = false;
+                    }
+                }
+            });
+
+            // 4. Update Each Monitor Card Telemetry in Left Column & Live FPS Table in Right Column
+            const fpsTableContainer = document.getElementById('live-fps-table-container');
+            fpsTableContainer.innerHTML = '';
+
+            evaluatedScreens.forEach(item => {
+                const i = item.index;
+                const dimTag = document.getElementById(`mon-dim-tag-${i}`);
+                const portBadge = document.getElementById(`mon-port-badge-${i}`);
+                const telemetryBox = document.getElementById(`mon-telemetry-${i}`);
+
+                if (dimTag) {
+                    dimTag.textContent = `${item.sizeSpec.w} × ${item.sizeSpec.h} cm • ${item.resSpec.mpx} Mpx`;
+                }
+
+                let badgeStyle = 'bg-sky-500/20 text-sky-300 border border-sky-500/40';
+                if (item.assignedUnit === 'gpu2') badgeStyle = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40';
+                if (item.assignedUnit === 'usb') badgeStyle = 'bg-amber-500/20 text-amber-300 border border-amber-500/40';
+                if (item.assignedUnit === 'black_limit') badgeStyle = 'bg-rose-500/25 text-rose-300 border border-rose-500/50';
+
+                if (portBadge) {
+                    portBadge.className = `text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${badgeStyle}`;
+                    portBadge.textContent = item.portLabel;
+                }
+
+                const fpsPct = item.scr.hz > 0 ? Math.min(100, Math.round((item.realFps / item.scr.hz) * 100)) : 0;
+                let barColor = 'bg-emerald-500';
+                let textColor = 'text-emerald-400';
+                if (item.fpsStatus === 'warn') { barColor = 'bg-amber-500'; textColor = 'text-amber-400'; }
+                if (item.fpsStatus === 'lag' || item.fpsStatus === 'black') { barColor = 'bg-rose-500'; textColor = 'text-rose-400'; }
+
+                if (telemetryBox) {
+                    telemetryBox.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono font-bold ${textColor}">
+                                ${item.assignedUnit === 'black_limit' ? '❌ 0 FPS (ÉCRAN NOIR)' : `⚡ ${item.realFps} / ${item.scr.hz} FPS (${fpsPct}%)`}
+                            </span>
+                            <span class="font-mono text-slate-400">VRAM : ${(item.displayVram + item.taskVram).toFixed(2)} Go</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
+                            <div class="h-full ${barColor} transition-all duration-300" style="width: ${fpsPct}%"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-400">${item.fpsNote}</div>
+                    `;
+                }
+
+                // Add compact row to Right Dashboard Table
+                const row = document.createElement('div');
+                row.className = 'p-2 rounded-xl bg-lab-950/90 border border-slate-800/80 flex items-center justify-between gap-2 text-xs';
+                row.innerHTML = `
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-mono font-bold text-white">#${i + 1}</span>
+                            <span class="text-slate-300 font-medium truncate">${item.sizeSpec.diag}" ${item.scr.res.toUpperCase()}</span>
+                            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded ${badgeStyle}">${item.portLabel}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400 truncate mt-0.5">${item.taskSpec.shortTag} • ${item.fpsNote}</div>
+                    </div>
+                    <div class="text-right font-mono shrink-0">
+                        <span class="font-extrabold ${textColor} block">${item.realFps} / ${item.scr.hz} FPS</span>
+                        <span class="text-[10px] text-slate-500">${(item.displayVram + item.taskVram).toFixed(1)} Go VRAM</span>
+                    </div>
+                `;
+                fpsTableContainer.appendChild(row);
+            });
+
+            // 5. Update Global KPIs & Bandwidth
+            const kpiScreens = document.getElementById('kpi-active-screens');
+            kpiScreens.textContent = `${activeScreensCount} / ${state.screenCount}`;
+            kpiScreens.className = activeScreensCount === state.screenCount
+                ? 'font-mono text-sm font-extrabold text-emerald-400'
+                : 'font-mono text-sm font-extrabold text-rose-400';
+
+            document.getElementById('kpi-total-mpx').textContent = `${totalMpx.toFixed(1)} Mpx`;
+            document.getElementById('bandwidth-pill').textContent = `Débit : ${totalGpxPerSec.toFixed(2)} Gpx/s`;
+
+            const kpiFps = document.getElementById('kpi-fps-health');
+            if (activeScreensCount < state.screenCount) {
+                kpiFps.textContent = `${state.screenCount - activeScreensCount} Coupé(s)`;
+                kpiFps.className = 'font-mono text-sm font-extrabold text-rose-400';
+            } else if (allScreensMeetingTarget) {
+                kpiFps.textContent = '100% Cible OK';
+                kpiFps.className = 'font-mono text-sm font-extrabold text-emerald-400';
+            } else {
+                kpiFps.textContent = 'Bridage 3D/Hz';
+                kpiFps.className = 'font-mono text-sm font-extrabold text-amber-400';
+            }
+
+            // 6. Update VRAM Gauges (GPU 1 & GPU 2)
+            const gpu1UsedTotal = +(gpu1DisplayVram + gpu1TaskVram).toFixed(1);
+            const gpu1DispPct = Math.min(100, Math.round((gpu1DisplayVram / gpu1.vram) * 100));
+            const gpu1AiPct = Math.min(100 - gpu1DispPct, Math.round((gpu1TaskVram / gpu1.vram) * 100));
+
+            document.getElementById('gpu1-vram-label').textContent = `GPU 1 (${gpu1.name.split('—')[0].trim()})`;
+            document.getElementById('gpu1-vram-numbers').textContent = `${gpu1UsedTotal} / ${gpu1.vram} Go (${Math.round((gpu1UsedTotal / gpu1.vram) * 100)}%)`;
+            document.getElementById('gpu1-vram-numbers').className = gpu1UsedTotal > gpu1.vram
+                ? 'font-mono font-bold text-rose-400'
+                : 'font-mono font-bold text-sky-400';
+
+            document.getElementById('bar-gpu1-display').style.width = `${gpu1DispPct}%`;
+            document.getElementById('bar-gpu1-ai').style.width = `${gpu1AiPct}%`;
+            document.getElementById('bar-gpu1-ai').className = gpu1UsedTotal > gpu1.vram
+                ? 'h-full bg-rose-500 transition-all duration-300'
+                : 'h-full bg-purple-500 transition-all duration-300';
+
+            document.getElementById('gpu1-vram-breakdown').textContent = `Affichage : ${gpu1DisplayVram.toFixed(1)} Go • IA & 3D : ${gpu1TaskVram.toFixed(1)} Go`;
+            const gpu1Margin = +(gpu1.vram - gpu1UsedTotal).toFixed(1);
+            const gpu1StatusEl = document.getElementById('gpu1-vram-status');
+            if (gpu1Margin >= 0) {
+                gpu1StatusEl.textContent = `Libre : ${gpu1Margin} Go`;
+                gpu1StatusEl.className = 'text-emerald-400';
+            } else {
+                gpu1StatusEl.textContent = `Débordement : ${Math.abs(gpu1Margin)} Go !`;
+                gpu1StatusEl.className = 'text-rose-400 font-bold';
+            }
+
+            const gpu2Box = document.getElementById('gpu2-vram-box');
+            if (gpu2.type === 'gpu') {
+                gpu2Box.classList.remove('hidden');
+                const gpu2UsedTotal = +(gpu2DisplayVram + gpu2TaskVram).toFixed(1);
+                const gpu2DispPct = Math.min(100, Math.round((gpu2DisplayVram / gpu2.vram) * 100));
+                const gpu2AiPct = Math.min(100 - gpu2DispPct, Math.round((gpu2TaskVram / gpu2.vram) * 100));
+
+                document.getElementById('gpu2-vram-label').textContent = `${gpu2.name.split('(')[0].trim()}`;
+                document.getElementById('gpu2-vram-numbers').textContent = `${gpu2UsedTotal} / ${gpu2.vram} Go`;
+                document.getElementById('bar-gpu2-display').style.width = `${gpu2DispPct}%`;
+                document.getElementById('bar-gpu2-ai').style.width = `${gpu2AiPct}%`;
+                document.getElementById('gpu2-vram-breakdown').textContent = `Affichage : ${gpu2DisplayVram.toFixed(1)} Go • IA & 3D : ${gpu2TaskVram.toFixed(1)} Go`;
+                document.getElementById('gpu2-vram-status').textContent = `Libre : ${Math.max(0, gpu2.vram - gpu2UsedTotal).toFixed(1)} Go`;
+                document.getElementById('vram-total-badge').textContent = `${gpu1.vram} Go + ${gpu2.vram} Go VRAM`;
+            } else {
+                gpu2Box.classList.add('hidden');
+                document.getElementById('vram-total-badge').textContent = `${gpu1.vram} Go VRAM Totale`;
+            }
+
+            // 7. Power Supply (Watts) & 5-Year Upgradeability
+            const estWatts = Math.round(cpu.watts + gpu1.watts + gpu2.watts + 85 + (state.screenCount * 3));
+            const psuPct = Math.min(100, Math.round((estWatts / psu.watts) * 100));
+            document.getElementById('power-usage-numbers').textContent = `~${estWatts}W / ${psu.watts}W`;
+            document.getElementById('bar-power').style.width = `${psuPct}%`;
+
+            const pBadge = document.getElementById('power-badge');
+            const pDetail = document.getElementById('power-detail-text');
+            if (estWatts <= psu.watts * 0.78) {
+                pBadge.textContent = 'Marge Idéale';
+                pBadge.className = 'text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300';
+                document.getElementById('bar-power').className = 'h-full bg-emerald-500 rounded-full transition-all duration-300';
+                pDetail.textContent = `Réserve de ${100 - psuPct}% : encaisse les pics transitoires ATX 3.0 sans bruit.`;
+            } else if (estWatts <= psu.watts * 0.92) {
+                pBadge.textContent = 'Marge Juste';
+                pBadge.className = 'text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300';
+                document.getElementById('bar-power').className = 'h-full bg-amber-500 rounded-full transition-all duration-300';
+                pDetail.textContent = `Charge à ${psuPct}% : fonctionne mais peu de marge pour un futur GPU plus gourmand.`;
+            } else {
+                pBadge.textContent = 'Surcharge !';
+                pBadge.className = 'text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300';
+                document.getElementById('bar-power').className = 'h-full bg-rose-500 rounded-full transition-all duration-300';
+                pDetail.textContent = `⚠️ Coupure électrique garantie (${estWatts}W demandés pour ${psu.watts}W) !`;
+            }
+
+            let upgScore = mb.upgradeScore;
+            if (psu.watts >= 1000) upgScore = Math.min(100, upgScore + 5);
+            if (psu.watts < 750) upgScore = Math.max(15, upgScore - 25);
+            if (conn.id !== 'pcie_internal') upgScore = 20;
+
+            document.getElementById('upgrade-score-badge').textContent = `${upgScore} / 100`;
+            document.getElementById('bar-upgrade').style.width = `${upgScore}%`;
+            document.getElementById('upgrade-title-text').textContent = mb.socket === 'AM5' ? `Plateforme AMD AM5 + ${psu.watts}W` : `Plateforme ${mb.socket}`;
+            document.getElementById('upgrade-detail-text').textContent = upgScore >= 85
+                ? `Évolutivité maximale : changement de GPU ou CPU dans 5 ans sans changer le PC.`
+                : `Évolutivité bridée par ${mb.socket !== 'AM5' ? 'le socket carte mère ancien' : 'l\'alimentation ou le boîtier'}.`;
+
+            // 8. Build Smart Diagnostic Alerts
+            const alerts = [];
+
+            if (activeScreensCount < state.screenCount) {
+                const blocked = state.screenCount - activeScreensCount;
+                alerts.push({
+                    level: 'error',
+                    title: `${blocked} ÉCRAN(S) NOIR(S) : Limite matérielle de 4 écrans NVIDIA dépassée !`,
+                    text: gpu2.type === 'mst_trap'
+                        ? `Vous avez choisi un Hub DisplayPort MST passif : une carte NVIDIA GeForce refuse matériellement d'allumer plus de 4 écrans même derrière un répartiteur MST.`
+                        : `Une carte NVIDIA GeForce est limitée à 4 écrans physiques. Pour allumer vos ${state.screenCount} écrans, ajoutez un GPU 2 (ex: RTX 3050 à 190€) ou un Hub USB DisplayLink (110€).`,
+                    actions: [
+                        { label: '+ Mettre GPU 2 RTX 3050 (190€)', fn: "quickSetSelect('gpu2', 'rtx_3050_6g')" },
+                        { label: '+ Mettre Hub USB DisplayLink (110€)', fn: "quickSetSelect('gpu2', 'hub_displaylink')" }
+                    ]
+                });
+            }
+
+            if (conn.id === 'egpu_tb4') {
+                alerts.push({
+                    level: 'error',
+                    title: `BRIDAGE CÂBLE eGPU THUNDERBOLT 4 (-32% FPS en 3D + 320€ de Boîtier)`,
+                    text: `Le câble Thunderbolt 4 plafonne à 40 Gbps (4 voies PCIe au lieu de 16). Vos FPS sur le simulateur auto et Blender chutent lourdement malgré le prix du GPU.`,
+                    actions: [
+                        { label: 'Passer en Tour PC Fixe (PCIe x16 - 0% perte)', fn: "quickSetSelect('conn', 'pcie_internal')" }
+                    ]
+                });
+            }
+
+            if (vramOverflowGpu1) {
+                alerts.push({
+                    level: 'error',
+                    title: `SATURATION VRAM GPU 1 (${gpu1UsedTotal} Go demandés pour ${gpu1.vram} Go disponibles)`,
+                    text: `Vos modèles d'IA locaux + vos ${state.screenCount} écrans dépassent la mémoire vidéo de la ${gpu1.name.split('—')[0]}. Les calculs IA vont basculer sur la RAM système et ralentir de 80%.`,
+                    actions: [
+                        { label: 'Passer sur RTX 4070 Ti Super (16 Go)', fn: "quickSetSelect('gpu1', 'rtx_4070ti_super')" },
+                        { label: 'Ajouter RTX 3060 12 Go en GPU 2', fn: "quickSetSelect('gpu2', 'rtx_3060_12g_sec')" }
+                    ]
+                });
+            }
+
+            if (mb.socket !== cpu.socket) {
+                alerts.push({
+                    level: 'error',
+                    title: `INCOMPATIBILITÉ SOCKET : CPU (${cpu.socket}) ≠ Carte Mère (${mb.socket})`,
+                    text: `Associez un processeur AMD Ryzen 7000/9000 avec une carte mère AM5 (B650/X870/X870E).`,
+                    actions: [
+                        { label: 'Aligner sur Ryzen 9 7900X + MSI X870', fn: "fixSocketMismatch()" }
+                    ]
+                });
+            }
+
+            if (estWatts > psu.watts * 0.92) {
+                alerts.push({
+                    level: 'error',
+                    title: `ALIMENTATION TROP FAIBLE (${estWatts}W demandés / ${psu.watts}W max)`,
+                    text: `Risque d'extinction brutale en plein calcul IA. Choisissez au minimum une alimentation 1000W ATX 3.0.`,
+                    actions: [
+                        { label: 'Mettre Corsair RM1000e 1000W (180€)', fn: "quickSetSelect('psu', 'rm1000e')" }
+                    ]
+                });
+            }
+
+            if (alerts.length === 0) {
+                alerts.push({
+                    level: 'ok',
+                    title: `CONFIGURATION 100% VALIDÉE (${state.screenCount} Écrans Actifs • ${gpu1.TokensPerSec || gpu1.tokensPerSec} tok/s IA)`,
+                    text: `Tous vos écrans tournent à leur fréquence optimale, la VRAM dispose de ${gpu1Margin} Go de marge et la plateforme est évolutive sur 5 ans.`
+                });
+            }
+
+            renderAlerts(alerts);
+            renderPhysicalDeskVisualizer(evaluatedScreens);
+            lucide.createIcons();
+        }
+
+        function quickSetSelect(cat, val) {
+            document.getElementById(`select-${cat}`).value = val;
+            updateSimulation();
+        }
+
+        function fixSocketMismatch() {
+            document.getElementById('select-mb').value = 'x870_tomahawk';
+            document.getElementById('select-cpu').value = 'r9_7900x';
+            document.getElementById('select-ram').value = 'ddr5_64g';
+            updateSimulation();
+        }
+
+        function renderAlerts(alerts) {
+            const container = document.getElementById('diagnostic-alerts-container');
+            container.innerHTML = '';
+
+            alerts.forEach(a => {
+                let boxStyle = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200';
+                let iconName = 'check-circle-2';
+                let iconColor = 'text-emerald-400';
+
+                if (a.level === 'error') {
+                    boxStyle = 'bg-rose-500/15 border-rose-500/40 text-rose-200';
+                    iconName = 'alert-triangle';
+                    iconColor = 'text-rose-400';
+                } else if (a.level === 'warn') {
+                    boxStyle = 'bg-amber-500/15 border-amber-500/40 text-amber-200';
+                    iconName = 'info';
+                    iconColor = 'text-amber-400';
+                }
+
+                let actionsHtml = '';
+                if (a.actions && a.actions.length > 0) {
+                    actionsHtml = `<div class="flex flex-wrap gap-1.5 mt-2">` +
+                        a.actions.map(act => `<button onclick="${act.fn}" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-[11px] border border-white/20 transition-all">${act.label}</button>`).join('') +
+                        `</div>`;
+                }
+
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl border ${boxStyle} text-xs`;
+                div.innerHTML = `
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="${iconName}" class="w-4 h-4 ${iconColor} shrink-0 mt-0.5"></i>
+                        <div class="flex-1">
+                            <div class="font-bold text-white">${a.title}</div>
+                            <p class="text-[11px] opacity-90 mt-0.5 leading-relaxed">${a.text}</p>
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // =========================================================================
+        // 8. PHYSICAL DESK VISUALIZER AT CM SCALE
+        // =========================================================================
+        function setDeskLayout(mode) {
+            state.deskLayout = mode;
+            const btnPyr = document.getElementById('layout-btn-pyramid');
+            const btnRow = document.getElementById('layout-btn-row');
+            if (mode === 'pyramid') {
+                btnPyr.className = 'px-2.5 py-1 rounded text-[11px] font-semibold bg-sky-500 text-slate-950 transition-all';
+                btnRow.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-slate-400 hover:text-white transition-all';
+            } else {
+                btnRow.className = 'px-2.5 py-1 rounded text-[11px] font-semibold bg-sky-500 text-slate-950 transition-all';
+                btnPyr.className = 'px-2.5 py-1 rounded text-[11px] font-semibold text-slate-400 hover:text-white transition-all';
+            }
+            updateSimulation();
+        }
+
+        function renderPhysicalDeskVisualizer(evaluatedScreens) {
+            const stage = document.getElementById('desk-scale-stage');
+            const banner = document.getElementById('desk-alignment-banner');
+            const summaryEl = document.getElementById('desk-dimensions-summary');
+            stage.innerHTML = '';
+
+            const scale = 2.05; // pixels per centimeter
+
+            function buildMonitorNode(item) {
+                const wPx = Math.round(item.sizeSpec.w * scale);
+                const hPx = Math.round(item.sizeSpec.h * scale);
+
+                let borderClass = 'border-sky-400 bg-sky-500/20';
+                if (item.assignedUnit === 'gpu2') borderClass = 'border-indigo-400 bg-indigo-500/20';
+                if (item.assignedUnit === 'usb') borderClass = 'border-amber-400 bg-amber-500/20';
+                if (item.assignedUnit === 'black_limit') borderClass = 'border-rose-500 bg-rose-950/70 opacity-80';
+
+                const box = document.createElement('div');
+                box.style.width = `${wPx}px`;
+                box.style.height = `${hPx}px`;
+                box.className = `rounded-lg border-2 ${borderClass} p-1.5 flex flex-col items-center justify-between text-center shrink-0 transition-all relative overflow-hidden`;
+
+                const fpsColor = item.fpsStatus === 'ok' ? 'text-emerald-300' : (item.fpsStatus === 'warn' ? 'text-amber-300' : 'text-rose-400');
+
+                box.innerHTML = `
+                    <div class="w-full flex items-center justify-between text-[9px] font-mono px-1">
+                        <span class="font-bold text-white">#${item.index + 1}</span>
+                        <span class="opacity-80 truncate">${item.sizeSpec.diag}"</span>
+                    </div>
+                    <div class="leading-tight my-auto">
+                        <div class="font-bold text-[10px] text-white truncate max-w-full px-1">${item.taskSpec.shortTag}</div>
+                        <div class="font-mono text-[10px] font-extrabold ${fpsColor}">
+                            ${item.assignedUnit === 'black_limit' ? 'NOIR (0 FPS)' : `${item.realFps}/${item.scr.hz} FPS`}
+                        </div>
+                    </div>
+                    <div class="text-[9px] font-mono text-slate-300 bg-black/40 px-1.5 py-0.2 rounded">
+                        ${item.sizeSpec.w}×${item.sizeSpec.h} cm
+                    </div>
+                `;
+                return box;
+            }
+
+            if (state.deskLayout === 'pyramid' && evaluatedScreens.length >= 4) {
+                // Bottom main row: Screen #2 (Left), Screen #1 (Center Main), Screen #3 (Right)
+                // Top row: Screens #4 to #8
+                const topRow = document.createElement('div');
+                topRow.className = 'flex items-end justify-center gap-2';
+                const bottomRow = document.createElement('div');
+                bottomRow.className = 'flex items-center justify-center gap-2';
+
+                evaluatedScreens.slice(3).forEach(it => topRow.appendChild(buildMonitorNode(it)));
+
+                if (evaluatedScreens[1]) bottomRow.appendChild(buildMonitorNode(evaluatedScreens[1]));
+                bottomRow.appendChild(buildMonitorNode(evaluatedScreens[0]));
+                if (evaluatedScreens[2]) bottomRow.appendChild(buildMonitorNode(evaluatedScreens[2]));
+
+                stage.appendChild(topRow);
+                stage.appendChild(bottomRow);
+
+                const mainRowWidth = (evaluatedScreens[0].sizeSpec.w +
+                    (evaluatedScreens[1] ? evaluatedScreens[1].sizeSpec.w : 0) +
+                    (evaluatedScreens[2] ? evaluatedScreens[2].sizeSpec.w : 0)).toFixed(1);
+                summaryEl.textContent = `Envergure rangée principale (#2 + #1 + #3) : ${mainRowWidth} cm`;
+            } else {
+                const singleRow = document.createElement('div');
+                singleRow.className = 'flex items-center justify-center gap-2';
+                let sumW = 0;
+                evaluatedScreens.forEach(it => {
+                    sumW += it.sizeSpec.w;
+                    singleRow.appendChild(buildMonitorNode(it));
+                });
+                stage.appendChild(singleRow);
+                summaryEl.textContent = `Envergure horizontale totale en ligne : ${sumW.toFixed(1)} cm`;
+            }
+
+            // Alignment Check between Main Screen (#1) and Side Screen (#2)
+            if (evaluatedScreens.length >= 2) {
+                const h1 = evaluatedScreens[0].sizeSpec.h;
+                const h2 = evaluatedScreens[1].sizeSpec.h;
+                const diff = Math.abs(h1 - h2);
+
+                if (diff <= 0.5) {
+                    banner.className = 'p-3 rounded-xl border bg-emerald-500/15 border-emerald-500/40 text-emerald-200 text-xs';
+                    banner.innerHTML = `<strong>✅ Alignement Physique Parfait (Écart : ${diff.toFixed(1)} cm) :</strong> L'Écran #1 (${h1} cm de haut) et l'Écran #2 (${h2} cm de haut) ont exactement la même hauteur de dalle (comme le duo 40" 21:9 + 32" 16:9).`;
+                } else if (diff <= 7.0) {
+                    banner.className = 'p-3 rounded-xl border bg-amber-500/15 border-amber-500/40 text-amber-200 text-xs';
+                    banner.innerHTML = `<strong>ℹ️ Écart de hauteur modéré (${diff.toFixed(1)} cm) :</strong> L'Écran #1 mesure <strong>${h1} cm</strong> de haut contre <strong>${h2} cm</strong> pour l'Écran #2. Très confortable pour travailler sur des fenêtres IA séparées.`;
+                } else {
+                    banner.className = 'p-3 rounded-xl border bg-rose-500/15 border-rose-500/40 text-rose-200 text-xs';
+                    banner.innerHTML = `<strong>⚠️ Fort décrochage vertical (${diff.toFixed(1)} cm d'écart) :</strong> Entre l'Écran #1 (${h1} cm de haut) et l'Écran #2 (${h2} cm de haut), la différence de taille est très marquée (ex: écrans portables 15.6" ou 18" à côté d'un grand moniteur).`;
+                }
+            } else {
+                banner.className = 'p-3 rounded-xl border bg-sky-500/15 border-sky-500/30 text-sky-200 text-xs';
+                banner.innerHTML = `<strong>Écran Unique (#1) :</strong> Dimensions physiques de la dalle : <strong>${evaluatedScreens[0].sizeSpec.w} cm × ${evaluatedScreens[0].sizeSpec.h} cm</strong>.`;
+            }
+        }
+
+        // =========================================================================
+        // 9. VIEW FILTER TABS & CLIPBOARD EXPORT
+        // =========================================================================
+        function switchMainTab(view) {
+            const secPc = document.getElementById('section-pc-builder');
+            const secMon = document.getElementById('section-monitors-builder');
+            const secDesk = document.getElementById('section-desk-visualizer');
+
+            ['all', 'pc', 'monitors', 'desk'].forEach(k => {
+                const btn = document.getElementById(`tab-btn-${k}`);
+                if (k === view) {
+                    btn.className = 'tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-sky-500 text-slate-950 shadow-sm';
+                } else {
+                    btn.className = 'tab-nav-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-300 hover:text-white hover:bg-slate-800/60';
+                }
+            });
+
+            secPc.classList.toggle('hidden', view !== 'all' && view !== 'pc');
+            secMon.classList.toggle('hidden', view !== 'all' && view !== 'monitors');
+            secDesk.classList.toggle('hidden', view !== 'all' && view !== 'desk');
+        }
+
+        function copyConfigurationSummary() {
+            const labels = {
+                conn: 'Architecture',
+                mb: 'Carte Mère',
+                cpu: 'Processeur',
+                cooler: 'Refroidissement',
+                gpu1: 'GPU 1 Principal',
+                gpu2: 'Solution Multi-Écrans / GPU 2',
+                ram: 'Mémoire RAM',
+                ssd: 'Stockage SSD',
+                psu: 'Alimentation',
+                case: 'Boîtier'
+            };
+
+            let lines = [
+                `=== CONFIGURATEUR PC MULTI-ÉCRANS & IA (${state.screenCount} ÉCRANS) ===`,
+                `Mode Tarifaire : ${state.priceMode === 'new' ? 'Prix Neuf Hors Promo (Certifié)' : 'Prix Cible Promo / Black Friday'}`,
+                ``
+            ];
+
+            let total = 0;
+            COMPONENT_KEYS.forEach(k => {
+                const item = getSelectedItem(k);
+                const p = getEffectiveItemPrice(k, item);
+                total += p;
+                lines.push(`- ${labels[k]} : ${item.name} (${p} €)`);
+            });
+
+            if (document.getElementById('check-assembly').checked) {
+                total += 80;
+                lines.push(`- Option : Forfait Montage Professionnel + BIOS (80 €)`);
+            }
+
+            lines.push(``);
+            lines.push(`--- CONFIGURATION DES ${state.screenCount} ÉCRANS ---`);
+            for (let i = 0; i < state.screenCount; i++) {
+                const s = state.screens[i];
+                lines.push(`Écran #${i + 1} : ${MONITOR_SIZES[s.size].label} | ${s.res.toUpperCase()} @ ${s.hz}Hz | ${MONITOR_TASKS[s.task].shortTag}`);
+            }
+
+            lines.push(``);
+            lines.push(`TOTAL PC : ${total} €`);
+
+            const textarea = document.createElement('textarea');
+            textarea.value = lines.join('\n');
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const btnText = document.getElementById('copy-btn-text');
+            btnText.textContent = 'Config Copiée !';
+            setTimeout(() => {
+                btnText.textContent = 'Copier Config';
+            }, 2200);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
