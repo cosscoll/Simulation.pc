@@ -168,6 +168,18 @@
         <p class="needs-hint">Le compromis principal de votre configuration.</p>
       </div>
     </div>
+
+<section id="screens-owned-block" class="owned-block" aria-labelledby="screens-owned-heading">
+ <div class="owned-heading">
+   <div><span class="eyebrow">ÉCRANS EXISTANTS</span><h3 id="screens-owned-heading">Vous avez déjà vos écrans ?</h3><p>Votre PC sera dimensionné pour les écrans et les usages que vous possédez réellement.</p></div>
+   <label class="owned-switch"><input type="checkbox" id="needs-existing" checked><span>Oui, je les possède</span></label>
+ </div>
+ <div class="owned-editor" id="owned-editor">
+  <p class="needs-hint">Renseignez chaque écran : modèle (facultatif), résolution, fréquence et connectique. Aucun écran déjà possédé ne sera ajouté au budget.</p>
+  <div id="owned-screen-list" class="owned-screen-list"></div>
+ </div>
+ <p class="needs-hint" id="owned-new-hint" hidden>Le simulateur configurera les écrans que vous souhaitez acquérir. Le budget actuel concerne uniquement le PC : aucun prix d'écran n'y est inclus.</p>
+</section>
     <details class="needs-advanced" id="needs-advanced">
       <summary>Affiner mes besoins <span>IA, écrans, stockage, montage et installation</span></summary>
       <div class="needs-advanced-grid">
@@ -2699,12 +2711,60 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     {name:'Workstation extrême',tier:6,mb:'x870e_extreme',cpu:'r9_9950x',cooler:'aio_360_pro',gpu1:'rtx_4090',ram:'ddr5_128g',ssd:'pcie5_4to',psu:'psu_1200w',case:'full_tower_xl'}
   ];
   let activeUses=new Set(['dev']);
+  let ownedScreens=Array.from({length:8},(_,i)=>({model:'',size:'27_169',res:'1440p',hz:60,port:'dp',task:i===0?'chat_code':'monitoring'}));
   let proposal=null;
   const $=id=>document.getElementById(id);
   const int=(v,min,max,fallback)=>{const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,Math.round(n))):fallback;};
   const money=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+
+  const OWNED_SIZE_KEYS=['15_169','18_169','24_169','27_169','32_169','34_219','40_219','49_329'];
+  const OWNED_RES_KEYS=['1080p','1440p','uwqhd','dqhd','4k'];
+  const OWNED_HZ=[60,100,120,144,165,240];
+  const OWNED_TASKS=[['chat_code','Code / bureautique'],['monitoring','Web / monitoring'],['ai_small','IA locale légère'],['ai_heavy','IA locale intensive'],['blender_3d','3D / rendu'],['sim_racing','Jeu / simulateur']];
+  function buildSelect(label,key,values,value,listener){
+    const wrapper=document.createElement('label');
+    wrapper.className='owned-field';
+    const title=document.createElement('span');title.textContent=label;wrapper.append(title);
+    const select=document.createElement('select');select.dataset.field=key;
+    values.forEach(([id,name])=>{
+      const option=new Option(name,id,false,String(id)===String(value));
+      select.append(option);
+    });
+    select.addEventListener('change',e=>listener(e.target.value));
+    wrapper.append(select);return wrapper;
+  }
+  function drawOwnedScreens(){
+    const yes=$('needs-existing').checked;
+    const count=int($('needs-screens').value,1,8,3);
+    $('owned-editor').hidden=!yes;
+    $('owned-new-hint').hidden=yes;
+    if(!yes)return;
+    const list=$('owned-screen-list');list.replaceChildren();
+    for(let i=0;i<count;i++){
+      const spec=ownedScreens[i];
+      const card=document.createElement('div');card.className='owned-screen-card';
+      const heading=document.createElement('div');heading.className='owned-screen-heading';
+      const title=document.createElement('strong');title.textContent='Écran '+(i+1)+(i===0?' — principal':'');
+      const sub=document.createElement('span');sub.textContent='Déjà possédé · 0 € ajouté au budget';
+      heading.append(title,sub);card.append(heading);
+      const fields=document.createElement('div');fields.className='owned-screen-fields';
+      const modelWrap=document.createElement('label');modelWrap.className='owned-field';
+      const modelLabel=document.createElement('span');modelLabel.textContent='Marque et modèle (optionnel)';
+      const input=document.createElement('input');input.type='text';input.maxLength=110;input.placeholder='Ex. Dell U2724D';input.value=spec.model||'';
+      input.addEventListener('input',e=>{spec.model=e.target.value;});
+      modelWrap.append(modelLabel,input);fields.append(modelWrap);
+      const sizes=OWNED_SIZE_KEYS.map(id=>[id,MONITOR_SIZES[id].label]);
+      fields.append(buildSelect('Taille', 'size',sizes,spec.size,v=>{spec.size=v;refresh();}));
+      fields.append(buildSelect('Résolution','res',OWNED_RES_KEYS.map(id=>[id,MONITOR_RESOLUTIONS[id].label]),spec.res,v=>{spec.res=v;refresh();}));
+      fields.append(buildSelect('Fréquence', 'hz',OWNED_HZ.map(n=>[n,n+' Hz']),spec.hz,v=>{spec.hz=Number(v);refresh();}));
+      fields.append(buildSelect('Port de votre écran','port',[['dp','DisplayPort'],['hdmi','HDMI'],['usbc','USB-C'],['other','Autre / inconnu']],spec.port,v=>{spec.port=v;refresh();}));
+      fields.append(buildSelect('Usage sur cet écran','task',OWNED_TASKS,spec.task,v=>{spec.task=v;refresh();}));
+      card.append(fields);list.append(card);
+    }
+  }
   function needs(){
     return {
+      existing:$('needs-existing').checked,monitorSpecs:ownedScreens.slice(0,int($('needs-screens').value,1,8,3)).map(x=>({...x})),
       uses:[...activeUses],budget:int($('needs-budget').value,600,10000,2300),
       screens:int($('needs-screens').value,1,8,3),
       priority:$('needs-priority').value,ai:$('needs-ai-level').value,
@@ -2721,8 +2781,9 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
   }
   function makeCandidate(base,needs){
     const p={...base,conn:'pcie_internal',gpu2:'none'};
+    const demandingAnnex=needs.existing&&needs.monitorSpecs.slice(4).some(s=>s.hz>60||s.task==='blender_3d'||s.task==='sim_racing');
     if(needs.screens>4){
-      p.gpu2=(needs.uses.includes('gaming')||needs.uses.includes('blender'))?'rtx_3050_6g':'hub_displaylink';
+      p.gpu2=(demandingAnnex||needs.uses.includes('gaming')||needs.uses.includes('blender'))?'rtx_3050_6g':'hub_displaylink';
     }
     if(needs.screens>2&&p.gpu1==='gtx_1650_4g')p.gpu1='rtx_3060_12g';
     const am5=HARDWARE_DB.mb.find(x=>x.id===p.mb).socket==='AM5';
@@ -2744,6 +2805,15 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     if(needs.uses.includes('blender'))target=Math.max(target,4);
     if(needs.uses.includes('ai') && needs.ai!=='none')target=Math.max(target,needs.ai==='heavy'?4:1);
     if(needs.uses.includes('gaming')&&needs.resolution==='4k')target=Math.max(target,5);
+    if(needs.existing){
+      const highRes=needs.monitorSpecs.filter(x=>x.res==='4k'||x.res==='dqhd').length;
+      const highHz=needs.monitorSpecs.filter(x=>x.hz>=144&&['sim_racing','blender_3d'].includes(x.task)).length;
+      const heavy3d=needs.monitorSpecs.some(x=>x.task==='sim_racing'||x.task==='blender_3d');
+      if(highRes>=1&&heavy3d)target=Math.max(target,4);
+      if(highRes>=2&&heavy3d)target=Math.max(target,5);
+      if(highHz>=2)target=Math.max(target,5);
+      if(needs.monitorSpecs.some(x=>x.task==='ai_heavy'))target=Math.max(target,4);
+    }
     if(needs.priority==='future')target=Math.max(target,2);
     if(needs.priority==='performance')target=Math.min(6,target+1);
     if(needs.priority==='economy')target=Math.max(0,target-1);
@@ -2766,13 +2836,19 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     if(needs.resolution==='uwqhd' && !needs.size.includes('_219'))flags.push('La taille d’écran choisie sera adaptée à un format ultralarge 21:9.');
     if(needs.resolution!=='uwqhd' && needs.size.includes('_219'))flags.push('Les tailles 34/40 pouces 21:9 seront remplacées par des écrans 16:9 pour cette résolution.');
     if(needs.storage===4&&winner.ssd!=='pcie5_4to')flags.push('Le souhait de 4 To n’est pas atteint avec les SSD compatibles de cette sélection.');
-    if(needs.screens>4&&winner.gpu2==='hub_displaylink')flags.push('Les écrans supplémentaires via DisplayLink sont adaptés au bureau, pas aux jeux 3D exigeants.');
+    if(needs.screens>4&&winner.gpu2==='hub_displaylink')flags.push('Les écrans supplémentaires via DisplayLink conviennent aux usages bureautiques, pas aux jeux 3D exigeants.');
+    if(needs.existing&&needs.monitorSpecs.some(s=>s.port==='usbc'))flags.push('USB-C : vérifiez la compatibilité vidéo du PC, du dock et du câble (DisplayPort Alt Mode).');
+    if(needs.existing&&needs.monitorSpecs.some(s=>s.hz>120&&s.res==='4k'))flags.push('4K à fréquence élevée : vérifiez les sorties GPU, le câble et la prise en charge DSC/HDMI 2.1.');
+    if(needs.existing&&needs.monitorSpecs.some(s=>s.port==='other'))flags.push('La connectique exacte de certains écrans doit être confirmée.');
+    if(needs.existing&&needs.monitorSpecs.some(s=>s.res==='dqhd'))flags.push('Les écrans 32:9 requièrent un débit vidéo compatible, à vérifier selon le GPU.');
+    if(needs.existing)flags.push('Les écrans déjà possédés ne sont pas achetés à nouveau (0 € ajouté).');
     return {winner,flags,target};
   }
   function refresh(){
     const n=needs();
     $('needs-budget').value=n.budget;
     $('needs-count-output').textContent=n.screens+' écran'+(n.screens>1?'s':'');
+    if($('owned-screen-list').children.length!==n.screens&&n.existing)drawOwnedScreens();
     $('needs-less').disabled=n.screens===1;
     $('needs-more').disabled=n.screens===8;
     proposal=recommend(n);
@@ -2784,7 +2860,7 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       HARDWARE_DB.ram.find(x=>x.id===p.ram)?.name,
       n.screens+' écran'+(n.screens>1?'s':'')
     ].filter(Boolean);
-    $('needs-reco-description').textContent=desc.join(' · ');
+    $('needs-reco-description').textContent=desc.join(' · ')+(n.existing?' · écrans existants pris en compte':' · écrans à choisir séparément');
     $('needs-reco-price').textContent=money(p.total);
     $('needs-reco-gap').textContent=(p.total<=n.budget?'Dans votre budget (tour seule)':'Budget insuffisant (tour seule)');
     $('needs-reco-warning').hidden=proposal.flags.length===0;
@@ -2819,18 +2895,26 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       else if(blender&&i===1)task='blender_3d';
       else if(i>=3)task='monitoring';
       const primary=i===0||(sim&&i<3);
-      state.screens[i]={
-        id:i+1,size:primary?size:n.size==='40_219'?'27_169':n.size,
-        res:primary?mainResolution:(n.resolution==='4k'?'1440p':'1080p'),
-        hz:sim&&i<3?144:primary?120:60,
-        task,source:'auto'
-      };
-      if(state.screens[i].size==='34_219'||state.screens[i].size==='40_219'){
-        state.screens[i].res='uwqhd';
+      if(n.existing&&i<n.screens){
+        const owned=n.monitorSpecs[i];
+        state.screens[i]={id:i+1,size:owned.size,res:owned.res,hz:owned.hz,task:owned.task,source:'auto',model:owned.model,port:owned.port,owned:true};
+      }else{
+        state.screens[i]={id:i+1,size:primary?size:n.size==='40_219'?'27_169':n.size,
+          res:primary?mainResolution:(n.resolution==='4k'?'1440p':'1080p'),
+          hz:sim&&i<3?144:primary?120:60,task,source:'auto',owned:false};
+        if(state.screens[i].size==='34_219'||state.screens[i].size==='40_219')state.screens[i].res='uwqhd';
       }
     }
     refreshSelectOptionLabels();
     renderMonitorsConfigurator();
+    if(n.existing){
+      document.querySelectorAll('#monitors-cards-container > div[id^="monitor-card-"]').forEach((card,i)=>{
+        const spec=n.monitorSpecs[i];if(!spec)return;
+        const note=document.createElement('p');note.className='owned-render-note';
+        note.textContent='Déjà possédé'+(spec.model?' · '+spec.model:'')+' · '+spec.hz+' Hz · '+spec.port.toUpperCase();
+        card.querySelector('.flex.items-center.justify-between')?.after(note);
+      });
+    }
     setDeskLayout(n.layout);
     updateSimulation();
     document.querySelectorAll('.preset-card').forEach(b=>b.setAttribute('aria-pressed','false'));
@@ -2863,12 +2947,29 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       const el=$('needs-'+k);
       if(el&&v!==undefined&&v!==null)el.value=String(v);
     }
+    if(Array.isArray(stored.monitorSpecs)){
+      stored.monitorSpecs.slice(0,8).forEach((x,i)=>{
+        if(!x||typeof x!=='object')return;
+        const base=ownedScreens[i];
+        for(const key of ['model','size','res','hz','port','task']){
+          if(x[key]!==undefined)base[key]=key==='hz'?int(x[key],60,240,60):String(x[key]).slice(0,110);
+        }
+        if(!MONITOR_SIZES[base.size])base.size='27_169';
+        if(!MONITOR_RESOLUTIONS[base.res])base.res='1440p';
+        if(!OWNED_HZ.includes(base.hz))base.hz=60;
+        if(!['dp','hdmi','usbc','other'].includes(base.port))base.port='dp';
+        if(!MONITOR_TASKS[base.task])base.task='monitoring';
+      });
+    }
+    $('needs-existing').checked=stored.existing===undefined?true:!!stored.existing;
     $('needs-assembly').checked=!!stored.assembly;
     $('needs-multitask').checked=!!stored.multitask;
   }
   function init(){
     if(!$('needs-panel')||typeof HARDWARE_DB==='undefined'||typeof state==='undefined')return;
     restore();
+    drawOwnedScreens();
+    $('needs-existing').addEventListener('change',()=>{drawOwnedScreens();refresh();});
     $('needs-use-chips').addEventListener('click',e=>{
       const b=e.target.closest('[data-use]');if(!b)return;
       const key=b.dataset.use;
@@ -2877,9 +2978,9 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     });
     $('needs-panel').querySelectorAll('select,input').forEach(el=>el.addEventListener('change',refresh));
     $('needs-budget').addEventListener('input',()=>{const n=Number($('needs-budget').value);if(Number.isFinite(n)&&n>=600)refresh();});
-    $('needs-screens').addEventListener('input',refresh);
-    $('needs-less').addEventListener('click',()=>{$('needs-screens').value=Math.max(1,Number($('needs-screens').value)-1);refresh();});
-    $('needs-more').addEventListener('click',()=>{$('needs-screens').value=Math.min(8,Number($('needs-screens').value)+1);refresh();});
+    $('needs-screens').addEventListener('input',()=>{drawOwnedScreens();refresh();});
+    $('needs-less').addEventListener('click',()=>{$('needs-screens').value=Math.max(1,Number($('needs-screens').value)-1);drawOwnedScreens();refresh();});
+    $('needs-more').addEventListener('click',()=>{$('needs-screens').value=Math.min(8,Number($('needs-screens').value)+1);drawOwnedScreens();refresh();});
     $('needs-apply').addEventListener('click',apply);
     $('needs-save').addEventListener('click',save);
     refresh();
@@ -2887,5 +2988,28 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
   window.addEventListener('load',init);
 })();
 </script>
+
+<style id="owned-screens-style">
+body.ui-redesign .owned-block{border:1px solid #dfe7f0;background:#fbfcfe;border-radius:14px;padding:21px;margin:0 0 20px;}
+body.ui-redesign .owned-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;}
+body.ui-redesign .owned-heading h3{font-size:18px;font-weight:780;letter-spacing:-.03em;color:#223a5b;margin:5px 0;}
+body.ui-redesign .owned-heading p{font-size:12px;color:#7e8b9a;line-height:1.5;}
+body.ui-redesign .owned-switch{display:flex;align-items:center;gap:9px;color:#345a89;font-size:12px;font-weight:740;border:1px solid #d0def0;background:#f0f5fe;border-radius:10px;padding:12px;white-space:nowrap;cursor:pointer;}
+body.ui-redesign .owned-switch input{accent-color:#345da1;width:18px;height:18px;}
+body.ui-redesign .owned-editor{margin-top:17px;border-top:1px solid #e3e9ef;padding-top:13px;}
+body.ui-redesign .owned-screen-list{display:grid;gap:12px;margin-top:16px;}
+body.ui-redesign .owned-screen-card{border:1px solid #e0e7f0;border-radius:12px;padding:15px;background:#fff;}
+body.ui-redesign .owned-screen-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:15px;}
+body.ui-redesign .owned-screen-heading strong{font-size:13px;color:#294366;}
+body.ui-redesign .owned-screen-heading span{font-size:11px;font-weight:650;color:#39745c;}
+body.ui-redesign .owned-screen-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;}
+body.ui-redesign .owned-field{display:flex;flex-direction:column;gap:6px;min-width:0;font-weight:650;font-size:11px;color:#62718a;}
+body.ui-redesign .owned-field input,body.ui-redesign .owned-field select{width:100%;min-width:0;height:40px;background:#fff!important;border:1px solid #dce5ed!important;border-radius:9px;color:#273f5a!important;font-size:12px;padding:7px 10px;}
+body.ui-redesign .owned-field input:focus,body.ui-redesign .owned-field select:focus{outline:2px solid #b8cff0;}
+body.ui-redesign .owned-render-note{font-size:11px;color:#2e6b52;margin:7px 0;font-weight:650;}
+body.ui-redesign #owned-editor[hidden],body.ui-redesign #owned-new-hint[hidden]{display:none!important;}
+@media(max-width:780px){body.ui-redesign .owned-screen-fields{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:560px){body.ui-redesign .owned-heading{align-items:stretch;flex-direction:column;}body.ui-redesign .owned-switch{align-self:flex-start;}body.ui-redesign .owned-screen-fields{grid-template-columns:1fr;}}
+</style>
 </body>
 </html>
