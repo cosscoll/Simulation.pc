@@ -2763,6 +2763,8 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     if(winner.total>needs.budget)flags.push('Budget dépassé de '+money(winner.total-needs.budget)+'.');
     if(winner.tier<target)flags.push('Les performances visées dépassent ce que permet le budget actuel.');
     if(needs.uses.includes('ai')&&needs.ai==='heavy' && (HARDWARE_DB.gpu1.find(g=>g.id===winner.gpu1)?.vram || 0)<16)flags.push('Pour l’IA locale exigeante, vérifiez la VRAM nécessaire au modèle précis.');
+    if(needs.resolution==='uwqhd' && !needs.size.includes('_219'))flags.push('La taille d’écran choisie sera adaptée à un format ultralarge 21:9.');
+    if(needs.resolution!=='uwqhd' && needs.size.includes('_219'))flags.push('Les tailles 34/40 pouces 21:9 seront remplacées par des écrans 16:9 pour cette résolution.');
     if(needs.storage===4&&winner.ssd!=='pcie5_4to')flags.push('Le souhait de 4 To n’est pas atteint avec les SSD compatibles de cette sélection.');
     if(needs.screens>4&&winner.gpu2==='hub_displaylink')flags.push('Les écrans supplémentaires via DisplayLink sont adaptés au bureau, pas aux jeux 3D exigeants.');
     return {winner,flags,target};
@@ -2807,7 +2809,7 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     const sim=n.uses.includes('gaming');
     const blender=n.uses.includes('blender');
     const ai=n.uses.includes('ai')&&n.ai!=='none';
-    const size=n.resolution==='uwqhd'?(n.size==='40_219'?'40_219':'34_219'):n.size.includes('_219')?'27_169':n.size;
+    const size=n.resolution==='uwqhd'?(n.size==='40_219'?'40_219':'34_219'):n.size.includes('_219')?'32_169':n.size;
     const mainResolution=n.resolution;
     for(let i=0;i<8;i++){
       let task='chat_code';
@@ -2828,8 +2830,8 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       }
     }
     refreshSelectOptionLabels();
-    setDeskLayout(n.layout);
     renderMonitorsConfigurator();
+    setDeskLayout(n.layout);
     updateSimulation();
     document.querySelectorAll('.preset-card').forEach(b=>b.setAttribute('aria-pressed','false'));
     const live=$('total-price-display');
