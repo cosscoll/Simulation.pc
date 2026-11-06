@@ -2388,6 +2388,17 @@ body.ui-redesign button:focus-visible,body.ui-redesign summary:focus-visible,bod
 @media(max-width:700px){body.ui-redesign .site-header-inner {padding:11px 15px;gap:9px;}body.ui-redesign .stage-navigation {overflow-x:auto;justify-content:flex-start;}body.ui-redesign .stage-navigation .tab-nav-btn {padding:9px 10px;font-size:11px;}body.ui-redesign .workspace-main {padding:22px 15px 45px!important;}body.ui-redesign .welcome-section {margin-bottom:24px;}body.ui-redesign .welcome-section p {font-size:14px;}body.ui-redesign .section-heading {align-items:flex-start;flex-direction:column;}body.ui-redesign .starter-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}body.ui-redesign .preset-card {padding:16px!important;min-height:168px;}body.ui-redesign .preset-card strong {font-size:14px;}body.ui-redesign .preset-card[aria-pressed=true] {padding:15px!important;}body.ui-redesign #section-pc-builder,body.ui-redesign #section-monitors-builder,body.ui-redesign #section-desk-visualizer {padding:18px!important;}body.ui-redesign .stage-navigation .all-sections {display:none;}body.ui-redesign #live-sidebar>.glass-card:first-child {padding:19px!important;}}
 @media(max-width:390px){body.ui-redesign .starter-grid {grid-template-columns:1fr;}body.ui-redesign .preset-card {min-height:135px;}}
 @media(prefers-reduced-motion:reduce){body.ui-redesign *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}}
+body.ui-redesign .advanced-pc-content {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+body.ui-redesign .advanced-pc-content>div {margin:0!important;min-width:0;}
+body.ui-redesign .advanced-pc-content>div:last-child {grid-column:1/-1;}
+body.ui-redesign #section-pc-builder .grid:has(>div:only-child) {grid-template-columns:minmax(0,1fr)!important;}
+body.ui-redesign #monitors-cards-container .screen-editor {margin-top:12px;border-top:1px solid #e6eaf1;padding-top:9px;}
+body.ui-redesign #monitors-cards-container .screen-editor>summary {cursor:pointer;color:#365ba0;font-weight:700;font-size:12px;padding:7px 0;list-style:none;display:flex;align-items:center;justify-content:space-between;}
+body.ui-redesign #monitors-cards-container .screen-editor>summary::-webkit-details-marker {display:none;}
+body.ui-redesign #monitors-cards-container .screen-editor>summary:after {content:"+";font-size:19px;font-weight:500;}
+body.ui-redesign #monitors-cards-container .screen-editor[open]>summary:after {content:"−";}
+body.ui-redesign #monitors-cards-container .screen-editor>div {margin-top:10px;}
+@media(max-width:700px) {body.ui-redesign .advanced-pc-content {grid-template-columns:1fr;}}
 </style>
 
 <script id="atelier-pc-ux">
@@ -2439,6 +2450,23 @@ body.ui-redesign button:focus-visible,body.ui-redesign summary:focus-visible,bod
     document.querySelectorAll('[id^="custom-price-"]').forEach(input=>{
       input.parentElement.classList.add('price-edit-box');
     });
+    // Afficher en priorité les choix utiles, tout en conservant les réglages complets.
+    const advancedPc=document.createElement('details');
+    advancedPc.className='tech-option-group advanced-pc';
+    const advancedPcSummary=document.createElement('summary');
+    advancedPcSummary.textContent='Options avancées du PC (boîtier, alimentation, refroidissement…)';
+    advancedPc.appendChild(advancedPcSummary);
+    const advancedPcContent=document.createElement('div');
+    advancedPcContent.className='advanced-pc-content';
+    for(const fieldId of ['select-conn','select-cooler','select-psu','select-case']){
+      const field=document.getElementById(fieldId);
+      const panel=field?.closest('[class*="p-3.5"]');
+      if(panel&&panel!==pc) advancedPcContent.appendChild(panel);
+    }
+    const assembly=document.getElementById('check-assembly')?.parentElement?.parentElement;
+    if(assembly) advancedPcContent.appendChild(assembly);
+    advancedPc.appendChild(advancedPcContent);
+    pc.appendChild(advancedPc);
     const m=document.getElementById('section-monitors-builder');
     const tools=m.querySelector('#screen-count-buttons')?.parentElement?.parentElement;
     if(tools){
@@ -2459,6 +2487,18 @@ body.ui-redesign button:focus-visible,body.ui-redesign summary:focus-visible,bod
     const markFields=()=>{
       document.querySelectorAll('#monitors-cards-container select').forEach(select=>{
         if(select.getAttribute('onchange')?.includes("'source'"))select.parentElement.classList.add('screen-advanced-field');
+      });
+      document.querySelectorAll('#monitors-cards-container > div[id^="monitor-card-"]').forEach((card,i)=>{
+        if(card.querySelector('.screen-editor'))return;
+        const contents=Array.from(card.children).slice(1);
+        if(!contents.length)return;
+        const editor=document.createElement('details');
+        editor.className='screen-editor';
+        editor.open=i===0;
+        const title=document.createElement('summary');
+        title.textContent=i===0?'Paramètres de l’écran principal':'Modifier cet écran';
+        editor.append(title,...contents);
+        card.append(editor);
       });
     };
     const oldRender=window.renderMonitorsConfigurator;
