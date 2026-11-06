@@ -216,7 +216,7 @@
     <div><div class="eyebrow">POUR COMMENCER</div><h2 id="starter-title">Choisissez un point de départ</h2><p>Ces modèles sont entièrement personnalisables.</p></div>
     <div class="prices-mode-wrap">
       <span class="control-label">Prix affichés</span>
-      <button type="button" id="btn-reset-custom-prices" class="soft-button hidden" onclick="resetCustomPrices()">Réinitialiser les prix</button><div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Neuf</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')">Promo estimée</button></div>
+      <button type="button" id="btn-reset-custom-prices" class="soft-button hidden" onclick="resetCustomPrices()">Réinitialiser les prix</button><div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Prix relevés LDLC</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')">Hypothèses (non vérifiées)</button></div>
     </div>
   </div>
   <div class="starter-grid">
@@ -739,7 +739,7 @@
                     ramType: 'DDR5',
                     dualGpuReady: true,
                     upgradeScore: 95,
-                    desc: 'La référence évolutive AM5 : ports PCIe espacés pour 2 cartes graphiques, PCIe 5.0 et Wi-Fi 7.'
+                    desc: 'AM5 et DDR5. Le second port GPU est un PCIe 4.0 x4 issu du chipset : bande passante partagée avec M2_3 et dimensions physiques à vérifier.'
                 },
                 {
                     id: 'x870e_extreme',
@@ -761,18 +761,18 @@
                     ramType: 'DDR5',
                     dualGpuReady: true,
                     upgradeScore: 85,
-                    desc: 'Entrée de gamme évolutive sur socket AM5 avec un second port PCIe en bas de carte.'
+                    desc: 'Plateforme AM5/DDR5 générique : modèle exact, BIOS et second port PCIe à vérifier avant achat.'
                 },
                 {
                     id: 'b760_atx',
-                    name: 'Carte Mère B760 / B550 Format ATX (2ème port PCIe libre)',
+                    name: 'Gigabyte B760M GAMING PLUS WIFI DDR4 (Micro ATX, LGA1700)',
                     priceNew: 110,
                     pricePromo: 85,
                     socket: 'LGA1700',
                     ramType: 'DDR4',
                     dualGpuReady: true,
                     upgradeScore: 50,
-                    desc: 'Carte mère économique DDR4 pour configuration budget autour de 850-900€.'
+                    desc: 'Modèle exact Gigabyte Micro-ATX LGA1700/DDR4, 1 port PCIe x16 et 2 ports x1 : deuxième carte graphique standard non compatible.'
                 },
                 {
                     id: 'dell_mb',
@@ -802,7 +802,7 @@
                     name: 'AMD Ryzen 9 9900X (12 Cœurs / 24 Threads Zen 5)',
                     priceNew: 520,
                     pricePromo: 460,
-                    watts: 170,
+                    watts: 120,
                     socket: 'AM5',
                     cpuFactor: 1.06,
                     desc: 'Architecture Zen 5 ultra-rapide offrant un gain de réactivité en simulation auto et traitement de données.'
@@ -960,12 +960,12 @@
             gpu2: [
                 {
                     id: 'rtx_3050_6g',
-                    name: 'GPU 2 : MSI GeForce RTX 3050 6 Go (70W Auto-alimentée • +4 écrans)',
+                    name: 'GPU 2 : MSI GeForce RTX 3050 LP 6G OC (70W, 3 sorties, arrêté chez LDLC)',
                     priceNew: 190,
                     pricePromo: 165,
                     vram: 6,
                     watts: 70,
-                    extraScreens: 4,
+                    extraScreens: 3,
                     power3D: 28,
                     type: 'gpu',
                     desc: 'Se branche sur le 2ème port PCIe sans câble d\'alimentation. Débloque les écrans 5 à 8 en 3D native + 6 Go VRAM.'
@@ -1052,7 +1052,7 @@
                 },
                 {
                     id: 'ddr5_32g',
-                    name: 'Kit 32 Go (2x16 Go) DDR5 6000MHz',
+                    name: 'Textorm 32 Go (2x16 Go) DDR5 6000 MHz CL36 (TXU16G2A60C36X2)',
                     priceNew: 130,
                     pricePromo: 105,
                     capacity: 32,
@@ -1061,7 +1061,7 @@
                 },
                 {
                     id: 'ddr4_32g',
-                    name: 'Kit 32 Go (2x16 Go) DDR4 3200MHz Dual Channel',
+                    name: 'G.Skill Aegis 32 Go (2x16 Go) DDR4 3200 MHz CL16 (F4-3200C16D-32GIS)',
                     priceNew: 95,
                     pricePromo: 80,
                     capacity: 32,
@@ -1111,7 +1111,7 @@
             psu: [
                 {
                     id: 'rm1000e',
-                    name: 'Corsair RM1000e — 1000 Watts (Norme ATX 3.0 / PCIe 5.0)',
+                    name: 'Corsair RM1000e (2025) — 1000 W (ATX 3.1)',
                     priceNew: 180,
                     pricePromo: 150,
                     watts: 1000,
@@ -1135,7 +1135,7 @@
                 },
                 {
                     id: 'psu_650w',
-                    name: 'Alimentation 650 Watts 80+ Bronze',
+                    name: 'be quiet! System Power 11 650W 80PLUS Bronze (ATX 3.1)',
                     priceNew: 65,
                     pricePromo: 55,
                     watts: 650,
@@ -1153,7 +1153,7 @@
             case: [
                 {
                     id: 'corsair_4000d',
-                    name: 'Corsair 4000D Airflow / Fractal Design Meshify 2 (ATX)',
+                    name: 'Corsair FRAME 4000D (Noir, ATX)',
                     priceNew: 120,
                     pricePromo: 98,
                     desc: 'Excellent flux d\'air en façade pour refroidir 2 cartes graphiques.'
@@ -1271,6 +1271,103 @@
             ]
         };
 
+
+        // Captures ponctuelles des fiches exactes LDLC France, relevées le 06/11/2026.
+        // IMPORTANT : ces prix ne constituent pas un flux live, ni un devis ferme.
+        const LDLC_PRICE_SNAPSHOT = {
+        "cpu:i5_12400f": {
+                "price": 174.95,
+                "sku": "PB00473444",
+                "url": "https://www.ldlc.com/fiche/PB00473444.html",
+                "status": "in_stock",
+                "name": "Intel Core i5-12400F boîte avec ventilateur",
+                "checkedAt": "2026-11-06"
+        },
+        "cpu:r7_7700x": {
+                "price": 459.95,
+                "sku": "PB00516610",
+                "url": "https://www.ldlc.com/fiche/PB00516610.html",
+                "status": "in_stock",
+                "name": "AMD Ryzen 7 7700X version boîte sans ventilateur",
+                "checkedAt": "2026-11-06"
+        },
+        "cpu:r9_9900x": {
+                "price": 489.95,
+                "sku": "PB00622378",
+                "url": "https://www.ldlc.com/fiche/PB00622378.html",
+                "status": "in_stock",
+                "name": "AMD Ryzen 9 9900X version boîte sans ventilateur",
+                "checkedAt": "2026-11-06"
+        },
+        "mb:b760_atx": {
+                "price": 129.95,
+                "sku": "PB00669642",
+                "url": "https://www.ldlc.com/fiche/PB00669642.html",
+                "status": "in_stock",
+                "name": "Gigabyte B760M GAMING PLUS WIFI DDR4",
+                "checkedAt": "2026-11-06"
+        },
+        "mb:x870_tomahawk": {
+                "price": 359.95,
+                "sku": "PB00643547",
+                "url": "https://www.ldlc.com/fiche/PB00643547.html",
+                "status": "out_of_stock",
+                "name": "MSI MAG X870 TOMAHAWK WIFI",
+                "checkedAt": "2026-11-06"
+        },
+        "ram:ddr4_32g": {
+                "price": 327.25,
+                "sku": "PB00278893",
+                "url": "https://www.ldlc.com/fiche/PB00278893.html",
+                "status": "in_stock",
+                "name": "G.Skill Aegis 32 Go (2 x 16 Go) DDR4 3200 CL16",
+                "checkedAt": "2026-11-06"
+        },
+        "ram:ddr5_32g": {
+                "price": 609.95,
+                "sku": "PB00742029",
+                "url": "https://www.ldlc.com/fiche/PB00742029.html",
+                "status": "in_stock",
+                "name": "Textorm 32 Go (2 x 16 Go) DDR5 6000 CL36 (TXU16G2A60C36X2)",
+                "checkedAt": "2026-11-06"
+        },
+        "psu:psu_650w": {
+                "price": 69.95,
+                "sku": "PB00686561",
+                "url": "https://www.ldlc.com/fiche/PB00686561.html",
+                "status": "in_stock",
+                "name": "be quiet! System Power 11 650W Bronze ATX 3.1",
+                "checkedAt": "2026-11-06"
+        },
+        "psu:rm1000e": {
+                "price": 174.95,
+                "sku": "PB00663407",
+                "url": "https://www.ldlc.com/fiche/PB00663407.html",
+                "status": "in_stock",
+                "name": "Corsair RM1000e (2025) ATX 3.1",
+                "checkedAt": "2026-11-06"
+        },
+        "case:corsair_4000d": {
+                "price": 99.95,
+                "sku": "PB00669920",
+                "url": "https://www.ldlc.com/fiche/PB00669920.html",
+                "status": "in_stock",
+                "name": "Corsair FRAME 4000D Noir",
+                "checkedAt": "2026-11-06"
+        }
+};
+        window.LDLC_PRICE_SNAPSHOT = LDLC_PRICE_SNAPSHOT;
+
+        function getPriceEvidence(cat,item){
+            return LDLC_PRICE_SNAPSHOT[cat + ':' + item.id] || null;
+        }
+        function getPriceEvidenceLabel(cat,item){
+            if(cat==='conn'&&item.id==='pcie_internal'||cat==='gpu2'&&item.id==='none')return 'Aucun achat';
+            const quote=getPriceEvidence(cat,item);
+            if(!quote)return 'Prix non vérifié';
+            return quote.status==='in_stock'?'LDLC · '+quote.price.toFixed(2).replace('.',',')+' € (relevé 06/11)':'LDLC · rupture (prix informatif)';
+        }
+
         const COMPONENT_KEYS = ['conn', 'mb', 'cpu', 'cooler', 'gpu1', 'gpu2', 'ram', 'ssd', 'psu', 'case'];
 
         // =========================================================================
@@ -1291,7 +1388,7 @@
                     const price = getEffectiveItemPrice(cat, item);
                     const opt = document.createElement('option');
                     opt.value = item.id;
-                    opt.textContent = `${item.name} — [${price} €]`;
+                    opt.textContent = `${item.name} — ${getPriceEvidenceLabel(cat,item)}`;
                     selectEl.appendChild(opt);
                 });
             });
@@ -1302,6 +1399,8 @@
             if (state.customPrices[customKey] !== undefined) {
                 return state.customPrices[customKey];
             }
+            const quote=getPriceEvidence(cat,item);
+            if(quote && quote.status==='in_stock' && state.priceMode==='new')return quote.price;
             return state.priceMode === 'new' ? item.priceNew : item.pricePromo;
         }
 
@@ -1330,7 +1429,7 @@
                     const item = HARDWARE_DB[cat].find(i => i.id === opt.value);
                     if (item) {
                         const price = getEffectiveItemPrice(cat, item);
-                        opt.textContent = `${item.name} — [${price} €]`;
+                        opt.textContent = `${item.name} — ${getPriceEvidenceLabel(cat,item)}`;
                     }
                 });
                 selectEl.value = currentVal;
