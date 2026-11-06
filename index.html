@@ -124,6 +124,81 @@
   <div class="welcome-meta"><span><i data-lucide="check" class="w-4 h-4"></i> Résultat mis à jour en direct</span><span><i data-lucide="check" class="w-4 h-4"></i> De 1 à 8 écrans</span></div>
 </section>
 
+
+<section class="needs-panel" id="needs-panel" aria-labelledby="needs-heading">
+  <div class="needs-intro">
+    <div><span class="eyebrow">UNE CONFIGURATION POUR VOUS</span><h2 id="needs-heading">D'abord, vos besoins.</h2>
+      <p>Indiquez ce que vous souhaitez faire. Le simulateur proposera ensuite des composants et des écrans adaptés. Vous pourrez tout modifier manuellement.</p>
+    </div>
+    <span class="needs-step-pill">Personnalisation guidée</span>
+  </div>
+  <div class="needs-content">
+    <fieldset class="needs-group needs-uses" id="needs-use-group">
+      <legend><span class="needs-question">01</span> Quels seront vos usages ? <small>Plusieurs choix possibles</small></legend>
+      <div class="needs-chip-grid" id="needs-use-chips">
+        <button type="button" class="needs-chip" data-use="office" aria-pressed="false"><span class="chip-symbol">▦</span><strong>Bureautique</strong><small>Web, mails, gestion</small></button>
+        <button type="button" class="needs-chip" data-use="dev" aria-pressed="true"><span class="chip-symbol">⌘</span><strong>Code & projets</strong><small>Développement, multitâche</small></button>
+        <button type="button" class="needs-chip" data-use="ai" aria-pressed="false"><span class="chip-symbol">◈</span><strong>IA locale</strong><small>Modèles sur mon PC</small></button>
+        <button type="button" class="needs-chip" data-use="creation" aria-pressed="false"><span class="chip-symbol">◐</span><strong>Création</strong><small>Design, montage vidéo</small></button>
+        <button type="button" class="needs-chip" data-use="blender" aria-pressed="false"><span class="chip-symbol">◇</span><strong>3D & rendu</strong><small>Blender, rendu GPU</small></button>
+        <button type="button" class="needs-chip" data-use="gaming" aria-pressed="false"><span class="chip-symbol">⊕</span><strong>Jeu & simulation</strong><small>Gaming, simracing</small></button>
+      </div>
+    </fieldset>
+    <div class="needs-basics">
+      <div class="needs-group">
+        <label for="needs-budget"><span class="needs-question">02</span> Budget maximum du PC</label>
+        <div class="needs-money"><input type="number" id="needs-budget" min="600" max="10000" step="50" value="2300" inputmode="numeric" aria-describedby="needs-budget-note"/><strong>€</strong></div>
+        <p class="needs-hint" id="needs-budget-note">Tour uniquement, hors prix des écrans.</p>
+      </div>
+      <div class="needs-group">
+        <label for="needs-screens"><span class="needs-question">03</span> Nombre d'écrans</label>
+        <div class="needs-count"><button type="button" id="needs-less" aria-label="Retirer un écran">−</button><output id="needs-count-output" for="needs-screens">3 écrans</output><button type="button" id="needs-more" aria-label="Ajouter un écran">+</button></div>
+        <input type="range" id="needs-screens" min="1" max="8" value="3" step="1"/>
+        <p class="needs-hint">Jusqu'à 8 écrans avec les extensions adaptées.</p>
+      </div>
+      <div class="needs-group">
+        <label for="needs-priority"><span class="needs-question">04</span> Votre priorité</label>
+        <select id="needs-priority">
+          <option value="balanced">Équilibre prix / performances</option>
+          <option value="economy">Dépenser le moins possible</option>
+          <option value="performance">Maximiser les performances</option>
+          <option value="future">Pouvoir faire évoluer mon PC</option>
+          <option value="quiet">Silence et confort</option>
+        </select>
+        <p class="needs-hint">Le compromis principal de votre configuration.</p>
+      </div>
+    </div>
+    <details class="needs-advanced" id="needs-advanced">
+      <summary>Affiner mes besoins <span>IA, écrans, stockage, montage et installation</span></summary>
+      <div class="needs-advanced-grid">
+        <div><label for="needs-ai-level">IA sur votre ordinateur</label>
+          <select id="needs-ai-level"><option value="light">Modèles légers / moyens</option><option value="heavy">Modèles exigeants (plus de VRAM)</option><option value="none">Je n'exécute pas d'IA locale</option></select></div>
+        <div><label for="needs-resolution">Résolution de l'écran principal</label>
+          <select id="needs-resolution"><option value="1080p">Full HD</option><option value="1440p" selected>QHD (1440p)</option><option value="4k">4K UHD</option><option value="uwqhd">Ultralarge 21:9</option></select></div>
+        <div><label for="needs-screen-size">Taille des écrans</label>
+          <select id="needs-screen-size"><option value="24_169">24 pouces (compact)</option><option value="27_169" selected>27 pouces (équilibré)</option><option value="32_169">32 pouces (grand)</option><option value="34_219">34 pouces (ultralarge)</option><option value="40_219">40 pouces (ultralarge)</option></select></div>
+        <div><label for="needs-storage">Stockage souhaité</label>
+          <select id="needs-storage"><option value="1">1 To SSD</option><option value="2" selected>2 To SSD</option><option value="4">4 To SSD (si compatible)</option></select></div>
+        <div><label for="needs-layout">Disposition des écrans</label>
+          <select id="needs-layout"><option value="row">Côte à côte</option><option value="pyramid">Sur deux rangées</option></select></div>
+        <div><label for="needs-price-mode">Base de prix</label>
+          <select id="needs-price-mode"><option value="new">Neuf estimé</option><option value="promo">Promotion estimée</option></select></div>
+        <label class="needs-check"><input type="checkbox" id="needs-assembly"/> Montage professionnel (+ 80 €)</label>
+        <label class="needs-check"><input type="checkbox" id="needs-multitask" checked/> Plusieurs applications lourdes simultanées</label>
+      </div>
+    </details>
+    <div class="needs-result" id="needs-result" role="status" aria-live="polite">
+      <div><span class="eyebrow">VOTRE CONFIGURATION PROPOSÉE</span><h3 id="needs-reco-title">Configuration adaptée à vos usages</h3><p id="needs-reco-description">Une estimation sera calculée à partir de vos choix.</p><p id="needs-reco-warning" class="needs-reco-warning" hidden></p></div>
+      <div class="needs-result-price"><span>PC estimé</span><strong id="needs-reco-price">—</strong><small id="needs-reco-gap">Écrans non inclus</small></div>
+    </div>
+    <div class="needs-actions"><div class="needs-hint">Ces prix et simulations restent indicatifs. Vérifiez les spécifications avant l'achat.</div>
+      <div class="needs-actions-right"><button type="button" class="needs-save" id="needs-save">Enregistrer mes choix</button><button type="button" class="needs-apply" id="needs-apply">Créer ma configuration <span aria-hidden="true">→</span></button></div>
+    </div>
+    <div id="needs-toast" class="needs-toast" role="status" aria-live="polite" hidden></div>
+  </div>
+</section>
+
+<details class="preset-disclosure"><summary>Ou partir d’un modèle préconfiguré <span>4 profils disponibles, modifiables après sélection</span></summary>
 <section class="starter-section" id="starter-presets" aria-labelledby="starter-title">
   <div class="section-heading">
     <div><div class="eyebrow">POUR COMMENCER</div><h2 id="starter-title">Choisissez un point de départ</h2><p>Ces modèles sont entièrement personnalisables.</p></div>
@@ -140,6 +215,7 @@
   </div>
   <details class="experimental-preset"><summary>Afficher une configuration expérimentale</summary><button type="button" class="preset-card" id="preset-btn-egputrap" onclick="loadPreset('egputrap')"><span class="preset-tag">TEST</span><strong>eGPU Thunderbolt 4</strong><small>Comparer l'impact d'une liaison externe sur les performances.</small></button></details>
 </section>
+</details>
 
 <!-- MAIN WORKSPACE GRID: LEFT = PC & SCREENS BUILDER (7 COLS), RIGHT = LIVE DASHBOARD (5 COLS) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -2540,6 +2616,273 @@ body.ui-redesign #monitors-cards-container .screen-editor>div {margin-top:10px;}
       document.getElementById(id)?.setAttribute('aria-pressed',String(mode===value));
     }
   }
+})();
+</script>
+
+<style id="atelier-needs-theme">
+body.ui-redesign .needs-panel{background:#fff;border:1px solid #e0e7f1;border-radius:23px;margin:0 0 22px;box-shadow:0 8px 30px #23364a0a;overflow:hidden;color:#263c56;}
+body.ui-redesign .needs-intro{display:flex;align-items:center;justify-content:space-between;gap:25px;border-bottom:1px solid #e8edf3;padding:29px 32px;background:#fbfcff;}
+body.ui-redesign .needs-intro h2{font-size:clamp(24px,3vw,31px);font-weight:800;letter-spacing:-.045em;color:#152944;margin:7px 0 9px;line-height:1.2;}
+body.ui-redesign .needs-intro p{font-size:13px;line-height:1.65;color:#708096;max-width:690px;}
+body.ui-redesign .needs-step-pill{background:#eaf0fb;color:#3a609d;border:1px solid #d2deef;padding:9px 12px;border-radius:99px;font-size:11px;font-weight:700;white-space:nowrap;}
+body.ui-redesign .needs-content{padding:28px 32px 29px;}
+body.ui-redesign .needs-group{min-width:0;margin:0;border:0;padding:0;}
+body.ui-redesign .needs-group legend,body.ui-redesign .needs-group>label{font-weight:750;color:#2d4058;font-size:13px;margin-bottom:15px;display:block;}
+body.ui-redesign .needs-group legend small{color:#8693a4;font-weight:500;font-size:11px;margin-left:5px;}
+body.ui-redesign .needs-question{font-size:11px;font-weight:800;color:#4870ac;margin-right:8px;}
+body.ui-redesign .needs-chip-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+body.ui-redesign .needs-chip{font:inherit;text-align:left;display:flex;align-items:flex-start;flex-direction:column;gap:5px;min-width:0;min-height:108px;border:1.5px solid #e1e7ef;border-radius:13px;background:#fff;padding:15px 17px;cursor:pointer;transition:.15s;}
+body.ui-redesign .needs-chip:hover{border-color:#b5c8e5;background:#fcfdff;}
+body.ui-redesign .needs-chip[aria-pressed=true]{border-color:#4e75bb;background:#f3f7ff;box-shadow:inset 0 0 0 1px #4e75bb;}
+body.ui-redesign .needs-chip strong{font-size:13px;color:#2c405b;font-weight:750;}
+body.ui-redesign .needs-chip small{font-size:11px;color:#78879a;line-height:1.4;}
+body.ui-redesign .chip-symbol{font-size:17px;line-height:1.1;color:#4d72ab;font-weight:800;}
+body.ui-redesign .needs-basics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:23px;margin:29px 0 23px;}
+body.ui-redesign .needs-group input[type=number],body.ui-redesign .needs-group select,body.ui-redesign .needs-advanced select{background:#fff!important;border:1px solid #dce5ed!important;border-radius:10px;height:45px;color:#213751!important;padding:9px 12px;font-size:13px;width:100%;min-width:0;}
+body.ui-redesign .needs-group select,body.ui-redesign .needs-advanced select{padding-right:30px;}
+body.ui-redesign .needs-group .needs-money{position:relative;display:flex;align-items:center;gap:10px;}
+body.ui-redesign .needs-money strong{color:#6a7a92;font-size:15px;}
+body.ui-redesign .needs-hint{font-size:11px;color:#8793a2;line-height:1.5;margin-top:8px;}
+body.ui-redesign .needs-count{height:45px;border:1px solid #dce5ed;border-radius:10px;display:flex;align-items:center;justify-content:space-between;overflow:hidden;}
+body.ui-redesign .needs-count button{height:45px;width:47px;flex-shrink:0;background:#f3f6fa;color:#315681;font-size:21px;cursor:pointer;}
+body.ui-redesign .needs-count button:hover{background:#e8effa;}
+body.ui-redesign .needs-count output{font-weight:700;color:#243954;font-size:13px;}
+body.ui-redesign #needs-screens{width:100%;margin-top:12px;accent-color:#436aaa;cursor:pointer;}
+body.ui-redesign .needs-advanced{border:1px solid #e1e7ee;border-radius:13px;margin:0 0 22px;background:#fbfcfe;}
+body.ui-redesign .needs-advanced>summary{padding:16px 18px;cursor:pointer;font-weight:750;font-size:13px;color:#2c4c76;list-style:none;}
+body.ui-redesign .needs-advanced>summary::-webkit-details-marker{display:none;}
+body.ui-redesign .needs-advanced>summary:before{content:"＋";font-size:18px;margin-right:9px;font-weight:500;}
+body.ui-redesign .needs-advanced[open]>summary:before{content:"−";}
+body.ui-redesign .needs-advanced>summary span{font-size:11px;color:#8390a2;font-weight:450;margin-left:8px;}
+body.ui-redesign .needs-advanced-grid{padding:0 18px 20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px 17px;}
+body.ui-redesign .needs-advanced-grid>div{min-width:0;}
+body.ui-redesign .needs-advanced-grid label:not(.needs-check){display:block;color:#455975;font-size:12px;font-weight:650;margin-bottom:7px;}
+body.ui-redesign .needs-advanced-grid .needs-check{display:flex;align-items:center;gap:9px;color:#4d6078;font-weight:600;font-size:12px;padding-top:8px;cursor:pointer;}
+body.ui-redesign .needs-check input{accent-color:#476cad;min-width:16px;min-height:16px;}
+body.ui-redesign .needs-result{background:#f2f6fd;border:1px solid #dce7f5;border-radius:15px;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 21px;}
+body.ui-redesign .needs-result h3{font-size:19px;font-weight:800;color:#19385f;margin:6px 0 4px;letter-spacing:-.02em;}
+body.ui-redesign .needs-result p{color:#667b95;font-size:12px;line-height:1.6;max-width:730px;}
+body.ui-redesign .needs-result .needs-reco-warning{color:#945a18;font-weight:650;margin-top:10px;}
+body.ui-redesign .needs-result-price{flex-shrink:0;text-align:right;min-width:145px;}
+body.ui-redesign .needs-result-price span{display:block;color:#6d83a1;font-size:11px;font-weight:650;}
+body.ui-redesign .needs-result-price strong{display:block;color:#1c3964;font-size:29px;letter-spacing:-.04em;white-space:nowrap;font-weight:800;margin:2px 0;}
+body.ui-redesign .needs-result-price small{font-size:11px;color:#8090a5;}
+body.ui-redesign .needs-actions{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:19px;}
+body.ui-redesign .needs-actions>.needs-hint{margin-top:0;max-width:470px;}
+body.ui-redesign .needs-actions-right{display:flex;gap:10px;align-items:center;}
+body.ui-redesign .needs-apply{display:inline-flex;align-items:center;gap:13px;padding:13px 19px;background:#243f71;color:#fff!important;border:1px solid #243f71;border-radius:10px;font-size:13px;font-weight:750;cursor:pointer;white-space:nowrap;}
+body.ui-redesign .needs-apply:hover{background:#152d57;}
+body.ui-redesign .needs-save{padding:12px 13px;border:1px solid #d6e1ef;border-radius:10px;color:#3c5f90;background:#fff;font-size:12px;font-weight:700;cursor:pointer;}
+body.ui-redesign .needs-save:hover{background:#f5f8ff;}
+body.ui-redesign .needs-toast{background:#eef7f2;border:1px solid #cce7d8;color:#2f7053;padding:10px 14px;border-radius:8px;margin-top:12px;font-size:12px;}
+body.ui-redesign .preset-disclosure{margin-bottom:28px;}
+body.ui-redesign .preset-disclosure>summary{cursor:pointer;color:#47618a;font-size:12px;font-weight:750;margin:0 0 12px;list-style:none;}
+body.ui-redesign .preset-disclosure>summary:before{content:"+";margin-right:7px;font-size:17px;}
+body.ui-redesign .preset-disclosure[open]>summary:before{content:"−";}
+body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;margin-left:6px;}
+@media(max-width:900px){body.ui-redesign .needs-chip-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body.ui-redesign .needs-basics{grid-template-columns:repeat(2,minmax(0,1fr));}body.ui-redesign .needs-advanced-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:700px){body.ui-redesign .needs-intro{padding:22px 18px;align-items:flex-start;flex-direction:column;gap:13px;}body.ui-redesign .needs-content{padding:19px 16px;}body.ui-redesign .needs-chip-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}body.ui-redesign .needs-chip{padding:12px;min-height:110px;}body.ui-redesign .needs-basics{grid-template-columns:1fr;gap:18px;margin:22px 0;}body.ui-redesign .needs-advanced-grid{grid-template-columns:1fr;}body.ui-redesign .needs-result{flex-direction:column;align-items:stretch;}body.ui-redesign .needs-result-price{text-align:left;}body.ui-redesign .needs-actions{align-items:stretch;flex-direction:column;}body.ui-redesign .needs-actions-right{flex-direction:column;align-items:stretch;}body.ui-redesign .needs-actions-right button{width:100%;justify-content:center;}body.ui-redesign .needs-advanced>summary span{display:block;margin-left:24px;margin-top:3px;}body.ui-redesign .preset-disclosure>summary span{display:block;margin-left:23px;}}
+</style>
+
+<script id="atelier-needs-logic">
+(function(){
+  'use strict';
+  const STORAGE_KEY='atelier.pc.besoins.v1';
+  const FIELDS=['budget','screens','priority','ai-level','resolution','screen-size','storage','layout','price-mode','assembly','multitask'];
+  const PROFILES=[
+    {name:'Essentiel',tier:0,mb:'b760_atx',cpu:'i5_12400f',cooler:'stock_cooler',gpu1:'gtx_1650_4g',ram:'ddr4_32g',ssd:'pcie4_1to',psu:'psu_650w',case:'mesh_budget'},
+    {name:'Budget performant',tier:1,mb:'b760_atx',cpu:'i5_12400f',cooler:'stock_cooler',gpu1:'rtx_3060_12g',ram:'ddr4_32g',ssd:'pcie4_1to',psu:'psu_650w',case:'mesh_budget'},
+    {name:'Équilibré évolutif',tier:2,mb:'b650_atx',cpu:'r7_7700x',cooler:'phantom_spirit_aio',gpu1:'rtx_4060_8g',ram:'ddr5_32g',ssd:'pcie4_1to',psu:'psu_850w',case:'mesh_budget'},
+    {name:'Création et performance',tier:3,mb:'b650_atx',cpu:'r7_7700x',cooler:'phantom_spirit_aio',gpu1:'rtx_4070_super',ram:'ddr5_32g',ssd:'sn850x_2to',psu:'psu_850w',case:'corsair_4000d'},
+    {name:'Workstation IA et 3D',tier:4,mb:'b650_atx',cpu:'r9_7900x',cooler:'phantom_spirit_aio',gpu1:'rtx_4070ti_super',ram:'ddr5_64g',ssd:'sn850x_2to',psu:'rm1000e',case:'corsair_4000d'},
+    {name:'Workstation intensive',tier:5,mb:'x870e_extreme',cpu:'r9_9900x',cooler:'aio_360_pro',gpu1:'rtx_4080_super',ram:'ddr5_64g',ssd:'pcie5_2to',psu:'psu_1200w',case:'full_tower_xl'},
+    {name:'Workstation extrême',tier:6,mb:'x870e_extreme',cpu:'r9_9950x',cooler:'aio_360_pro',gpu1:'rtx_4090',ram:'ddr5_128g',ssd:'pcie5_4to',psu:'psu_1200w',case:'full_tower_xl'}
+  ];
+  let activeUses=new Set(['dev']);
+  let proposal=null;
+  const $=id=>document.getElementById(id);
+  const int=(v,min,max,fallback)=>{const n=Number(v);return Number.isFinite(n)?Math.min(max,Math.max(min,Math.round(n))):fallback;};
+  const money=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+  function needs(){
+    return {
+      uses:[...activeUses],budget:int($('needs-budget').value,600,10000,2300),
+      screens:int($('needs-screens').value,1,8,3),
+      priority:$('needs-priority').value,ai:$('needs-ai-level').value,
+      resolution:$('needs-resolution').value,size:$('needs-screen-size').value,
+      storage:Number($('needs-storage').value),layout:$('needs-layout').value,
+      priceMode:$('needs-price-mode').value,
+      assembly:$('needs-assembly').checked,multitask:$('needs-multitask').checked
+    };
+  }
+  function price(cat,id,mode){
+    const item=HARDWARE_DB[cat].find(x=>x.id===id);
+    if(!item)throw new Error('Composant absent : '+cat+'/'+id);
+    return mode==='promo'?item.pricePromo:item.priceNew;
+  }
+  function makeCandidate(base,needs){
+    const p={...base,conn:'pcie_internal',gpu2:'none'};
+    if(needs.screens>4){
+      p.gpu2=(needs.uses.includes('gaming')||needs.uses.includes('blender'))?'rtx_3050_6g':'hub_displaylink';
+    }
+    if(needs.screens>2&&p.gpu1==='gtx_1650_4g')p.gpu1='rtx_3060_12g';
+    const am5=HARDWARE_DB.mb.find(x=>x.id===p.mb).socket==='AM5';
+    if(needs.storage>=2 && p.ssd==='pcie4_1to')p.ssd='sn850x_2to';
+    if(needs.storage===4 && p.mb==='x870e_extreme')p.ssd='pcie5_4to';
+    if(needs.multitask && am5 && p.ram==='ddr5_32g' && (needs.uses.includes('blender')||needs.uses.includes('ai')||needs.uses.includes('creation'))) p.ram='ddr5_64g';
+    if(needs.priority==='quiet'){
+      if(am5)p.cooler='phantom_spirit_aio';
+      p.case='corsair_4000d';
+    }
+    p.total=['conn','mb','cpu','cooler','gpu1','gpu2','ram','ssd','psu','case'].reduce((sum,key)=>sum+price(key,p[key],needs.priceMode),needs.assembly?80:0);
+    return p;
+  }
+  function recommend(needs){
+    let target=0;
+    if(needs.uses.includes('dev'))target=Math.max(target,1);
+    if(needs.uses.includes('creation'))target=Math.max(target,3);
+    if(needs.uses.includes('gaming'))target=Math.max(target,3);
+    if(needs.uses.includes('blender'))target=Math.max(target,4);
+    if(needs.uses.includes('ai') && needs.ai!=='none')target=Math.max(target,needs.ai==='heavy'?4:1);
+    if(needs.uses.includes('gaming')&&needs.resolution==='4k')target=Math.max(target,5);
+    if(needs.priority==='future')target=Math.max(target,2);
+    if(needs.priority==='performance')target=Math.min(6,target+1);
+    if(needs.priority==='economy')target=Math.max(0,target-1);
+    if(needs.multitask && needs.uses.length>=3)target=Math.min(6,target+1);
+    const candidates=PROFILES.map(p=>makeCandidate(p,needs));
+    const within=candidates.filter(p=>p.total<=needs.budget);
+    const preferred=within.filter(p=>p.tier>=target);
+    let winner;
+    if(preferred.length){
+      winner=preferred[0];
+    }else if(within.length){
+      winner=within[within.length-1];
+    }else{
+      winner=candidates.reduce((best,p)=>p.total<best.total?p:best,candidates[0]);
+    }
+    const flags=[];
+    if(winner.total>needs.budget)flags.push('Budget dépassé de '+money(winner.total-needs.budget)+'.');
+    if(winner.tier<target)flags.push('Les performances visées dépassent ce que permet le budget actuel.');
+    if(needs.uses.includes('ai')&&needs.ai==='heavy' && (HARDWARE_DB.gpu1.find(g=>g.id===winner.gpu1)?.vram || 0)<16)flags.push('Pour l’IA locale exigeante, vérifiez la VRAM nécessaire au modèle précis.');
+    if(needs.storage===4&&winner.ssd!=='pcie5_4to')flags.push('Le souhait de 4 To n’est pas atteint avec les SSD compatibles de cette sélection.');
+    if(needs.screens>4&&winner.gpu2==='hub_displaylink')flags.push('Les écrans supplémentaires via DisplayLink sont adaptés au bureau, pas aux jeux 3D exigeants.');
+    return {winner,flags,target};
+  }
+  function refresh(){
+    const n=needs();
+    $('needs-budget').value=n.budget;
+    $('needs-count-output').textContent=n.screens+' écran'+(n.screens>1?'s':'');
+    $('needs-less').disabled=n.screens===1;
+    $('needs-more').disabled=n.screens===8;
+    proposal=recommend(n);
+    const p=proposal.winner;
+    $('needs-reco-title').textContent=p.name;
+    const desc=[
+      HARDWARE_DB.cpu.find(x=>x.id===p.cpu)?.name.split(' (')[0],
+      HARDWARE_DB.gpu1.find(x=>x.id===p.gpu1)?.name.split(' —')[0],
+      HARDWARE_DB.ram.find(x=>x.id===p.ram)?.name,
+      n.screens+' écran'+(n.screens>1?'s':'')
+    ].filter(Boolean);
+    $('needs-reco-description').textContent=desc.join(' · ');
+    $('needs-reco-price').textContent=money(p.total);
+    $('needs-reco-gap').textContent=(p.total<=n.budget?'Dans votre budget (tour seule)':'Budget insuffisant (tour seule)');
+    $('needs-reco-warning').hidden=proposal.flags.length===0;
+    $('needs-reco-warning').textContent=proposal.flags.join(' ');
+    $('needs-reco-warning').classList.toggle('hidden',proposal.flags.length===0);
+    $('needs-use-chips').querySelectorAll('[data-use]').forEach(b=>b.setAttribute('aria-pressed',String(activeUses.has(b.dataset.use))));
+    $('needs-toast').hidden=true;
+  }
+  function apply(){
+    const n=needs();
+    const selection=recommend(n);
+    const p=selection.winner;
+    state.customPrices={};
+    $('btn-reset-custom-prices').classList.add('hidden');
+    setPriceMode(n.priceMode,false);
+    for(const cat of ['conn','mb','cpu','cooler','gpu1','gpu2','ram','ssd','psu','case']){
+      $('select-'+cat).value=p[cat];
+      if($('select-'+cat).value!==p[cat])throw new Error('Choix matériel indisponible : '+p[cat]);
+    }
+    $('check-assembly').checked=n.assembly;
+    state.screenCount=n.screens;
+    const sim=n.uses.includes('gaming');
+    const blender=n.uses.includes('blender');
+    const ai=n.uses.includes('ai')&&n.ai!=='none';
+    const size=n.resolution==='uwqhd'?(n.size==='40_219'?'40_219':'34_219'):n.size.includes('_219')?'27_169':n.size;
+    const mainResolution=n.resolution;
+    for(let i=0;i<8;i++){
+      let task='chat_code';
+      if(i===0)task=sim?'sim_racing':blender?'blender_3d':ai?(n.ai==='heavy'?'ai_heavy':'ai_small'):n.uses.includes('office')?'monitoring':'chat_code';
+      else if(sim && i<3)task='sim_racing';
+      else if(ai&&i===1)task=n.ai==='heavy'?'ai_heavy':'ai_small';
+      else if(blender&&i===1)task='blender_3d';
+      else if(i>=3)task='monitoring';
+      const primary=i===0||(sim&&i<3);
+      state.screens[i]={
+        id:i+1,size:primary?size:n.size==='40_219'?'27_169':n.size,
+        res:primary?mainResolution:(n.resolution==='4k'?'1440p':'1080p'),
+        hz:sim&&i<3?144:primary?120:60,
+        task,source:'auto'
+      };
+      if(state.screens[i].size==='34_219'||state.screens[i].size==='40_219'){
+        state.screens[i].res='uwqhd';
+      }
+    }
+    refreshSelectOptionLabels();
+    setDeskLayout(n.layout);
+    renderMonitorsConfigurator();
+    updateSimulation();
+    document.querySelectorAll('.preset-card').forEach(b=>b.setAttribute('aria-pressed','false'));
+    const live=$('total-price-display');
+    $('needs-toast').textContent='Configuration appliquée : '+live.textContent+'. Vous pouvez modifier chaque composant et chaque écran ci-dessous.';
+    $('needs-toast').hidden=false;
+    switchMainTab('pc');
+    // Laissez le résultat visible : la confirmation est volontairement au-dessus du simulateur.
+    $('needs-panel').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function save(){
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(needs()));
+      $('needs-toast').hidden=false;
+      $('needs-toast').textContent='Besoins enregistrés localement sur cet appareil.';
+    }catch(error){
+      $('needs-toast').hidden=false;
+      $('needs-toast').textContent='Enregistrement indisponible sur ce navigateur. La configuration reste modifiable.';
+    }
+  }
+  function restore(){
+    let stored=null;try{stored=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');}catch(error){}
+    if(!stored || !Array.isArray(stored.uses))return;
+    activeUses=new Set(stored.uses.filter(x=>['office','dev','ai','creation','blender','gaming'].includes(x)));
+    if(!activeUses.size)activeUses.add('dev');
+    const vals={'budget':stored.budget,'screens':stored.screens,'priority':stored.priority,
+      'ai-level':stored.ai,'resolution':stored.resolution,'screen-size':stored.size,
+      'storage':stored.storage,'layout':stored.layout,'price-mode':stored.priceMode};
+    for(const [k,v] of Object.entries(vals)){
+      const el=$('needs-'+k);
+      if(el&&v!==undefined&&v!==null)el.value=String(v);
+    }
+    $('needs-assembly').checked=!!stored.assembly;
+    $('needs-multitask').checked=!!stored.multitask;
+  }
+  function init(){
+    if(!$('needs-panel')||typeof HARDWARE_DB==='undefined'||typeof state==='undefined')return;
+    restore();
+    $('needs-use-chips').addEventListener('click',e=>{
+      const b=e.target.closest('[data-use]');if(!b)return;
+      const key=b.dataset.use;
+      if(activeUses.has(key)&&activeUses.size>1)activeUses.delete(key);else activeUses.add(key);
+      refresh();
+    });
+    $('needs-panel').querySelectorAll('select,input').forEach(el=>el.addEventListener('change',refresh));
+    $('needs-budget').addEventListener('input',()=>{const n=Number($('needs-budget').value);if(Number.isFinite(n)&&n>=600)refresh();});
+    $('needs-screens').addEventListener('input',refresh);
+    $('needs-less').addEventListener('click',()=>{$('needs-screens').value=Math.max(1,Number($('needs-screens').value)-1);refresh();});
+    $('needs-more').addEventListener('click',()=>{$('needs-screens').value=Math.min(8,Number($('needs-screens').value)+1);refresh();});
+    $('needs-apply').addEventListener('click',apply);
+    $('needs-save').addEventListener('click',save);
+    refresh();
+  }
+  window.addEventListener('load',init);
 })();
 </script>
 </body>
