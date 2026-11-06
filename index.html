@@ -2253,7 +2253,9 @@
               const title=document.createElement('strong');
               title.textContent=checked.errors.length?
                 checked.errors.length+' incompatibilité(s) bloquante(s)':
-                checked.warnings.length+' vérification(s) restant à effectuer';
+                checked.warnings.length?
+                checked.warnings.length+' point(s) matériel(s) à vérifier':
+                'Aucune incompatibilité détectée par les règles (validation finale requise)';
               const message=document.createElement('p');
               message.textContent=checked.errors.length?
                 'Ne commandez pas cette configuration : '+checked.errors.map(e=>e.title).join(' · '):
