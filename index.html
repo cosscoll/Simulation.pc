@@ -220,8 +220,8 @@
     </div>
   </div>
   <div class="starter-grid">
-    <button type="button" class="preset-card" id="preset-btn-sweetspot" onclick="loadPreset('sweetspot')"><span class="preset-tag">POLYVALENT</span><strong>Station IA & création</strong><small>Pour travailler sur plusieurs projets et écrans.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
-    <button type="button" class="preset-card" id="preset-btn-budget" onclick="loadPreset('budget')"><span class="preset-tag">ACCESSIBLE</span><strong>PC essentiel</strong><small>Une configuration simple pour démarrer.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
+    <button type="button" class="preset-card" id="preset-btn-sweetspot" onclick="loadPreset('sweetspot')"><span class="preset-tag">À VÉRIFIER</span><strong>Station IA & création</strong><small>6 écrans, références et accessoires à confirmer.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
+    <button type="button" class="preset-card" id="preset-btn-budget" onclick="loadPreset('budget')"><span class="preset-tag">EXEMPLE SOURCÉ LDLC</span><strong>PC 3 écrans</strong><small>Références exactes, prix relevés et contrôles matériels de base.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
     <button type="button" class="preset-card" id="preset-btn-displaylink" onclick="loadPreset('displaylink')"><span class="preset-tag">MULTI-ÉCRANS</span><strong>Plus d'écrans</strong><small>Une carte graphique et un dock d'affichage.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
     <button type="button" class="preset-card" id="preset-btn-extreme" onclick="loadPreset('extreme')"><span class="preset-tag">PUISSANCE</span><strong>Station avancée</strong><small>Des composants haut de gamme et deux GPU.</small><span class="preset-link">Choisir ce modèle <span aria-hidden="true">→</span></span></button>
   </div>
@@ -1467,7 +1467,7 @@
         // =========================================================================
         function initApp() {
             populateHardwareSelects();
-            loadPreset('sweetspot');
+            loadPreset('budget');
             if(window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
         }
 
@@ -1611,13 +1611,12 @@
                 document.getElementById('select-ram').value = 'ddr4_32g';
                 document.getElementById('select-ssd').value = 'pcie4_1to';
                 document.getElementById('select-psu').value = 'psu_650w';
-                document.getElementById('select-case').value = 'mesh_budget';
+                document.getElementById('select-case').value = 'corsair_4000d';
                 document.getElementById('check-assembly').checked = false;
-                state.screenCount = 4;
-                state.screens[0] = { id: 1, size: '34_219', res: 'uwqhd', hz: 100, task: 'sim_racing', source: 'auto' };
-                state.screens[1] = { id: 2, size: '27_169', res: '1080p', hz: 60,  task: 'ai_small', source: 'auto' };
-                state.screens[2] = { id: 3, size: '24_169', res: '1080p', hz: 60,  task: 'chat_code', source: 'auto' };
-                state.screens[3] = { id: 4, size: '24_169', res: '1080p', hz: 60,  task: 'monitoring', source: 'auto' };
+                state.screenCount = 3;
+                state.screens[0] = { id: 1, size: '27_169', res: '1440p', hz: 60, task: 'chat_code', source: 'auto', port:'hdmi' };
+                state.screens[1] = { id: 2, size: '27_169', res: '1440p', hz: 60, task: 'chat_code', source: 'auto', port:'dp' };
+                state.screens[2] = { id: 3, size: '27_169', res: '1440p', hz: 60, task: 'monitoring', source: 'auto', port:'dp' };
             } else if (presetKey === 'egputrap') {
                 setPriceMode('new', false);
                 document.getElementById('select-conn').value = 'egpu_tb4';
