@@ -544,6 +544,7 @@
 </section>
 
                 <!-- 1. PRICE & GLOBAL STATUS CARD -->
+                <section id="compatibility-indicator" class="compatibility-indicator" role="status" aria-live="polite"><strong>Compatibilité à analyser</strong><p>Les incompatibilités seront signalées ici.</p></section>
                 <div class="glass-card rounded-2xl p-5 border-t-4 border-t-sky-500">
                     <div class="flex items-start justify-between gap-3">
                         <div>
@@ -2199,18 +2200,32 @@
             const alerts = [];
             const checked=auditHardware(parts,state.screens.slice(0,state.screenCount));
             alerts.push(...checked.errors,...checked.warnings);
+            const indicator=document.getElementById('compatibility-indicator');
+            if(indicator){
+              indicator.className='compatibility-indicator '+(checked.errors.length?'compat-error':checked.warnings.length?'compat-review':'compat-ok');
+              indicator.replaceChildren();
+              const title=document.createElement('strong');
+              title.textContent=checked.errors.length?
+                checked.errors.length+' incompatibilité(s) bloquante(s)':
+                checked.warnings.length+' vérification(s) restant à effectuer';
+              const message=document.createElement('p');
+              message.textContent=checked.errors.length?
+                'Ne commandez pas cette configuration : '+checked.errors.map(e=>e.title).join(' · '):
+                'Aucune erreur bloquante identifiée par les règles. Références, dimensions, BIOS et câbles à faire vérifier avant achat.';
+              indicator.append(title,message);
+            }
 
             if (activeScreensCount < state.screenCount) {
                 const blocked = state.screenCount - activeScreensCount;
                 alerts.push({
                     level: 'error',
-                    title: `${blocked} ÉCRAN(S) NOIR(S) : Limite matérielle de 4 écrans NVIDIA dépassée !`,
+                    title: `${blocked} écran(s) non alloué(s) : sorties vidéo insuffisantes`,
                     text: gpu2.type === 'mst_trap'
                         ? `Vous avez choisi un Hub DisplayPort MST passif : une carte NVIDIA GeForce refuse matériellement d'allumer plus de 4 écrans même derrière un répartiteur MST.`
                         : `La limite de sorties dépend des cartes exactes. La MSI RTX 3050 LP 6G n'a que 3 sorties ; les écrans non alloués nécessitent du matériel réellement compatible.`,
                     actions: [
                         { label: 'Examiner une deuxième carte graphique', fn: "quickSetSelect('gpu2', 'rtx_3050_6g')" },
-                        { label: '+ Mettre Hub USB DisplayLink (110€)', fn: "quickSetSelect('gpu2', 'hub_displaylink')" }
+                        { label: 'Examiner dock DisplayLink', fn: "quickSetSelect('gpu2', 'hub_displaylink')" }
                     ]
                 });
             }
@@ -2505,7 +2520,13 @@
 
 
             lines.push('');
-            lines.push('ESTIMATION THÉORIQUE NON VÉRIFIÉE : '+total+' € (prix des écrans exclus)');
+            const audit=typeof window.auditHardware==='function'?
+              window.auditHardware(Object.fromEntries(COMPONENT_KEYS.map(k=>[k,getSelectedItem(k)])),state.screens.slice(0,state.screenCount)):
+              {errors:[{title:'Audit indisponible',text:'Vérification requise.'}],warnings:[]};
+            lines.push(audit.errors.length?'CONFIGURATION INCOMPATIBLE : NE PAS COMMANDER':'Compatibilité physique et disponibilité non certifiées.');
+            for(const issue of audit.errors)lines.push('ERREUR : '+issue.title+' — '+issue.text);
+            for(const issue of audit.warnings)lines.push('À VÉRIFIER : '+issue.title+' — '+issue.text);
+            lines.push('ESTIMATION HISTORIQUE NON VÉRIFIÉE : '+total+' € (prix des écrans exclus)');
             if(typeof window.pcPriceProofForExport==='function'){
                 const actual=window.pcPriceProofForExport();
                 if(actual?.items?.length){
@@ -3426,6 +3447,14 @@ body.ui-redesign .needs-apply:disabled{opacity:.48;cursor:not-allowed;background
 body.ui-redesign .price-toggle button[hidden]{display:none!important;}
 body.ui-redesign .proof-foot a{color:#355e9f;text-decoration:underline;text-underline-offset:2px;}
 body.ui-redesign .needs-result-price strong{font-size:clamp(17px,2vw,24px)!important;}
+</style>
+<style id="compatibility-status-style">
+body.ui-redesign .compatibility-indicator{background:#fff;border:1px solid #d8e1eb;padding:17px 19px;border-radius:14px;color:#29405d;box-shadow:0 3px 17px #2433450a;}
+body.ui-redesign .compatibility-indicator strong{font-size:13px;font-weight:800;display:block;margin-bottom:6px;}
+body.ui-redesign .compatibility-indicator p{font-size:11px;line-height:1.6;color:#64758b;}
+body.ui-redesign .compatibility-indicator.compat-error{border-color:#eab9bd;background:#fff4f4;color:#992d35;}
+body.ui-redesign .compatibility-indicator.compat-review{border-color:#e5d5ae;background:#fffbf1;color:#77551a;}
+body.ui-redesign .compatibility-indicator.compat-ok{border-color:#b5dbc5;background:#f1faf4;color:#2b6b4b;}
 </style>
 </body>
 </html>
