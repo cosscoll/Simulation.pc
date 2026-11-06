@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -201,7 +201,7 @@
     </details>
     <div class="needs-result" id="needs-result" role="status" aria-live="polite">
       <div><span class="eyebrow">VOTRE CONFIGURATION PROPOSÉE</span><h3 id="needs-reco-title">Configuration adaptée à vos usages</h3><p id="needs-reco-description">Une estimation sera calculée à partir de vos choix.</p><p id="needs-reco-warning" class="needs-reco-warning" hidden></p></div>
-      <div class="needs-result-price"><span>PC estimé</span><strong id="needs-reco-price">—</strong><small id="needs-reco-gap">Écrans non inclus</small></div>
+      <div class="needs-result-price"><span>Simulation du PC · non vérifiée</span><strong id="needs-reco-price">—</strong><small id="needs-reco-gap">Écrans non inclus</small></div>
     </div>
     <div class="needs-actions"><div class="needs-hint">Ces prix et simulations restent indicatifs. Vérifiez les spécifications avant l'achat.</div>
       <div class="needs-actions-right"><button type="button" class="needs-save" id="needs-save">Enregistrer mes choix</button><button type="button" class="needs-apply" id="needs-apply">Créer ma configuration <span aria-hidden="true">→</span></button></div>
@@ -1279,7 +1279,7 @@
         function initApp() {
             populateHardwareSelects();
             loadPreset('sweetspot');
-            lucide.createIcons();
+            if(window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
         }
 
         function populateHardwareSelects() {
@@ -2757,10 +2757,12 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     const list=$('owned-screen-list');list.replaceChildren();
     for(let i=0;i<count;i++){
       const spec=ownedScreens[i];
-      const card=document.createElement('div');card.className='owned-screen-card';
-      const heading=document.createElement('div');heading.className='owned-screen-heading';
-      const title=document.createElement('strong');title.textContent='Écran '+(i+1)+(i===0?' — principal':'');
-      const sub=document.createElement('span');sub.textContent='Déjà possédé · 0 € ajouté au budget';
+      const card=document.createElement('details');card.className='owned-screen-card';
+      card.open=i===0;
+      const heading=document.createElement('summary');heading.className='owned-screen-heading';
+      const title=document.createElement('strong');
+      title.textContent='Écran '+(i+1)+(i===0?' — principal':'')+(spec.model?' · '+spec.model:'');
+      const sub=document.createElement('span');sub.textContent=spec.res.toUpperCase()+' · '+spec.hz+' Hz · déjà possédé';
       heading.append(title,sub);card.append(heading);
       const fields=document.createElement('div');fields.className='owned-screen-fields';
       const modelWrap=document.createElement('label');modelWrap.className='owned-field';
@@ -2876,8 +2878,8 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       n.screens+' écran'+(n.screens>1?'s':'')
     ].filter(Boolean);
     $('needs-reco-description').textContent=desc.join(' · ')+(n.existing?' · écrans existants pris en compte':' · écrans à choisir séparément');
-    $('needs-reco-price').textContent=money(p.total);
-    $('needs-reco-gap').textContent=(p.total<=n.budget?'Dans votre budget (tour seule)':'Budget insuffisant (tour seule)');
+    $('needs-reco-price').textContent='≈ '+money(p.total);
+    $('needs-reco-gap').textContent=(p.total<=n.budget?'Hypothèse budgétaire, NON vérifiée':'Budget hypothétique dépassé')+' · écran(s) exclus';
     $('needs-reco-warning').hidden=proposal.flags.length===0;
     $('needs-reco-warning').textContent=proposal.flags.join(' ');
     $('needs-reco-warning').classList.toggle('hidden',proposal.flags.length===0);
@@ -2937,8 +2939,17 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     $('needs-toast').textContent='Configuration appliquée : '+live.textContent+'. Vous pouvez modifier chaque composant et chaque écran ci-dessous.';
     $('needs-toast').hidden=false;
     switchMainTab('pc');
-    // Laissez le résultat visible : la confirmation est volontairement au-dessus du simulateur.
-    $('needs-panel').scrollIntoView({behavior:'smooth',block:'start'});
+    const pc=$('section-pc-builder');
+    let confirmation=$('needs-applied-confirmation');
+    if(!confirmation){
+      confirmation=document.createElement('div');confirmation.id='needs-applied-confirmation';
+      confirmation.className='needs-applied-confirmation';
+      pc.prepend(confirmation);
+    }
+    confirmation.textContent='Configuration créée pour '+n.screens+' écran'+(n.screens>1?'s':'')+
+      (n.existing?' déjà possédé'+(n.screens>1?'s':''):' à choisir')+
+      '. Les composants et les diagnostics sont affichés ci-dessous. Le tarif réel reste à vérifier.';
+    pc.scrollIntoView({behavior:'smooth',block:'start'});
   }
   function save(){
     try{
@@ -3181,5 +3192,17 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
   window.addEventListener('load',boot);
 })();
 </script>
+
+<style id="needs-polish-style">
+body.ui-redesign .needs-applied-confirmation{color:#265a43!important;background:#eaf7ef;border:1px solid #b9e3c9;padding:13px 15px;margin-bottom:20px;border-radius:11px;font-size:12px;line-height:1.6;font-weight:700;}
+body.ui-redesign #section-pc-builder{scroll-margin-top:110px;}
+body.ui-redesign .owned-screen-card{padding:0!important;overflow:hidden;}
+body.ui-redesign .owned-screen-card>summary{cursor:pointer;list-style:none;margin:0;padding:14px 15px;background:#fbfcfe;}
+body.ui-redesign .owned-screen-card>summary::-webkit-details-marker{display:none;}
+body.ui-redesign .owned-screen-card>summary:after{content:"＋";color:#4e6a92;font-size:17px;}
+body.ui-redesign .owned-screen-card[open]>summary:after{content:"−";}
+body.ui-redesign .owned-screen-card .owned-screen-fields{padding:13px 15px 17px;}
+body.ui-redesign .needs-result-price>span{font-weight:700;}
+</style>
 </body>
 </html>
