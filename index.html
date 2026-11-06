@@ -2318,7 +2318,7 @@
             secDesk.classList.toggle('hidden', view !== 'all' && view !== 'desk');
         }
 
-        function copyConfigurationSummary() {
+        async function copyConfigurationSummary() {
             const labels = {
                 conn: 'Architecture',
                 mb: 'Carte Mère',
@@ -2334,7 +2334,7 @@
 
             let lines = [
                 `=== CONFIGURATEUR PC MULTI-ÉCRANS & IA (${state.screenCount} ÉCRANS) ===`,
-                `Mode Tarifaire : ${state.priceMode === 'new' ? 'Prix neuf indicatif' : 'Prix promo indicatif'}`,
+                `Mode de simulation : ${state.priceMode === 'new' ? 'Hypothèse prix neuf' : 'Hypothèse promotionnelle'}. Aucun prix vendeur n'est garanti.`,
                 ``
             ];
 
@@ -2343,7 +2343,7 @@
                 const item = getSelectedItem(k);
                 const p = getEffectiveItemPrice(k, item);
                 total += p;
-                lines.push(`- ${labels[k]} : ${item.name} (${p} €)`);
+                lines.push(`- ${labels[k]} : ${item.name} (estimation théorique non vérifiée : ${p} €)`);
             });
 
             if (document.getElementById('check-assembly').checked) {
@@ -2355,24 +2355,42 @@
             lines.push(`--- CONFIGURATION DES ${state.screenCount} ÉCRANS ---`);
             for (let i = 0; i < state.screenCount; i++) {
                 const s = state.screens[i];
-                lines.push(`Écran #${i + 1} : ${MONITOR_SIZES[s.size].label} | ${s.res.toUpperCase()} @ ${s.hz}Hz | ${MONITOR_TASKS[s.task].shortTag}`);
+                lines.push(`Écran #${i + 1}${s.owned ? ' [DÉJÀ POSSÉDÉ]' : ' [À ACQUÉRIR]'}${s.model ? ' — '+s.model : ''} : ${MONITOR_SIZES[s.size].label} | ${s.res.toUpperCase()} @ ${s.hz}Hz | ${MONITOR_TASKS[s.task].shortTag}${s.port ? ' | entrée '+s.port : ''}`);
             }
 
-            lines.push(``);
-            lines.push(`TOTAL PC : ${total} €`);
 
-            const textarea = document.createElement('textarea');
-            textarea.value = lines.join('\n');
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-
-            const btnText = document.getElementById('copy-btn-text');
-            btnText.textContent = 'Config Copiée !';
-            setTimeout(() => {
-                btnText.textContent = 'Copier';
-            }, 2200);
+            lines.push('');
+            lines.push('ESTIMATION THÉORIQUE NON VÉRIFIÉE : '+total+' € (prix des écrans exclus)');
+            if(typeof window.pcPriceProofForExport==='function'){
+                const actual=window.pcPriceProofForExport();
+                if(actual?.items?.length){
+                    lines.push('');
+                    lines.push('RELEVÉS DES PRIX VENDEURS (SAISIS PAR L’UTILISATEUR, NON ACTUALISÉS EN DIRECT)');
+                    for(const x of actual.items){
+                        if(x.skip){lines.push('- '+labels[x.k]+' : aucun achat supplémentaire');continue;}
+                        if(x.recent){
+                            lines.push('- '+labels[x.k]+' : '+x.entry.value+' € TTC, relevé le '+new Date(x.entry.savedAt).toLocaleString('fr-FR')+' — '+x.entry.url);
+                        }else lines.push('- '+labels[x.k]+' : prix vendeur manquant / à revérifier');
+                    }
+                    if(actual.complete && !document.getElementById('check-assembly').checked)
+                        lines.push('SOMME DES PRIX RELEVÉS : '+actual.total+' € (hors livraison, disponibilité à confirmer)');
+                    else lines.push('PANIER INCOMPLET : aucun total vendeur garanti.');
+                }
+            }
+            let copied=false;
+            try{
+                if(navigator.clipboard && navigator.clipboard.writeText){
+                    await navigator.clipboard.writeText(lines.join('\\n'));copied=true;
+                }else{
+                    const textarea=document.createElement('textarea');
+                    textarea.value=lines.join('\\n');
+                    document.body.appendChild(textarea);textarea.select();
+                    copied=document.execCommand('copy');textarea.remove();
+                }
+            }catch(error){copied=false;}
+            const btnText=document.getElementById('copy-btn-text');
+            btnText.textContent=copied?'Configuration copiée':'Copie indisponible';
+            setTimeout(()=>{btnText.textContent='Copier';},2200);
         }
 
         window.onload = initApp;
@@ -3179,6 +3197,11 @@ body.ui-redesign .price-toggle::after{content:"estimations";font-size:9px;opacit
   }
   function boot(){
     if(!$('proof-summary')||typeof COMPONENT_KEYS==='undefined'||typeof state==='undefined')return;
+    window.pcPriceProofForExport=()=>{
+      const items=active();
+      const payable=items.filter(x=>!x.skip);
+      return {items,complete:payable.every(x=>x.recent),total:items.reduce((v,x)=>v+(x.skip?0:(x.recent?x.entry.value:0)),0)};
+    };
     entries=getEntries();
     const oldUpdate=window.updateSimulation;
     if(typeof oldUpdate==='function'){
