@@ -201,7 +201,7 @@
     </details>
     <div class="needs-result" id="needs-result" role="status" aria-live="polite">
       <div><span class="eyebrow">VOTRE CONFIGURATION PROPOSÉE</span><h3 id="needs-reco-title">Configuration adaptée à vos usages</h3><p id="needs-reco-description">Une estimation sera calculée à partir de vos choix.</p><p id="needs-reco-warning" class="needs-reco-warning" hidden></p></div>
-      <div class="needs-result-price"><span>Simulation du PC · non vérifiée</span><strong id="needs-reco-price">—</strong><small id="needs-reco-gap">Écrans non inclus</small></div>
+      <div class="needs-result-price"><span>Montants LDLC sourcés</span><strong id="needs-reco-price">—</strong><small id="needs-reco-gap">Écrans non inclus</small></div>
     </div>
     <div class="needs-actions"><div class="needs-hint">Ces prix et simulations restent indicatifs. Vérifiez les spécifications avant l'achat.</div>
       <div class="needs-actions-right"><button type="button" class="needs-save" id="needs-save">Enregistrer mes choix</button><button type="button" class="needs-apply" id="needs-apply">Créer ma configuration <span aria-hidden="true">→</span></button></div>
@@ -2948,13 +2948,22 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
   function price(cat,id,mode){
     const item=HARDWARE_DB[cat].find(x=>x.id===id);
     if(!item)throw new Error('Composant absent : '+cat+'/'+id);
+    const quote=window.LDLC_PRICE_SNAPSHOT?.[cat+':'+id];
+    if(quote?.status==='in_stock')return quote.price;
+    // Valeur historique conservée UNIQUEMENT pour classer les candidats, jamais pour afficher un devis.
     return mode==='promo'?item.pricePromo:item.priceNew;
   }
   function makeCandidate(base,needs){
     const p={...base,conn:'pcie_internal',gpu2:'none'};
     const demandingAnnex=needs.existing&&needs.monitorSpecs.slice(4).some(s=>s.hz>60||s.task==='blender_3d'||s.task==='sim_racing');
     if(needs.screens>4){
-      p.gpu2=(demandingAnnex||needs.uses.includes('gaming')||needs.uses.includes('blender'))?'rtx_3050_6g':'hub_displaylink';
+      p.gpu2=(demandingAnnex||needs.uses.includes('gaming')||needs.uses.includes('blender'))?'rtx_3060_12g_sec':'hub_displaylink';
+      if(needs.screens===8)p.gpu2='rtx_3060_12g_sec';
+      if(p.gpu2==='rtx_3060_12g_sec'&&p.mb==='b760_atx'){
+        // La B760M Gaming Plus DDR4 n'a qu'un x16 + 2 x1, pas de second GPU classique.
+        p.mb='b650_atx';p.cpu='r7_7700x';p.cooler='phantom_spirit_aio';
+        p.ram='ddr5_32g';p.psu='rm1000e';p.case='corsair_4000d';
+      }
     }
     if(needs.screens>2&&p.gpu1==='gtx_1650_4g')p.gpu1='rtx_3060_12g';
     const am5=HARDWARE_DB.mb.find(x=>x.id===p.mb).socket==='AM5';
@@ -2965,7 +2974,16 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       if(am5)p.cooler='phantom_spirit_aio';
       p.case='corsair_4000d';
     }
-    p.total=['conn','mb','cpu','cooler','gpu1','gpu2','ram','ssd','psu','case'].reduce((sum,key)=>sum+price(key,p[key],needs.priceMode),needs.assembly?80:0);
+    const categories=['conn','mb','cpu','cooler','gpu1','gpu2','ram','ssd','psu','case'];
+    p.total=categories.reduce((sum,key)=>sum+price(key,p[key],needs.priceMode),needs.assembly?80:0);
+    p.totalKnown=0;p.unpriced=[];
+    categories.forEach(key=>{
+      if((key==='conn'&&p[key]==='pcie_internal')||(key==='gpu2'&&p[key]==='none'))return;
+      const quote=window.LDLC_PRICE_SNAPSHOT?.[key+':'+p[key]];
+      if(quote?.status==='in_stock')p.totalKnown+=quote.price;
+      else p.unpriced.push(key);
+    });
+    if(needs.assembly)p.unpriced.push('montage');
     return p;
   }
   function recommend(needs){
@@ -3001,13 +3019,15 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       winner=candidates.reduce((best,p)=>p.total<best.total?p:best,candidates[0]);
     }
     const flags=[];
-    if(winner.total>needs.budget)flags.push('Budget dépassé de '+money(winner.total-needs.budget)+'.');
+    if(winner.total>needs.budget)flags.push('Le budget de planification (non vérifié) pourrait être dépassé.');
+    if(winner.unpriced.length)flags.push('Budget NON confirmable : '+winner.unpriced.length+' ligne(s) sans prix de vente LDLC valide.');
     if(winner.tier<target)flags.push('Les performances visées dépassent ce que permet le budget actuel.');
     if(needs.uses.includes('ai')&&needs.ai==='heavy' && (HARDWARE_DB.gpu1.find(g=>g.id===winner.gpu1)?.vram || 0)<16)flags.push('Pour l’IA locale exigeante, vérifiez la VRAM nécessaire au modèle précis.');
     if(needs.resolution==='uwqhd' && !needs.size.includes('_219'))flags.push('La taille d’écran choisie sera adaptée à un format ultralarge 21:9.');
     if(needs.resolution!=='uwqhd' && needs.size.includes('_219'))flags.push('Les tailles 34/40 pouces 21:9 seront remplacées par des écrans 16:9 pour cette résolution.');
     if(needs.storage===4&&winner.ssd!=='pcie5_4to')flags.push('Le souhait de 4 To n’est pas atteint avec les SSD compatibles de cette sélection.');
     if(needs.screens>4&&winner.gpu2==='hub_displaylink')flags.push('Les écrans supplémentaires via DisplayLink conviennent aux usages bureautiques, pas aux jeux 3D exigeants.');
+    if(needs.screens>=8)flags.push('Huit écrans : vérifier les huit sorties réelles, les pilotes et la présence d’un second port PCIe adapté.');
     if(needs.existing&&needs.monitorSpecs.some(s=>s.port==='usbc'))flags.push('USB-C : vérifiez la compatibilité vidéo du PC, du dock et du câble (DisplayPort Alt Mode).');
     if(needs.existing&&needs.monitorSpecs.some(s=>s.hz>120&&s.res==='4k'))flags.push('4K à fréquence élevée : vérifiez les sorties GPU, le câble et la prise en charge DSC/HDMI 2.1.');
     if(needs.existing&&needs.monitorSpecs.some(s=>s.port==='other'))flags.push('La connectique exacte de certains écrans doit être confirmée.');
@@ -3032,8 +3052,11 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
       n.screens+' écran'+(n.screens>1?'s':'')
     ].filter(Boolean);
     $('needs-reco-description').textContent=desc.join(' · ')+(n.existing?' · écrans existants pris en compte':' · écrans à choisir séparément');
-    $('needs-reco-price').textContent='≈ '+money(p.total);
-    $('needs-reco-gap').textContent=(p.total<=n.budget?'Hypothèse budgétaire, NON vérifiée':'Budget hypothétique dépassé')+' · écran(s) exclus';
+    $('needs-reco-price').textContent=p.unpriced.length?'Devis incomplet':money(p.totalKnown);
+    $('needs-reco-gap').textContent=p.unpriced.length?
+       ('LDLC : '+money(p.totalKnown)+' relevés · '+p.unpriced.length+' prix non validé(s)'):
+       ('Sous-total LDLC : '+money(p.totalKnown)+' · à reconfirmer');
+    $('needs-reco-gap').title='Tous les prix sont des relevés ponctuels, aucun flux tarifaire temps réel.';
     $('needs-reco-warning').hidden=proposal.flags.length===0;
     $('needs-reco-warning').textContent=proposal.flags.join(' ');
     $('needs-reco-warning').classList.toggle('hidden',proposal.flags.length===0);
@@ -3090,7 +3113,7 @@ body.ui-redesign .preset-disclosure>summary span{font-weight:450;color:#8b96a5;m
     updateSimulation();
     document.querySelectorAll('.preset-card').forEach(b=>b.setAttribute('aria-pressed','false'));
     const live=$('total-price-display');
-    $('needs-toast').textContent='Configuration appliquée : '+live.textContent+'. Vous pouvez modifier chaque composant et chaque écran ci-dessous.';
+    $('needs-toast').textContent='Configuration proposée. Prix réel : '+live.textContent+'. Vérifiez les incompatibilités et les fiches vendeurs avant achat.';
     $('needs-toast').hidden=false;
     switchMainTab('pc');
     const pc=$('section-pc-builder');
