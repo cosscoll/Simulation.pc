@@ -129,7 +129,7 @@
     <div><div class="eyebrow">POUR COMMENCER</div><h2 id="starter-title">Choisissez un point de départ</h2><p>Ces modèles sont entièrement personnalisables.</p></div>
     <div class="prices-mode-wrap">
       <span class="control-label">Prix affichés</span>
-      <div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Neuf</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')">Promo estimée</button></div>
+      <button type="button" id="btn-reset-custom-prices" class="soft-button hidden" onclick="resetCustomPrices()">Réinitialiser les prix</button><div class="price-toggle"><button type="button" id="price-mode-new" onclick="setPriceMode('new')">Neuf</button><button type="button" id="price-mode-promo" onclick="setPriceMode('promo')">Promo estimée</button></div>
     </div>
   </div>
   <div class="starter-grid">
@@ -2349,7 +2349,7 @@ body.ui-redesign #section-monitors-builder #monitors-cards-container>div {backgr
 body.ui-redesign #section-monitors-builder #monitors-cards-container select {font-size:12px!important;height:43px;}
 body.ui-redesign .screen-btn {background:#fff!important;color:#59708a!important;border:1px solid #dce4ec!important;min-height:38px;}
 body.ui-redesign #monitors-cards-container [id^="mon-telemetry-"] {background:#f0f4fa!important;}
-body.ui-redesign .prices-collapsed .price-edit-box {display:none!important;}
+body.ui-redesign.prices-collapsed .price-edit-box {display:none!important;}
 body.ui-redesign.help-collapsed [id^="desc-"] {display:none!important;}
 body.ui-redesign:not(.connections-expanded) .screen-advanced-field,body.ui-redesign:not(.connections-expanded) [id^="mon-telemetry-"] {display:none!important;}
 body.ui-redesign .small-actions {display:flex;flex-wrap:wrap;gap:8px;padding:0 0 5px;margin:0 0 10px;}
@@ -2495,7 +2495,7 @@ body.ui-redesign button:focus-visible,body.ui-redesign summary:focus-visible,bod
       b.setAttribute('aria-pressed',String(b.className.includes('bg-sky-500/15'))));
   }
   function syncPriceMode(){
-    const mode=window.state?.priceMode||'new';
+    const mode=typeof state!=='undefined' ? state.priceMode : 'new';
     for(const [id,value] of [['price-mode-new','new'],['price-mode-promo','promo']]){
       document.getElementById(id)?.setAttribute('aria-pressed',String(mode===value));
     }
